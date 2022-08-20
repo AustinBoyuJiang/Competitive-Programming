@@ -1,0 +1,10 @@
+n=int(input())
+mx=list(map(int,input().split()))
+mn=mx[:]
+while(len(mx)-1):
+    mx.sort()
+    mx.append(mx.pop(0)*mx.pop(0)+1)
+while(len(mn)-1):
+    mn.sort(reverse=True)
+    mn.append(mn.pop(0)*mn.pop(0)+1)
+print(mx[0]-mn[0])

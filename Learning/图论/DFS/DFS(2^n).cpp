@@ -1,0 +1,42 @@
+/*Author：AustinJiang
+题目：DFS(2^n)
+时间复杂度：O(2^n)
+算法：DFS */
+#include<bits/stdc++.h>
+#define ll long long
+#define pb push_back
+#define mp make_pair
+#define fir first
+#define sec second
+#define endl "\n"
+#define random(a,b) rand()%(b-a+1)+a
+#define PI pair<int,int>
+#define VI vector<int>
+#define VPI vector<PI>
+#define PQ priority_queue
+using namespace std;
+const int INF=0x3f3f3f3f;
+const int N=20;
+
+int n,f[N];
+
+void dfs(int x,int pos){
+	f[pos]=x;
+	if(pos==n){
+		for(int i=1;i<=n;i++)
+			cout<<f[i]<<' ';
+		cout<<endl;
+		return;
+	}
+	dfs(0,pos+1);
+	dfs(1,pos+1);
+}
+
+signed main(){
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cin>>n;
+	dfs(0,0);
+	return 0;
+}
+

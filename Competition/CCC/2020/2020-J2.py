@@ -1,0 +1,12 @@
+p=int(input())
+n=int(input())
+h=int(input())
+day=0
+people=n
+while(1):
+    day=day+1
+    n=n*h
+    people=n+people
+    if(people>p):
+        break
+print(day)
