@@ -55,13 +55,24 @@ void solve(int Case){
 	cin>>n>>m>>p;
 	rep(i,1,n) cin>>a[i];
 	memset(dp,0,sizeof(dp));
+	dp[0][0]=1;
 	rep(i,1,n){
+		int cnt=0;
+		rep(j,1,i-1){
+			if(a[i]-a[j]>=p) cnt++;
+		}
 		dp[i][i]=1;
 		rep(j,1,i-1){
-			dp[i][j]=dp[i-1][j-1]+dp[i-1][j];
+			dp[i][j]=(dp[i-1][j-1]+dp[i-1][j]*cnt%MOD)%MOD;
 		}
 	}
 	cout<<dp[n][m]<<endl;
+	rep(i,1,n){
+		rep(j,0,m){
+			cout<<dp[i][j]<<" ";
+		}
+		cout<<endl;
+	} 
 }
 
 signed main(){

@@ -50,33 +50,19 @@ const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 const int N = 1e6+10;
 int T=1,n,a[N],b[N];
 
-int calc1(int k){
+int calc(int k){
 	rep(i,1,n) a[i]=b[i];
 	int ans=0;
-	rep(i,1,n){
+	rep(i,2,n){
 		if(i%2==k){
-			int tar;
-			if(i==1) tar=a[2]-1;
-			else if(i==n) tar=a[n-1]-1;
-			else tar=min(a[i-1],a[i+1])-1;
+			int tar=a[i-1]-1;
 			if(a[i]>tar){
 				ans+=a[i]-tar;
 				a[i]=tar;
 			}
 		}
-	}
-	return ans;
-}
-
-int calc2(int k){
-	rep(i,1,n) a[i]=b[i];
-	int ans=0;
-	rep(i,1,n){
-		if(i%2==k){
-			int tar;
-			if(i==1) tar=a[2]+1;
-			else if(i==n) tar=a[n-1]+1;
-			else tar=max(a[i-1],a[i+1])+1;
+		else{
+			int tar=a[i-1]+1;
 			if(a[i]<tar){
 				ans+=tar-a[i];
 				a[i]=tar;
@@ -93,7 +79,7 @@ void solve(int Case){
 		write(0,endl);
 		return;
 	}
-	int ans=min(calc1(0),min(calc1(1),min(calc2(0),calc2(1))));
+	int ans=min(calc(0),calc(1));
 	write(ans,endl);
 }
 
