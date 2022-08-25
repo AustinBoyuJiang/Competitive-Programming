@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 8/20/2022 5:04:47 PM
+ * Date: 8/25/2022 3:19:42 PM
  * Problem:
  * Description:
 */
@@ -47,12 +47,23 @@ const ll LLINF = 0x3f3f3f3f3f3f3f3f;
 const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 
-const int N = 1e5+10;
-int T=1,n;
+const int N = 3e5+10;
+int T=1,n,ans,a[N],dp[N];
 
 void solve(int Case){
-	read(n);
-
+	cin>>n;
+	rep(i,0,n-1) cin>>a[i];
+	ans=1;
+	rep(i,0,n-1){
+		dp[i]=1;
+		rep(j,max(0,i-256),i-1){
+			if((i^a[j])<(j^a[i])){
+				chkmax(dp[i],dp[j]+1);
+			}
+		}
+		chkmax(ans,dp[i]);
+	}
+	cout<<ans<<endl;
 }
 
 signed main(){
