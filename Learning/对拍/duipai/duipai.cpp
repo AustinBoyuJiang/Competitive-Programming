@@ -15,7 +15,10 @@ signed main(){
         system("std.exe < data.in > std.out");
         double end=clock();
         double t=end-begin;
-        if (system("fc std.out baoli.out")) printf("测试点#%d Wrong Answer\n",i);
+        if (system("fc std.out baoli.out")){
+        	printf("测试点#%d Wrong Answer\n",i);
+        	break;
+		}
         else if (t>1000) printf("测试点#%d Time Limited Exceeded 用时 %.0lfms\n",i,t);
         else printf("测试点#%d Accepted 用时%.0lfms\n",i,t),cnt++;
     }

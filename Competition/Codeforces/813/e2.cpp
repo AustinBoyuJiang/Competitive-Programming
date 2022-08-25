@@ -1,8 +1,8 @@
 /*
  * Author: Austin Jiang
  * Date: 8/20/2022 5:09:32 PM
- * Problem:
- * Description:
+ * Problem: LCM Sum (hard version)
+ * Description: Codeforces Round #813 (Div. 2)
 */
 //#pragma GCC optimize(2)
 //#pragma GCC optimize(3)
@@ -50,7 +50,7 @@ const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 const int N = 1e5+10;
 const int L = 2e5+10;
 int T=1,n,R,ans[N];
-VI f;
+VI f,f1,f2;
 int tot=0;
 
 struct query{
@@ -102,7 +102,8 @@ inline void add1(int k){ //lcm(i,j,k)==k
 
 inline void add2(int k){ //lcm(i,j,k)==k*2 && i+j>k
 	get_facts(k*2,k);
-	VI f1,f2;
+	f1.clear();
+	f2.clear();
 	for(auto x:f){
 		if(lcm(x,k)==k*2) f2.pb(x);
 		else f1.pb(x);
@@ -135,15 +136,15 @@ inline void solve(int Case){
 	R=q[n].r;
 	int k=0;
 	rep(i,1,n){
-		int &l=q[i].l,&r=q[i].r;
+		int l=q[i].l,r=q[i].r,id=q[i].id;
 		while(k<r){
 			k++;
 			add1(k);
 			add2(k);
 		}
-		ans[i]=(r-l)*(r-l+1)*(r-l-1)/6;
-		ans[i]-=s1.query(1,1,R,l,r);
-		ans[i]-=s2.query(1,1,R,l,r);
+		ans[id]=(r-l)*(r-l+1)*(r-l-1)/6;
+		ans[id]-=s1.query(1,1,R,l,r);
+		ans[id]-=s2.query(1,1,R,l,r);
 	}
 	rep(i,1,n) write(ans[i],endl);
 }
@@ -152,7 +153,7 @@ signed main(){
     //int size(512<<20);  //512M
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
 	//srand(time(0));
-	cin.tie(nullptr)->sync_with_stdio(false);
+	//cin.tie(nullptr)->sync_with_stdio(false);
 	//freopen("in.txt","r",stdin);
 	//freopen("stdout.txt","w",stdout);
 	rep(Case,1,T) solve(Case);

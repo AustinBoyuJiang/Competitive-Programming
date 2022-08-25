@@ -85,7 +85,7 @@ inline void solve(int Case){
 		if(l>rr){
 			ansr.clear();
 			ansl[(rr=r)+1].clear();
-			per(ll,rr,l) ansl[ll]=ansl[ll+1]*Map[ll];
+			per(ll,rr,l) ansl[ll]=Map[ll]*ansl[ll+1];
 		}
 		while(r<=n){
 			if((ansl[l]*ansr).p[1][m]>k) break;

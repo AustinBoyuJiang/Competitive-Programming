@@ -7,7 +7,7 @@
 //#pragma GCC optimize(2)
 //#pragma GCC optimize(3)
 #include<bits/stdc++.h>
-//#define int long long
+#define int long long
 #define pb push_back
 #define mp make_pair
 #define fir first
@@ -49,7 +49,7 @@ const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 
 const int N = 5e3+10;
 const int M = 5e3+10;
-int T=1,n,m,p,a[N],dp[N][M];//前i个，m个组，几终方案 
+int T=1,n,m,p,a[N],dp[N][M];//前i个，m个组，几种方案 
 
 void solve(int Case){
 	cin>>n>>m>>p;
@@ -62,17 +62,17 @@ void solve(int Case){
 			if(a[i]-a[j]>=p) cnt++;
 		}
 		dp[i][i]=1;
-		rep(j,1,i-1){
-			dp[i][j]=(dp[i-1][j-1]+dp[i-1][j]*cnt%MOD)%MOD;
+		rep(j,i-cnt,i-1){
+			dp[i][j]=(dp[i-1][j-1]+dp[i-1][j]*(j-(i-1-cnt))%MOD)%MOD;
 		}
 	}
 	cout<<dp[n][m]<<endl;
-	rep(i,1,n){
-		rep(j,0,m){
-			cout<<dp[i][j]<<" ";
-		}
-		cout<<endl;
-	} 
+//	rep(i,1,n){
+//		rep(j,0,m){
+//			cout<<dp[i][j]<<" ";
+//		}
+//		cout<<endl;
+//	} 
 }
 
 signed main(){

@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 8/20/2022 3:38:53 PM
+ * Date: 8/25/2022 2:26:13 AM
  * Problem:
  * Description:
 */
@@ -47,12 +47,34 @@ const ll LLINF = 0x3f3f3f3f3f3f3f3f;
 const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 
-const int N = 1e5+10;
-int T=1,n;
+const int N = 3e5+10;
+int T=1,n,k,a[N],b[N],ans[N];
+
+bool cmp(int a,int b){
+	return a>b;
+}
 
 void solve(int Case){
-	read(n);
-
+	cin>>n>>k;
+	int pos=0,tot=0;
+	rep(i,1,n){
+		int x;
+		cin>>x;
+		while(pos&&k-tot&&x>a[pos])
+			b[++tot]=a[pos--];
+		a[++pos]=x;
+	}
+	sort(b+1,b+tot+1,cmp);
+	int j=1,cnt=0;
+	rep(i,1,pos){
+		while(j<=tot&&b[j]>a[i])
+			ans[++cnt]=b[j++];
+		ans[++cnt]=a[i];
+	}
+	rep(i,j,tot)
+		ans[++cnt]=b[i];
+	rep(i,1,n-1) cout<<ans[i]<<" ";
+	cout<<ans[n]<<endl;
 }
 
 signed main(){
@@ -62,6 +84,7 @@ signed main(){
 	//cin.tie(nullptr)->sync_with_stdio(false);
 	//freopen("in.txt","r",stdin);
 	//freopen("stdout.txt","w",stdout);
+	cin>>T;
 	rep(Case,1,T) solve(Case);
     //exit(0);
 	//system("fc stdout.txt out.txt");

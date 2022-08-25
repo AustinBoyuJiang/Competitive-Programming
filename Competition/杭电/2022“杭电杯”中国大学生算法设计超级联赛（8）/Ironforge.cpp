@@ -73,20 +73,26 @@ void solve(int Case){
 		}
 		pos[1][i-1]=lst[b[i]];
 	}
+	far[n][1]=n;
+	per(i,n-1,1){
+		int &r=far[i][1]=i;
+		while(r<n&&pos[0][r]>=i)
+			r=far[r+1][1];
+	}
 	rep(i,1,n){
 		int &l=far[i][0],&r=far[i][1];
-		l=r=i;
+		l=i;
 		int dir=0,flag=0;
 		while(flag<2){
 			if(dir==0&&l>1&&pos[1][l-1]<=r){
-				l--;
 				flag=0;
-				chkmin(l,far[l][0]);
-				chkmax(r,far[l][1]);
+				chkmin(l,far[l-1][0]);
+				chkmax(r,far[l-1][1]);
 			}
 			else if(dir==1&&r<n&&pos[0][r]>=l){
-				r++;
 				flag=0;
+				chkmin(l,far[r+1][0]);
+				chkmax(r,far[r+1][1]);
 			}
 			else{
 				dir^=1;
@@ -97,9 +103,7 @@ void solve(int Case){
 	rep(i,1,m){
 		int x,y;
 		cin>>x>>y;
-		if(x==y) cout<<"Yes"<<endl;
-		else if(x<y&&y<=far[x][1]) cout<<"Yes"<<endl;
-		else if(x>y&&y>=far[x][0]) cout<<"Yes"<<endl;
+		if(y>=far[x][0]&&y<=far[x][1]) cout<<"Yes"<<endl;
 		else cout<<"No"<<endl;
 	}
 }
@@ -122,8 +126,8 @@ void init(){
 signed main(){
 	cin.tie(nullptr)->sync_with_stdio(false);
 	srand(time(0));
-//	freopen("in.txt","r",stdin);
-//	freopen("out.txt","w",stdout);
+	freopen("in.txt","r",stdin);
+	freopen("stdout.txt","w",stdout);
 	init();
 	cin>>T;
 	rep(Case,1,T) solve(Case);

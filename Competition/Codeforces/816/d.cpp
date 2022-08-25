@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 8/20/2022 8:43:29 AM
+ * Date: 8/22/2022 3:22:28 PM
  * Problem:
  * Description:
 */
@@ -48,15 +48,67 @@ const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 
 const int N = 1e5+10;
-int T=1,n;
+const int B = 32;
+int T=1,n,q,a[N][B],flag[N][B];
+VPI e[N];
+
+void mark(int u,int v,int w){
+	rep(i,0,31){
+		if(!(w&1)){
+			flag[u][i]=1;
+			flag[v][i]=1;
+		}
+		w>>=1;
+	}
+}
+
+int get(int x){
+	int ans=0;
+	per(i,31,0){
+		ans<<=1;
+		if(a[x][i]) ans|=1;
+	}
+	return ans;
+}
 
 void solve(int Case){
 	cin>>n>>q;
-	rep(i,1,n){
-		int a,b,x;
-		cin>>a>>b>>x;
-		
+	rep(i,1,q){
+		int u,v,w;
+		cin>>u>>v>>w;
+		mark(u,v,w);
+		if(u>v) swap(u,v);
+		e[v].pb(mp(u,w));
 	}
+	rep(v,1,n){
+		for(auto i:e[v]){
+			int u=i.fir,w=i.sec;
+			rep(i,0,31){
+				if(w&1){
+					if(flag[u][i]) a[v][i]=1;
+					if(flag[v][i]) a[u][i]=1;
+				}
+				w>>=1;
+			}
+		}
+	}
+	rep(v,1,n){
+		for(auto i:e[v]){
+			int u=i.fir,w=i.sec;
+			rep(i,0,31){
+				if(w&1){
+					if(!flag[v][i]){
+						if(!a[u][i])
+							a[v][i]=1;
+					}
+				}
+				w>>=1;
+			}
+		}
+	}
+	rep(i,1,n)
+		cout<<get(i)<<" ";
+	cout<<endl;
 }
 
 signed main(){
