@@ -1,0 +1,9 @@
+t=[0,0]
+t[0]=int(input())
+t[1]=int(input())
+m=1
+while(1):
+    t.append(t[m-1]-t[m])
+    if(t[-1]>t[-2]):break
+    m=m+1
+print(len(t))
