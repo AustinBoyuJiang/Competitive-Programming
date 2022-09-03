@@ -1,7 +1,7 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
- * Problem:
+ * Date: 9/1/2022 1:10:00 AM
+ * Problem: Vending Machine in Lunch
  * Description:
 */
 //#pragma GCC optimize(2)
@@ -46,12 +46,46 @@ const ll LLINF = 0x3f3f3f3f3f3f3f3f;
 const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 
-const int N = 1e5+10;
-int T=1,n;
+const int K = 20;
+int T=1,n,k,ans[K];
+VI num,tmp;
+
+int query1(int a,int b){
+	cout<<"? "<<a<<" "<<b<<endl;
+	cout.flush();
+	int res;
+	cin>>res;
+	return res;
+}
+
+int query2(int x){
+	cout<<"$ "<<num.size();
+	for(auto x:num) cout<<" "<<x;
+	cout<<" "<<x<<endl;
+	cout.flush();
+	int res;
+	cin>>res;
+	return res;
+}
 
 void solve(int Case){
-	read(n);
-
+	cin>>n;
+	k=log2(n-1);
+	rep(i,1,n) num.pb(i);
+	ans[k]=query2(1<<k);
+	per(i,k-1,1){
+		ans[i]=query2(1<<i);
+		tmp.clear();
+		for(auto x:num)
+			if(x!=ans[i]&&!query1(x,ans[i])) tmp.pb(x);
+		num.clear();
+		for(auto x:tmp) num.pb(x);
+	}
+	ans[0]=query2(1);
+	cout<<"! "<<k;
+	rep(i,0,k) cout<<" "<<ans[i];
+	cout<<endl;
+	cout.flush();
 }
 
 signed main(){
@@ -77,3 +111,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) ╤тед
 */
+

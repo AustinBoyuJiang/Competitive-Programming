@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 8/29/2022 1:00:02 AM
  * Problem:
  * Description:
 */
@@ -46,12 +46,51 @@ const ll LLINF = 0x3f3f3f3f3f3f3f3f;
 const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 
-const int N = 1e5+10;
-int T=1,n;
+const int N = 3010;
+int T=1,n,k,q,a[N],ok[N],in[N]; 
+VI e[N];
+
+bool check(int l,int r){
+	rep(i,1,k){
+		e[i].clear();
+		in[i]=0;
+	}
+	rep(i,l,r-1){
+		if(i&1){
+			e[a[i]].pb(a[i+1]);
+			in[a[i+1]]++;
+		}
+		else{
+			e[a[i+1]].pb(a[i]);
+			in[a[i]]++;
+		}
+	}
+	//判断有无环 
+	queue<int> q;
+	rep(i,1,k) if(!in[i]) q.push(i);
+	int cnt=0;
+	while(!q.empty()){
+		int u=q.front(); q.pop();
+		cnt++;
+		for(auto v:e[u]) if(!--in[v]) q.push(v);
+	}
+	return cnt==k;
+}
 
 void solve(int Case){
-	read(n);
-
+	cin>>n>>k>>q;
+	rep(i,1,n) cin>>a[i];
+	int l=1;
+	rep(r,1,n){
+		while(l<r&&!check(l,r)) l++;
+		ok[r]=l;
+	}
+	while(q--){
+		int l,r;
+		cin>>l>>r;
+		if(l>=ok[r]) cout<<"YES"<<endl;
+		else cout<<"NO"<<endl;
+	}
 }
 
 signed main(){
@@ -77,3 +116,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) 对拍
 */
+

@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 8/31/2022 8:46:07 PM
  * Problem:
  * Description:
 */
@@ -47,11 +47,17 @@ const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 
 const int N = 1e5+10;
-int T=1,n;
+int T=1,n,q,k,fa[N];
 
 void solve(int Case){
-	read(n);
-
+	cin>>n;
+	rep(i,2,n) cin>>fa[i];
+	cin>>k>>q;
+	while(q--){
+		int u,v;
+		cin>>u>>v;
+		
+	}
 }
 
 signed main(){
@@ -77,3 +83,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) ╤тед
 */
+

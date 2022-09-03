@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 9/2/2022 7:09:16 AM
  * Problem:
  * Description:
 */
@@ -46,12 +46,32 @@ const ll LLINF = 0x3f3f3f3f3f3f3f3f;
 const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 
-const int N = 1e5+10;
-int T=1,n;
+const int N = 2e5+10;
+int T=1,n,a[N],b[N];
 
 void solve(int Case){
-	read(n);
-
+	cin>>n;
+	rep(i,1,n) cin>>a[i];
+	rep(i,1,n) cin>>b[i];
+	rep(i,1,n){
+		if(a[i]>b[i]){
+			cout<<"NO"<<endl;
+			return;
+		}
+	}
+	rep(i,1,n){
+		if(i==n){
+			if(a[i]!=b[i]&&b[i]>b[1]+1){
+				cout<<"NO"<<endl;
+				return;
+			}
+		}
+		else if(a[i]!=b[i]&&b[i]>b[i+1]+1){
+			cout<<"NO"<<endl;
+			return;
+		}
+	}
+	cout<<"YES"<<endl;
 }
 
 signed main(){
@@ -61,6 +81,7 @@ signed main(){
 	//cin.tie(nullptr)->sync_with_stdio(false);
 	//freopen("in.txt","r",stdin);
 	//freopen("stdout.txt","w",stdout);
+	cin>>T;
 	rep(Case,1,T) solve(Case);
     //exit(0);
 	//system("fc stdout.txt out.txt");
@@ -77,3 +98,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) ╤тед
 */
+

@@ -1,13 +1,13 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 9/2/2022 7:08:52 AM
  * Problem:
  * Description:
 */
 //#pragma GCC optimize(2)
 //#pragma GCC optimize(3)
 #include<bits/stdc++.h>
-//#define int long long
+#define int long long
 #define pb push_back
 #define fir first
 #define sec second
@@ -50,8 +50,9 @@ const int N = 1e5+10;
 int T=1,n;
 
 void solve(int Case){
-	read(n);
-
+	cin>>n;
+	int ans=n/2+n/3;
+	cout<<ans*2+n<<endl;
 }
 
 signed main(){
@@ -61,6 +62,7 @@ signed main(){
 	//cin.tie(nullptr)->sync_with_stdio(false);
 	//freopen("in.txt","r",stdin);
 	//freopen("stdout.txt","w",stdout);
+	cin>>T;
 	rep(Case,1,T) solve(Case);
     //exit(0);
 	//system("fc stdout.txt out.txt");
@@ -77,3 +79,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) ╤тед
 */
+

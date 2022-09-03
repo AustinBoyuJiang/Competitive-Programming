@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 9/2/2022 7:09:19 AM
  * Problem:
  * Description:
 */
@@ -44,14 +44,42 @@ namespace comfun{
 const int INF = 0x3f3f3f3f;
 const ll LLINF = 0x3f3f3f3f3f3f3f3f;
 const int MOD = 1e9+7;
-const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
+int dir[8][2] = {{0,0},{1,-1},{0,0},{-1,1},{1,1},{1,-1},{-1,1},{-1,-1}};
 
-const int N = 1e5+10;
-int T=1,n;
+const int N = 510;
+int T=1,n,k,r,c,ans[N][N];
+
+void dfs(int x,int y){
+	ans[x][y]=1;
+	rep(i,0,3){
+		int nx=x+dir[i][0];
+		int ny=y+dir[i][1];
+		nx=(nx+n)%n;
+		ny=(ny+n)%n;
+		if(nx<0||nx>=n) continue;
+		if(ny<0||ny>=n) continue;
+		if(ans[nx][ny]) continue;
+		dfs(nx,ny);
+	}
+}
 
 void solve(int Case){
-	read(n);
-
+	cin>>n>>k>>r>>c;
+	rep(i,0,n-1){
+		rep(j,0,n-1){
+			ans[i][j]=0;
+		}
+	}
+	dir[0][0]=k;
+	dir[2][0]=-k;
+	dfs(r-1,c-1);
+	rep(i,0,n-1){
+		rep(j,0,n-1){
+			if(ans[i][j]) cout<<"X";
+			else cout<<".";
+		}
+		cout<<endl;
+	}
 }
 
 signed main(){
@@ -61,6 +89,7 @@ signed main(){
 	//cin.tie(nullptr)->sync_with_stdio(false);
 	//freopen("in.txt","r",stdin);
 	//freopen("stdout.txt","w",stdout);
+	cin>>T;
 	rep(Case,1,T) solve(Case);
     //exit(0);
 	//system("fc stdout.txt out.txt");
@@ -77,3 +106,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) ╤тед
 */
+

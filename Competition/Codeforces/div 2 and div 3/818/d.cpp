@@ -1,13 +1,13 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 9/2/2022 8:31:51 AM
  * Problem:
  * Description:
 */
 //#pragma GCC optimize(2)
 //#pragma GCC optimize(3)
 #include<bits/stdc++.h>
-//#define int long long
+#define int long long
 #define pb push_back
 #define fir first
 #define sec second
@@ -47,11 +47,29 @@ const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 
 const int N = 1e5+10;
-int T=1,n;
+int T=1,n,k,d[N];
+
+int POW(int a,int b){
+	int ans=1;
+	while(b){
+		if(b&1){
+			ans*=a;
+			ans%=MOD;
+		}
+		a*=a;
+		a%=MOD;
+		b>>=1;
+	}
+	return ans;
+}
 
 void solve(int Case){
-	read(n);
-
+	cin>>n>>k;
+	k=min(k,n);
+	int ans=POW(2,n-1);
+	ans*=POW(2,n-k);
+	ans=(ans+1)%MOD;
+	cout<<ans<<endl;
 }
 
 signed main(){
@@ -77,3 +95,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) ╤тед
 */
+

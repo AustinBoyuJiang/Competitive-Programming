@@ -1,13 +1,13 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 8/29/2022 2:40:01 AM
  * Problem:
  * Description:
 */
 //#pragma GCC optimize(2)
 //#pragma GCC optimize(3)
 #include<bits/stdc++.h>
-//#define int long long
+#define int long long
 #define pb push_back
 #define fir first
 #define sec second
@@ -46,12 +46,28 @@ const ll LLINF = 0x3f3f3f3f3f3f3f3f;
 const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 
-const int N = 1e5+10;
-int T=1,n;
+const int N = 1e6+10;
+int T=1,n,m,k,flag,a[N];
 
 void solve(int Case){
-	read(n);
-
+	cin>>n>>m>>k;
+	rep(i,1,n){
+		if(min(m,k-n+i)>=i){
+			a[i]=a[i-1]+1;
+			k-=i;
+		}
+		else{
+			a[i]=a[i-min(m,k-n+i)];
+			k-=min(m,k-n+i);
+		}
+		if(!a[i]) flag=1;
+	}
+	if(k!=0||flag) cout<<-1<<endl;
+	else{
+		rep(i,1,n)
+			cout<<a[i]<<" ";
+		cout<<endl;
+	}
 }
 
 signed main(){
@@ -77,3 +93,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) ╤тед
 */
+
