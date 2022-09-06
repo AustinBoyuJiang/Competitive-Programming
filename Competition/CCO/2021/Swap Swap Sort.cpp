@@ -1,8 +1,8 @@
 /*
  * Author: Austin Jiang
- * Date: 8/31/2022 8:46:07 PM
- * Problem:
- * Description:
+ * Date: 9/5/2022 1:41:43 PM
+ * Problem: Swap Swap Sort
+ * Description: 逆序对 + 暴力优化 
 */
 //#pragma GCC optimize(2)
 //#pragma GCC optimize(3)
@@ -47,16 +47,71 @@ const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 
 const int N = 1e5+10;
-int T=1,n,q,k,fa[N];
+const int M = 100;
+const int K = M/N;
+int T=1,n,k,q,tot,a[N],qq[N],f[N],flag[N],cnt[N],dif[K][K],res[N];
+VI p[N];
+
+struct segement_tree{
+	
+} ori,left,right;
+
+struct query{
+	int a,b;
+} que;
 
 void solve(int Case){
-	cin>>n;
-	rep(i,2,n) cin>>fa[i];
-	cin>>k>>q;
-	while(q--){
-		int u,v;
-		cin>>u>>v;
-		
+	cin>>n>>k>>q;
+	rep(i,1,n){
+		cin>>a[i];
+		p[a[i]].pb(i);	
+	}
+	rep(i,1,k){
+		f[i]=i;
+		if(p[i].size()>=M){
+			flag[i]=++tot;
+			m.pb(i);
+		}
+	}
+	int ans=0;
+	rep(i,1,n){
+		ans+=ori.query(1,1,k,a[i]+1,k);
+		ori.update(1,1,k,a[i],1);
+	}
+	rep(i,1,n){
+		if(!flag[i]) continue;
+		for(auto j:m){
+			if(a[i]==j) continue;
+			dif[flag[a[i]]][flag[j]]+=cnt[j];
+		}
+		cnt[a[i]]++;
+	}
+	memset(cnt,0,sizeof(cnt));
+	per(i,n,1){
+		if(!flag[i]) continue;
+		for(auto j:m){
+			if(a[i]==j) continue;
+			dif[flag[a[i]]][flag[j]]-=cnt[j];
+		}
+		cnt[a[i]]++;
+	}
+//	rep(i,1,q){
+//		cin>>qq[i];
+//		int x=qq[i];
+//		if(!flag[a[x]]||!flag[a[x+1]]){
+//			que.pb(a[x],a[x+1]);
+//		}
+//		swap(a[x],a[x+1]);
+//	}
+	rep(i,1,q){
+		int x=qq[i];
+		if(flag[a[x]]&&flag[a[x+1]]){
+			ans+=dif[flag[a[x]]][flag[a[x+1]]];
+		}
+		else{
+			ans+=res[i];
+		}
+		cout<<ans<<endl;
 	}
 }
 

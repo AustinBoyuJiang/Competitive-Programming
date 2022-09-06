@@ -1,15 +1,14 @@
 /*
  * Author: Austin Jiang
- * Date: 8/20/2022 5:07:59 PM
+ * Date: 9/3/2022 6:08:05 PM
  * Problem:
  * Description:
 */
-//#pragma GCC optimize(2)
-//#pragma GCC optimize(3)
+#pragma GCC optimize(2)
+#pragma GCC optimize(3)
 #include<bits/stdc++.h>
 //#define int long long
 #define pb push_back
-#define mp make_pair
 #define fir first
 #define sec second
 #define endl '\n'
@@ -47,24 +46,124 @@ const ll LLINF = 0x3f3f3f3f3f3f3f3f;
 const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 
-const int N = 1e5+10;
-int T=1,n,a[N];
+const int N = 4e4+10;
+int T=1,n,k,ans,root,mn,vis[N];
+VPI e[N];
+
+struct segment_tree{//¿ÉÓÃSTL´úÌæ 
+	int sum[N<<2],flag[N<<2];
+	VI num;
+	
+	void push_down(int rt,int l,int mid,int r){
+		if(flag[rt]){
+			sum[rt<<1]=0;
+			sum[rt<<1|1]=0;
+			flag[rt<<1]=1;
+			flag[rt<<1|1]=1;
+			flag[rt]=0;
+		}
+	}
+	
+	int query(int rt,int l,int r,int x,int y){
+		if(y<x) return 0;
+		if(l==x&&r==y) return sum[rt];
+		int mid=l+r>>1;
+		push_down(rt,l,mid,r);
+		if(y<=mid) return query(rt<<1,l,mid,x,y);
+		else if(x>mid) return query(rt<<1|1,mid+1,r,x,y);
+		return query(rt<<1,l,mid,x,mid)+query(rt<<1|1,mid+1,r,mid+1,y);
+	}
+	
+	void update(int rt,int l,int r,int x){
+		sum[rt]++;
+		if(l==r) return;
+		int mid=l+r>>1;
+		push_down(rt,l,mid,r);
+		if(x<=mid) update(rt<<1,l,mid,x);
+		else update(rt<<1|1,mid+1,r,x);
+	}
+	
+	void clear(){
+		sum[1]=0;
+		flag[1]=1;
+		num.clear();
+	}
+	
+	void insert(int x){
+		update(1,0,N,x);
+		num.pb(x);
+	}
+	
+	int count(int x){
+		return query(1,0,N,0,x);
+	}
+}dist,tmp;
+
+int findRoot(int u,int fa){
+	int siz=1;
+	int mx=0;
+	for(auto i:e[u]){
+		int v=i.fir;
+		if(vis[v]||v==fa) continue;
+		int res=findRoot(v,u);
+		chkmax(mx,res);
+		siz+=res;
+	}
+	chkmax(mx,n-siz);
+	if(mx<mn){
+		mn=mx;
+		root=u;
+	}
+	return siz;
+}
+
+int getRoot(int u){
+	mn=INF;
+	findRoot(u,u);
+	return root;
+}
+
+void calc(int u,int fa,int dis){
+	tmp.insert(dis);
+	ans+=dist.count(k-dis);
+	for(auto i:e[u]){
+		int v=i.fir;
+		int w=i.sec;
+		if(v==fa||vis[v]) continue;
+		calc(v,u,dis+w);
+	}
+}
+
+void dfs(int u){
+	vis[u]=1;
+	dist.clear();
+	dist.insert(0);
+	for(auto i:e[u]){
+		int v=i.fir;
+		int w=i.sec;
+		if(vis[v]) continue;
+		calc(v,v,w);
+		for(auto x:tmp.num) dist.insert(x);
+		tmp.clear();
+	}
+	for(auto i:e[u]){
+		int v=i.fir;
+		if(vis[v]) continue;
+		dfs(getRoot(v));
+	}
+}
 
 void solve(int Case){
-	cin>>n;
-	set<int> s;
-	s.insert(0);
-	int sum=0,ans=n;
-	rep(i,1,n){
-		int x;
-		cin>>x;
-		sum^=x;
-		if(s.count(sum)){
-			ans--;
-			s.clear();
-		}
-		s.insert(sum);
+	read(n);
+	rep(i,1,n-1){
+		int u=read();
+		int v=read();
+		int w=read();
+		e[u].pb({v,w});
+		e[v].pb({u,w});
 	}
+	read(k);
+	dfs(getRoot(1));
 	cout<<ans<<endl;
 }
 
@@ -72,10 +171,9 @@ signed main(){
     //int size(512<<20);  //512M
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
 	//srand(time(0));
-	cin.tie(nullptr)->sync_with_stdio(false);
+	//cin.tie(nullptr)->sync_with_stdio(false);
 	//freopen("in.txt","r",stdin);
 	//freopen("stdout.txt","w",stdout);
-	cin>>T;
 	rep(Case,1,T) solve(Case);
     //exit(0);
 	//system("fc stdout.txt out.txt");

@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 8/20/2022 5:07:59 PM
+ * Date: 9/4/2022 6:44:10 PM
  * Problem:
  * Description:
 */
@@ -9,7 +9,6 @@
 #include<bits/stdc++.h>
 //#define int long long
 #define pb push_back
-#define mp make_pair
 #define fir first
 #define sec second
 #define endl '\n'
@@ -47,35 +46,49 @@ const ll LLINF = 0x3f3f3f3f3f3f3f3f;
 const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 
-const int N = 1e5+10;
-int T=1,n,a[N];
+const int N = 5010;
+int T=1,n,ans[N],match[N],vis[N];
+VI e[N];
+
+bool find(int u){
+	for(auto v:e[u]){
+		if(vis[v]) continue;
+		vis[v]=1;
+		if(!match[v]||find(match[v])){
+			match[v]=u;
+			ans[u]=v;
+			return 1;
+		}
+	}
+	return 0;
+}
 
 void solve(int Case){
 	cin>>n;
-	set<int> s;
-	s.insert(0);
-	int sum=0,ans=n;
 	rep(i,1,n){
-		int x;
-		cin>>x;
-		sum^=x;
-		if(s.count(sum)){
-			ans--;
-			s.clear();
+		rep(j,1,n){
+			char x;
+			cin>>x;
+			if(x-'0') e[i].pb(j);
 		}
-		s.insert(sum);
 	}
-	cout<<ans<<endl;
+	for(int i=1;i<=n;i++){
+		memset(vis,0,sizeof(vis));
+		find(i);
+	}
+	rep(i,1,n){
+		cout<<ans[i]<<" ";
+	}
+	cout<<endl;
 }
 
 signed main(){
     //int size(512<<20);  //512M
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
 	//srand(time(0));
-	cin.tie(nullptr)->sync_with_stdio(false);
+	//cin.tie(nullptr)->sync_with_stdio(false);
 	//freopen("in.txt","r",stdin);
 	//freopen("stdout.txt","w",stdout);
-	cin>>T;
 	rep(Case,1,T) solve(Case);
     //exit(0);
 	//system("fc stdout.txt out.txt");

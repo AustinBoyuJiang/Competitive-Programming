@@ -1,15 +1,14 @@
 /*
  * Author: Austin Jiang
- * Date: 8/20/2022 5:07:59 PM
+ * Date: 9/4/2022 4:34:07 PM
  * Problem:
  * Description:
 */
 //#pragma GCC optimize(2)
 //#pragma GCC optimize(3)
 #include<bits/stdc++.h>
-//#define int long long
+#define int long long
 #define pb push_back
-#define mp make_pair
 #define fir first
 #define sec second
 #define endl '\n'
@@ -48,31 +47,18 @@ const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 
 const int N = 1e5+10;
-int T=1,n,a[N];
+int T=1,n,a,b;
 
 void solve(int Case){
-	cin>>n;
-	set<int> s;
-	s.insert(0);
-	int sum=0,ans=n;
-	rep(i,1,n){
-		int x;
-		cin>>x;
-		sum^=x;
-		if(s.count(sum)){
-			ans--;
-			s.clear();
-		}
-		s.insert(sum);
-	}
-	cout<<ans<<endl;
+	cin>>a>>b;
+	cout<<(a!=1&&a*b>=7&&max(a,b)>=4?"good":"bad")<<endl;
 }
 
 signed main(){
     //int size(512<<20);  //512M
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
 	//srand(time(0));
-	cin.tie(nullptr)->sync_with_stdio(false);
+	//cin.tie(nullptr)->sync_with_stdio(false);
 	//freopen("in.txt","r",stdin);
 	//freopen("stdout.txt","w",stdout);
 	cin>>T;

@@ -1,7 +1,7 @@
 /*
  * Author: Austin Jiang
- * Date: 8/20/2022 5:07:59 PM
- * Problem:
+ * Date: 9/4/2022 5:16:24 PM
+ * Problem: Squirrel Structures
  * Description:
 */
 //#pragma GCC optimize(2)
@@ -9,7 +9,6 @@
 #include<bits/stdc++.h>
 //#define int long long
 #define pb push_back
-#define mp make_pair
 #define fir first
 #define sec second
 #define endl '\n'
@@ -47,35 +46,63 @@ const ll LLINF = 0x3f3f3f3f3f3f3f3f;
 const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 
-const int N = 1e5+10;
-int T=1,n,a[N];
+const int N = 2e5+10;
+int T=1,n,tot,f[N],vis[N];
+VI e[N],ee[N];
+VPI ans[N];
+
+void dfs(int u,int fa){
+	f[u]=fa;
+	if(f[f[u]]){
+		ee[f[f[u]]].pb(u);
+		ee[u].pb(f[f[u]]);
+	}
+	for(auto v:e[u]){
+		if(v==fa) continue;
+		dfs(v,u);
+	}
+}
+
+void dfs2(int u){
+	vis[u]=1;
+	for(auto v:ee[u]){
+		if(vis[v]) continue;
+		ans[tot].pb({u,v});
+		dfs2(v);
+	}
+}
 
 void solve(int Case){
 	cin>>n;
-	set<int> s;
-	s.insert(0);
-	int sum=0,ans=n;
-	rep(i,1,n){
-		int x;
-		cin>>x;
-		sum^=x;
-		if(s.count(sum)){
-			ans--;
-			s.clear();
-		}
-		s.insert(sum);
+	rep(i,1,n-1){
+		int u,v;
+		cin>>u>>v;
+		e[u].pb(v);
+		e[v].pb(u);
 	}
-	cout<<ans<<endl;
+	dfs(1,0);
+	rep(i,1,n){
+		if(!vis[i]){
+			tot++;
+			dfs2(i);
+		}
+	}
+	cout<<tot<<endl;
+	rep(i,1,tot){
+		cout<<ans[i].size()+1<<endl;
+		for(auto x:ans[i]){
+			cout<<x.fir<<" "<<x.sec<<endl;
+		}
+	}
 }
 
 signed main(){
     //int size(512<<20);  //512M
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
 	//srand(time(0));
-	cin.tie(nullptr)->sync_with_stdio(false);
+	//cin.tie(nullptr)->sync_with_stdio(false);
 	//freopen("in.txt","r",stdin);
 	//freopen("stdout.txt","w",stdout);
-	cin>>T;
 	rep(Case,1,T) solve(Case);
     //exit(0);
 	//system("fc stdout.txt out.txt");

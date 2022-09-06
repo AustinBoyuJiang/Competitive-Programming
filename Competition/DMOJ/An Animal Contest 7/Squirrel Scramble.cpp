@@ -1,13 +1,13 @@
 /*
  * Author: Austin Jiang
- * Date: 9/1/2022 1:10:00 AM
- * Problem: Vending Machine in Lunch
+ * Date: 9/4/2022 5:46:58 PM
+ * Problem: Squirrel Scramble
  * Description:
 */
 //#pragma GCC optimize(2)
 //#pragma GCC optimize(3)
 #include<bits/stdc++.h>
-//#define int long long
+#define int long long
 #define pb push_back
 #define fir first
 #define sec second
@@ -46,46 +46,47 @@ const ll LLINF = 0x3f3f3f3f3f3f3f3f;
 const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 
-const int K = 20;
-int T=1,n,k,ans[K];
-VI num,tmp;
+const int N = 1e6+10;
+int T=1,n,m,a[N],p[N],l[N],r[N],sum1[N],sum2[N],sum3[N];
 
-int query1(int a,int b){
-	cout<<"? "<<a<<" "<<b<<endl;
-	cout.flush();
-	int res;
-	cin>>res;
-	return res;
-}
-
-int query2(int x){
-	cout<<"$ "<<num.size();
-	for(auto x:num) cout<<" "<<x;
-	cout<<" "<<x<<endl;
-	cout.flush();
-	int res;
-	cin>>res;
-	return res;
+int check(int i,int pos){
+	return sum2[n]-sum2[pos]+(n-pos)*min(l[i],r[i])+sum3[pos-1]-sum3[i-1]-sum1[i-1]*(pos-i);
 }
 
 void solve(int Case){
-	cin>>n;
-	k=log2(n-1);
-	rep(i,1,n) num.pb(i);
-	ans[k]=query2(1<<k);
-	per(i,k-1,1){
-		ans[i]=query2(1<<i);
-		tmp.clear();
-		for(auto x:num)
-			if(x!=ans[i]&&!query1(x,ans[i])) tmp.pb(x);
-		num.clear();
-		for(auto x:tmp) num.pb(x);
+	cin>>n>>m;
+	rep(i,1,m){
+		int x;
+		cin>>x;
+		p[x]=1;
 	}
-	ans[0]=query2(1);
-	cout<<"! "<<k;
-	rep(i,0,k) cout<<" "<<ans[i];
-	cout<<endl;
-	cout.flush();
+	rep(i,1,n-1) cin>>a[i];
+	a[0]=INF;
+	a[n]=INF;
+	rep(i,0,n){
+		sum1[i]=a[i]+sum1[i-1];
+		sum3[i]=sum3[i-1]+sum1[i];
+	}
+	int lst=0;
+	rep(i,1,n){
+		if(p[i]) lst=i;
+		l[i]=sum1[i-1]-sum1[lst-1];
+	}
+	lst=n+1;
+	per(i,n,1){
+		if(p[i]) lst=i;
+		r[i]=sum1[lst-1]-sum1[i-1];
+	}
+	rep(i,1,n){
+		sum2[i]=sum2[i-1]+min(l[i],r[i]);
+	}
+	int ans=0,pos=n;	
+	per(i,n,1){
+		while(pos>i&&check(i,pos-1)<=check(i,pos)) pos--;
+		ans+=check(i,pos);
+		ans%=MOD;
+	}
+	cout<<ans<<endl;
 }
 
 signed main(){
