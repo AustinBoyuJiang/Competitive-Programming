@@ -1,11 +1,11 @@
 /*
  * Author: Austin Jiang
- * Date: 9/6/2022 11:37:18 PM
- * Problem: Swap Swap Sort 
- * Description: 维护逆序对 + 暴力优化 
+ * Date: 9/8/2022 8:20:49 PM
+ * Problem: Weird Numeral System
+ * Description:
 */
-//#pragma GCC optimize(2)
-//#pragma GCC optimize(3)
+#pragma GCC optimize(2)
+#pragma GCC optimize(3)
 #include<bits/stdc++.h>
 #define int long long
 #define pb push_back
@@ -46,119 +46,37 @@ const ll LLINF = 0x3f3f3f3f3f3f3f3f;
 const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 
-const int N = 1e5+10;
-const int Q = 1e6+10;
-const int K = 100;
-int T=1,n,k,q,a[N],f[N],ans[Q],vis[N];
-VPI q1[Q],q2[Q];
-VI p[N];
+const int N = 5010;
+int T=1,k,q,d,m,cnt,a[N],ans[N];
+map<int,int> vis;
 
-struct segment_tree{
-	int st[N<<2];
-	
-	void update(int rt,int l,int r,int x,int y){
-		if(l==r){
-			st[rt]+=y;
-			return;
-		}
-		int mid=l+r>>1;
-		if(x<=mid) update(rt<<1,l,mid,x,y);
-		else update(rt<<1|1,mid+1,r,x,y);
-		st[rt]=st[rt<<1]+st[rt<<1|1];
-	}
-	
-	int query(int rt,int l,int r,int x,int y){
-		if(x>y) return 0;
-		if(l==x&&r==y) return st[rt];
-		int mid=l+r>>1;
-		if(y<=mid) return query(rt<<1,l,mid,x,y);
-		else if(x>mid) return query(rt<<1|1,mid+1,r,x,y);
-		return query(rt<<1,l,mid,x,mid)+query(rt<<1|1,mid+1,r,mid+1,y);
-	}
-} st;
-
-bool ok(int x){
-	return p[x].size()<=K;
-}
-
-int solve0(){
-	int ans=0;
-	rep(i,1,n){
-		ans+=st.query(1,1,k,a[i]+1,k);
-		st.update(1,1,k,a[i],1);
-	}
-	return ans;
-}
-
-int solve1(int x,int y){
-	int ans=0,j=0;
-	for(int i=0;i<p[x].size();i++){
-		while(j<p[y].size()&&p[y][j]<p[x][i]) j++;
-		ans-=j;
-		ans+=p[y].size()-j;
-	}
-	return ans;
-}
-
-void solve2(int x){
-	fill(vis+1,vis+k+1,0);
-	int cnt=0;
-	rep(i,1,n){
-		if(a[i]==x) cnt++;
-		else vis[a[i]]+=cnt;
-	}
-	for(auto i:q1[x]){
-		int id=i.fir,val=i.sec;
-		ans[id]+=vis[val];
-	}
-	for(auto i:q2[x]){
-		int id=i.fir,val=i.sec;
-		ans[id]-=vis[val];
-	}
-}
-
-void solve3(int x){
-	fill(vis+1,vis+k+1,0);
-	int cnt=0;
-	per(i,n,1){
-		if(a[i]==x) cnt++;
-		else vis[a[i]]+=cnt;
-	}
-	for(auto i:q1[x]){
-		int id=i.fir,val=i.sec;
-		ans[id]-=vis[val];
-	}
-	for(auto i:q2[x]){
-		int id=i.fir,val=i.sec;
-		ans[id]+=vis[val];
-	}
-}
-
-void solve(int Case){
-	cin>>n>>k>>q;
-	rep(i,1,k) f[i]=i;
-	rep(i,1,n){
-		cin>>a[i];
-		p[a[i]].pb(i);
-	}
-	ans[0]=solve0();
-	rep(i,1,q){
-		int x;
-		cin>>x;
-		if(!ok(f[x])) q1[f[x]].pb({i,f[x+1]});
-		else if(!ok(f[x+1])) q2[f[x+1]].pb({i,f[x]});
-		else ans[i]=solve1(f[x],f[x+1]);
-		swap(f[x],f[x+1]);
-	}
-	rep(i,1,k){
-		if(!ok(i)){
-			solve2(i);
-			solve3(i);
+inline bool dfs(int n,int pos){
+	if(vis[n]) return 0;
+	vis[n]++;
+	rep(i,1,d){
+		if((n-a[i])%k==0){
+			ans[pos]=a[i];
+			if(n-a[i]==0) cnt=pos;
+			if(n-a[i]==0||dfs((n-a[i])/k,pos+1)){
+				vis[n]--;
+				return 1;
+			}
 		}
 	}
+	return 0;
+}
+
+inline void solve(int Case){
+	read(k),read(q),read(d),read(m);
+	rep(i,1,d) read(a[i]);
 	rep(i,1,q){
-		ans[i]+=ans[i-1];
-		cout<<ans[i]<<endl;
+		cnt=0;
+	    vis.clear();
+		if(dfs(read(),1)){
+			per(j,cnt,2) write(ans[j],' ');
+			write(ans[1],endl);
+		}
+		else puts("IMPOSSIBLE");
 	}
 }
 
@@ -167,11 +85,11 @@ signed main(){
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
 	//srand(time(0));
 	//cin.tie(nullptr)->sync_with_stdio(false);
-	//freopen("in.txt","r",stdin);
-	//freopen("stdout.txt","w",stdout);
+//	freopen("in.txt","r",stdin);
+//	freopen("stdout.txt","w",stdout);
 	rep(Case,1,T) solve(Case);
     //exit(0);
-	//system("fc stdout.txt out.txt");
+//	system("fc stdout.txt out.txt");
 	return 0;
 }
 
@@ -185,4 +103,3 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) 对拍
 */
-

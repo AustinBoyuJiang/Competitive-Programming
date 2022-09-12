@@ -1,8 +1,8 @@
 /*
  * Author: Austin Jiang
- * Date: 9/2/2022 8:31:51 AM
+ * Date: 9/11/2022 3:37:19 PM
  * Problem:
- * Description:
+ * Description: sigma(C(i,n)) i:0~K
 */
 //#pragma GCC optimize(2)
 //#pragma GCC optimize(3)
@@ -47,17 +47,13 @@ const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 
 const int N = 1e5+10;
-int T=1,n,k,d[N];
+int T=1,n,k,ans,fac[N],infac[N];
 
-int POW(int a,int b){
-	int ans=1;
+int inv(int a){
+	int b=MOD-2,ans=1;
 	while(b){
-		if(b&1){
-			ans*=a;
-			ans%=MOD;
-		}
-		a*=a;
-		a%=MOD;
+		if(b&1) ans=ans*a%MOD;
+		a=a*a%MOD;
 		b>>=1;
 	}
 	return ans;
@@ -65,10 +61,11 @@ int POW(int a,int b){
 
 void solve(int Case){
 	cin>>n>>k;
-	k=min(k,n);
-	int ans=POW(2,n-1);
-	ans*=POW(2,n-k);
-	ans=(ans+1)%MOD;
+	fac[0]=1;
+	rep(i,1,n) fac[i]=fac[i-1]*i%MOD;
+	infac[n]=inv(fac[n]);
+	per(i,n-1,0) infac[i]=infac[i+1]*(i+1)%MOD;
+	rep(i,0,min(k,n)) ans=(ans+fac[n]*infac[i]%MOD*infac[n-i]%MOD)%MOD;
 	cout<<ans<<endl;
 }
 

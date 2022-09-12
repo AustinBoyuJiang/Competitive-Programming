@@ -1,8 +1,8 @@
 /*
  * Author: Austin Jiang
- * Date: 9/6/2022 11:37:18 PM
- * Problem: Swap Swap Sort 
- * Description: 维护逆序对 + 暴力优化 
+ * Date: 9/7/2022 8:10:01 PM
+ * Problem: Exercise Deadlines
+ * Description:
 */
 //#pragma GCC optimize(2)
 //#pragma GCC optimize(3)
@@ -46,12 +46,10 @@ const ll LLINF = 0x3f3f3f3f3f3f3f3f;
 const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 
-const int N = 1e5+10;
-const int Q = 1e6+10;
-const int K = 100;
-int T=1,n,k,q,a[N],f[N],ans[Q],vis[N];
-VPI q1[Q],q2[Q];
-VI p[N];
+const int N = 2e5+10;
+int T=1,n,ans,a[N];
+PI d[N];
+PQ<PI,VPI,less<PI>> q;
 
 struct segment_tree{
 	int st[N<<2];
@@ -77,89 +75,34 @@ struct segment_tree{
 	}
 } st;
 
-bool ok(int x){
-	return p[x].size()<=K;
-}
-
-int solve0(){
-	int ans=0;
-	rep(i,1,n){
-		ans+=st.query(1,1,k,a[i]+1,k);
-		st.update(1,1,k,a[i],1);
-	}
-	return ans;
-}
-
-int solve1(int x,int y){
-	int ans=0,j=0;
-	for(int i=0;i<p[x].size();i++){
-		while(j<p[y].size()&&p[y][j]<p[x][i]) j++;
-		ans-=j;
-		ans+=p[y].size()-j;
-	}
-	return ans;
-}
-
-void solve2(int x){
-	fill(vis+1,vis+k+1,0);
-	int cnt=0;
-	rep(i,1,n){
-		if(a[i]==x) cnt++;
-		else vis[a[i]]+=cnt;
-	}
-	for(auto i:q1[x]){
-		int id=i.fir,val=i.sec;
-		ans[id]+=vis[val];
-	}
-	for(auto i:q2[x]){
-		int id=i.fir,val=i.sec;
-		ans[id]-=vis[val];
-	}
-}
-
-void solve3(int x){
-	fill(vis+1,vis+k+1,0);
-	int cnt=0;
-	per(i,n,1){
-		if(a[i]==x) cnt++;
-		else vis[a[i]]+=cnt;
-	}
-	for(auto i:q1[x]){
-		int id=i.fir,val=i.sec;
-		ans[id]-=vis[val];
-	}
-	for(auto i:q2[x]){
-		int id=i.fir,val=i.sec;
-		ans[id]+=vis[val];
-	}
+bool cmp(PI a,PI b){
+	return a.sec>b.sec;
 }
 
 void solve(int Case){
-	cin>>n>>k>>q;
-	rep(i,1,k) f[i]=i;
+	cin>>n;
 	rep(i,1,n){
-		cin>>a[i];
-		p[a[i]].pb(i);
-	}
-	ans[0]=solve0();
-	rep(i,1,q){
 		int x;
 		cin>>x;
-		if(!ok(f[x])) q1[f[x]].pb({i,f[x+1]});
-		else if(!ok(f[x+1])) q2[f[x+1]].pb({i,f[x]});
-		else ans[i]=solve1(f[x],f[x+1]);
-		swap(f[x],f[x+1]);
+		d[i]={i,x};
 	}
-	rep(i,1,k){
-		if(!ok(i)){
-			solve2(i);
-			solve3(i);
+	sort(d+1,d+n+1,cmp);
+	int j=0;
+	per(i,n,1){
+		while(j<n&&d[j+1].sec>=i)
+			q.push(d[++j]);
+		if(j<n-i+1){
+			cout<<-1<<endl;
+			return;
 		}
+		a[i]=q.top().fir;
+		q.pop();
 	}
-	rep(i,1,q){
-		ans[i]+=ans[i-1];
-		cout<<ans[i]<<endl;
+	rep(i,1,n){
+		ans+=st.query(1,1,n,a[i]+1,n);
+		st.update(1,1,n,a[i],1);
 	}
+	cout<<ans<<endl;
 }
 
 signed main(){

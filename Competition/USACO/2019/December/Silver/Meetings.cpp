@@ -1,13 +1,13 @@
 /*
  * Author: Austin Jiang
- * Date: 9/6/2022 11:37:18 PM
- * Problem: Swap Swap Sort 
- * Description: 维护逆序对 + 暴力优化 
+ * Date: 9/8/2022 1:18:08 PM
+ * Problem:
+ * Description:
 */
 //#pragma GCC optimize(2)
 //#pragma GCC optimize(3)
 #include<bits/stdc++.h>
-#define int long long
+//#define int long long
 #define pb push_back
 #define fir first
 #define sec second
@@ -47,119 +47,53 @@ const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 
 const int N = 1e5+10;
-const int Q = 1e6+10;
-const int K = 100;
-int T=1,n,k,q,a[N],f[N],ans[Q],vis[N];
-VPI q1[Q],q2[Q];
-VI p[N];
+int T=1,n,m,t,tot1,tot2,sum,ans;
 
-struct segment_tree{
-	int st[N<<2];
-	
-	void update(int rt,int l,int r,int x,int y){
-		if(l==r){
-			st[rt]+=y;
-			return;
-		}
-		int mid=l+r>>1;
-		if(x<=mid) update(rt<<1,l,mid,x,y);
-		else update(rt<<1|1,mid+1,r,x,y);
-		st[rt]=st[rt<<1]+st[rt<<1|1];
+struct cow{
+	int w,x,d;
+	bool operator< (const cow other){
+		return x<other.x;
 	}
-	
-	int query(int rt,int l,int r,int x,int y){
-		if(x>y) return 0;
-		if(l==x&&r==y) return st[rt];
-		int mid=l+r>>1;
-		if(y<=mid) return query(rt<<1,l,mid,x,y);
-		else if(x>mid) return query(rt<<1|1,mid+1,r,x,y);
-		return query(rt<<1,l,mid,x,mid)+query(rt<<1|1,mid+1,r,mid+1,y);
-	}
-} st;
+} a[N],b[2][N];
 
-bool ok(int x){
-	return p[x].size()<=K;
+int checkl(int i){
+	if(i>tot2) return INF;
+	return b[1][i].x;
 }
 
-int solve0(){
-	int ans=0;
-	rep(i,1,n){
-		ans+=st.query(1,1,k,a[i]+1,k);
-		st.update(1,1,k,a[i],1);
-	}
-	return ans;
-}
-
-int solve1(int x,int y){
-	int ans=0,j=0;
-	for(int i=0;i<p[x].size();i++){
-		while(j<p[y].size()&&p[y][j]<p[x][i]) j++;
-		ans-=j;
-		ans+=p[y].size()-j;
-	}
-	return ans;
-}
-
-void solve2(int x){
-	fill(vis+1,vis+k+1,0);
-	int cnt=0;
-	rep(i,1,n){
-		if(a[i]==x) cnt++;
-		else vis[a[i]]+=cnt;
-	}
-	for(auto i:q1[x]){
-		int id=i.fir,val=i.sec;
-		ans[id]+=vis[val];
-	}
-	for(auto i:q2[x]){
-		int id=i.fir,val=i.sec;
-		ans[id]-=vis[val];
-	}
-}
-
-void solve3(int x){
-	fill(vis+1,vis+k+1,0);
-	int cnt=0;
-	per(i,n,1){
-		if(a[i]==x) cnt++;
-		else vis[a[i]]+=cnt;
-	}
-	for(auto i:q1[x]){
-		int id=i.fir,val=i.sec;
-		ans[id]-=vis[val];
-	}
-	for(auto i:q2[x]){
-		int id=i.fir,val=i.sec;
-		ans[id]+=vis[val];
-	}
+int checkr(int i){
+	if(n-i+1>tot1) return INF;
+	return m-b[0][tot1-n+i].x;
 }
 
 void solve(int Case){
-	cin>>n>>k>>q;
-	rep(i,1,k) f[i]=i;
+	cin>>n>>m;
 	rep(i,1,n){
-		cin>>a[i];
-		p[a[i]].pb(i);
+		int w,x,d;
+		cin>>w>>x>>d;
+		a[i]={w,x,d};
+		if(d==1) b[0][++tot1]={w,x};
+		else b[1][++tot2]={w,x};
+		sum+=w;
 	}
-	ans[0]=solve0();
-	rep(i,1,q){
-		int x;
-		cin>>x;
-		if(!ok(f[x])) q1[f[x]].pb({i,f[x+1]});
-		else if(!ok(f[x+1])) q2[f[x+1]].pb({i,f[x]});
-		else ans[i]=solve1(f[x],f[x+1]);
-		swap(f[x],f[x+1]);
+	sort(a+1,a+n+1);
+	sort(b[0]+1,b[0]+tot1+1);
+	sort(b[1]+1,b[1]+tot2+1);
+	int l=0,r=n+1,cnt=0;
+	while(cnt*2<sum){
+		int lt=checkl(l+1);
+		int rt=checkr(r-1);
+		t=min(lt,rt);
+		if(lt<rt) cnt+=a[++l].w;
+		else cnt+=a[--r].w;
 	}
-	rep(i,1,k){
-		if(!ok(i)){
-			solve2(i);
-			solve3(i);
-		}
+	int j=0,k=0;
+	rep(i,1,tot1){
+		while(k<=tot2&&b[1][k].x<b[0][i].x) k++;
+		while(j<tot2&&b[1][j+1].x<=b[0][i].x+t*2) j++;
+		ans+=j-k+1;
 	}
-	rep(i,1,q){
-		ans[i]+=ans[i-1];
-		cout<<ans[i]<<endl;
-	}
+	cout<<ans<<endl;
 }
 
 signed main(){
