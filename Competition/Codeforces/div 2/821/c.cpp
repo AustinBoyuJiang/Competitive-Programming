@@ -1,13 +1,13 @@
 /*
  * Author: Austin Jiang
- * Date: 9/12/2022 12:39:28 AM
- * Problem: Card Scoring
+ * Date: 9/19/2022 9:03:34 AM
+ * Problem:
  * Description:
 */
 //#pragma GCC optimize(2)
 //#pragma GCC optimize(3)
 #include<bits/stdc++.h>
-#define int long long
+//#define int long long
 #define pb push_back
 #define fir first
 #define sec second
@@ -46,27 +46,29 @@ const ll LLINF = 0x3f3f3f3f3f3f3f3f;
 const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 
-const int N = 1e6+10;
-int T=1,n,cnt[N];
-double k,ans,dp[N];
-VI pos[N];
-
-double check(int i,int x){
-	return dp[pos[x][i]-1]+pow(pos[x].size()-i,k/2);
-}
+const int N = 1e5+10;
+int T=1,n,a[N];
+int lst[2];
 
 void solve(int Case){
-	scanf("%lf %d",&k,&n);
+	cin>>n;
+	lst[0]=lst[1]=0;
+	cout<<n-1<<endl;
 	rep(i,1,n){
-		int x=read();
-		pos[x].pb(i);
-//		while(cnt[x]+1<pos[x].size()&&
-//		check(cnt[x]+1,x)>check(cnt[x],x)) cnt[x]++;
-//		dp[i]=check(cnt[x],x);
-		rep(j,0,pos[x].size()-1) chkmax(dp[i],check(j,x));
-		chkmax(ans,dp[i]);
+		cin>>a[i];
 	}
-	printf("%.6lf\n",ans);
+	per(i,n,1){
+		if(lst[a[i]%2]&&a[i]%2==a[1]%2){
+			cout<<i<<" "<<lst[a[i]%2]<<endl;
+			lst[a[i]%2]=i;
+		}
+		else if(a[i]%2==a[1]%2) lst[a[i]%2]=i;
+	}
+	rep(i,1,n){
+		if(a[i]%2!=a[1]%2&&i>lst[a[1]%2]){
+			cout<<lst[a[1]%2]<<" "<<i<<endl;
+		}
+	}
 }
 
 signed main(){
@@ -76,6 +78,7 @@ signed main(){
 	//cin.tie(nullptr)->sync_with_stdio(false);
 	//freopen("in.txt","r",stdin);
 	//freopen("stdout.txt","w",stdout);
+	cin>>T;
 	rep(Case,1,T) solve(Case);
     //exit(0);
 	//system("fc stdout.txt out.txt");

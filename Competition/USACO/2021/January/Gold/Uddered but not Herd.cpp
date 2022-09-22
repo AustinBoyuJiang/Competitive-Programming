@@ -1,19 +1,20 @@
 /*
  * Author: Austin Jiang
- * Date: 9/12/2022 12:39:28 AM
- * Problem: Card Scoring
+ * Date: 9/19/2022 2:41:28 PM
+ * Problem: Uddered but not Herd
  * Description:
 */
 //#pragma GCC optimize(2)
 //#pragma GCC optimize(3)
 #include<bits/stdc++.h>
-#define int long long
+//#define int long long
 #define pb push_back
 #define fir first
 #define sec second
 #define endl '\n'
 #define lb lower_bound
 #define ub upper_bound
+#define all(v) v.begin(), v.end()
 #define PQ priority_queue
 #define random(a,b) rand()%(b-a+1)+a
 #define rep(i,x,y) for(int i=(x);i<=(y);i++)
@@ -46,27 +47,52 @@ const ll LLINF = 0x3f3f3f3f3f3f3f3f;
 const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 
-const int N = 1e6+10;
-int T=1,n,cnt[N];
-double k,ans,dp[N];
-VI pos[N];
-
-double check(int i,int x){
-	return dp[pos[x][i]-1]+pow(pos[x].size()-i,k/2);
-}
+const int N = 5e4+10;
+const int K = 100;
+int T=1,n,k,a[N],Map[K][K],dist[N],vis[N];
+PQ<PI,VPI,greater<PI>> q;
+VI p[K];
+VI e[N];
 
 void solve(int Case){
-	scanf("%lf %d",&k,&n);
+	cin>>n>>k;
 	rep(i,1,n){
-		int x=read();
-		pos[x].pb(i);
-//		while(cnt[x]+1<pos[x].size()&&
-//		check(cnt[x]+1,x)>check(cnt[x],x)) cnt[x]++;
-//		dp[i]=check(cnt[x],x);
-		rep(j,0,pos[x].size()-1) chkmax(dp[i],check(j,x));
-		chkmax(ans,dp[i]);
+		cin>>a[i];
+		p[a[i]].pb(i);
 	}
-	printf("%.6lf\n",ans);
+	rep(i,1,k){
+		rep(j,1,k){
+			char x;
+			cin>>x;
+			Map[i][j]=x-'0';
+		}
+	}
+	rep(i,1,n){
+		rep(j,1,k){
+			if(!Map[a[i]][j]) continue;
+			auto x=ub(all(p[j]),i);
+			if(x!=p[j].end()) e[i].pb(*x);
+			auto y=lb(all(p[j]),i);
+			if(y!=p[j].begin()) e[i].pb(*(y-1));
+		}
+	}
+	memset(dist,0x3f,sizeof(dist));
+	q.push({0,1});
+	dist[1]=0;
+	while(!q.empty()){
+		int u=q.top().sec;
+		q.pop();
+		if(vis[u]) continue;
+		vis[u]=1;
+		for(auto v:e[u]){
+			if(dist[u]+abs(u-v)<dist[v]){
+				dist[v]=dist[u]+abs(u-v);
+				q.push({dist[v],v});
+			}
+		}
+	}
+	if(dist[n]==INF) cout<<-1<<endl;
+	else cout<<dist[n]<<endl;
 }
 
 signed main(){
@@ -74,8 +100,8 @@ signed main(){
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
 	//srand(time(0));
 	//cin.tie(nullptr)->sync_with_stdio(false);
-	//freopen("in.txt","r",stdin);
-	//freopen("stdout.txt","w",stdout);
+	freopen("in.txt","r",stdin);
+//	freopen("stdout.txt","w",stdout);
 	rep(Case,1,T) solve(Case);
     //exit(0);
 	//system("fc stdout.txt out.txt");

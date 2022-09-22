@@ -1,13 +1,13 @@
 /*
  * Author: Austin Jiang
- * Date: 9/12/2022 12:39:28 AM
- * Problem: Card Scoring
+ * Date: 9/15/2022 9:35:05 AM
+ * Problem:
  * Description:
 */
 //#pragma GCC optimize(2)
 //#pragma GCC optimize(3)
 #include<bits/stdc++.h>
-#define int long long
+//#define int long long
 #define pb push_back
 #define fir first
 #define sec second
@@ -46,27 +46,25 @@ const ll LLINF = 0x3f3f3f3f3f3f3f3f;
 const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 
-const int N = 1e6+10;
-int T=1,n,cnt[N];
-double k,ans,dp[N];
-VI pos[N];
-
-double check(int i,int x){
-	return dp[pos[x][i]-1]+pow(pos[x].size()-i,k/2);
-}
+const int N = 1e5+10;
+int T=1,n,sz[N],a[N];
 
 void solve(int Case){
-	scanf("%lf %d",&k,&n);
-	rep(i,1,n){
-		int x=read();
-		pos[x].pb(i);
-//		while(cnt[x]+1<pos[x].size()&&
-//		check(cnt[x]+1,x)>check(cnt[x],x)) cnt[x]++;
-//		dp[i]=check(cnt[x],x);
-		rep(j,0,pos[x].size()-1) chkmax(dp[i],check(j,x));
-		chkmax(ans,dp[i]);
+	cin>>sz[0]>>a[0];
+	cin>>sz[1]>>a[1];
+	cin>>sz[2]>>a[2];
+	int pos=0;
+	rep(i,1,100){
+		int nx=(pos+1)%3;
+		int tmp=min(sz[nx]-a[nx],a[pos]);
+		a[pos]-=tmp;
+		a[nx]+=tmp;
+		pos++;
+		pos%=3;
 	}
-	printf("%.6lf\n",ans);
+	cout<<a[0]<<endl;
+	cout<<a[1]<<endl;
+	cout<<a[2]<<endl;
 }
 
 signed main(){
@@ -74,8 +72,8 @@ signed main(){
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
 	//srand(time(0));
 	//cin.tie(nullptr)->sync_with_stdio(false);
-	//freopen("in.txt","r",stdin);
-	//freopen("stdout.txt","w",stdout);
+	freopen("mixmilk.in","r",stdin);
+	freopen("mixmilk.out","w",stdout);
 	rep(Case,1,T) solve(Case);
     //exit(0);
 	//system("fc stdout.txt out.txt");
