@@ -54,22 +54,26 @@ void solve(int Case){
 	cin>>s;
 	n=s.size();
 	s=' '+s;
-	rep(i,1,n) dp[i][i]=-1;
-	rep(k,2,n){
+	rep(i,0,n) dp[i+1][i]=0;
+	for(int k=2;k<=n;k+=2){
 		rep(l,1,n-k+1){
 			int r=l+k-1;
-			int ope=(l-1+n-r)%2;
-			if(s[l]!=s[r]) dp[l][r]=ope;
-			else{
-				if(dp[l+1][r]==ope||dp[l][r-1]==ope) dp[l][r]=ope;
-				else if(dp[l+1][r]==-1&&dp[l][r-1]==-1) dp[l][r]=-1;
-				else dp[l][r]=ope^1;
-			}
+			if((s[l+1]<s[l]||s[r]<s[l])&&(s[r-1]<s[r]||s[l]<s[r])) dp[l][r]=-1;
+			else if((s[l]<s[r]&&s[l]<s[l+1])||(s[r]<s[l]&&s[r]<s[r-1])) dp[l][r]=1;
+			else if(s[l]<=s[r]&&(s[l+1]<s[r]||dp[l+1][r-1]==1)&&(s[r]<s[l+1]||dp[l+2][r]==1)) dp[l][r]=1;
+			else if(s[r]<=s[l]&&(s[r-1]<s[l]||dp[l+1][r-1]==1)&&(s[l]<s[r-1]||dp[l][r-2]==1)) dp[l][r]=1;
+			else if(((s[r]<=s[l+1]&&dp[l+1][r-1]==-1)||(s[l+1]<=s[r]&&dp[l+2][r]==-1))&&
+			((s[l]<=s[r-1]&&dp[l+1][r-1]==-1)||(s[r-1]<=s[l]&&dp[l][r-2]==-1))) dp[l][r]=-1;
+			else dp[l][r]=0;
 		}
 	}
-	if(dp[1][n]==0) cout<<"Alice"<<endl;
-	else if(dp[1][n]==1) cout<<"Bob"<<endl;
+	if(dp[1][n]==1) cout<<"Alice"<<endl;
+	else if(dp[1][n]==-1) cout<<"Bob"<<endl;
 	else cout<<"Draw"<<endl;
+//	cout<<dp[1][4]<<endl;
+//	cout<<dp[1][2]<<endl;
+//	cout<<dp[2][3]<<endl;
+//	cout<<dp[3][4]<<endl;
 }
 
 signed main(){
@@ -94,6 +98,6 @@ signed main(){
     * don't stuck on one question for two long (like 30-45 min)
     * Debug: (a) read your code once, check overflow, check edge case
     * Debug: (b) create your own test case
-    * Debug: (c) ╤тед
+    * Debug: (c) ????
 */
 
