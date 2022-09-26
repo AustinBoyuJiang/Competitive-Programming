@@ -1,4 +1,4 @@
-# Welcome To This Page!
+# Introduction
 This is Austin Jiang, a West Vancouver Secondary School student graduating in 2025.
 This repository is here to share my code and help me review them.
 
@@ -12,6 +12,7 @@ This repository is here to share my code and help me review them.
 
 
 # Solved Problems
+
 ## USACO
 | Contests | Problems | Status | Tags | Explains |
 | :------- | :------- | :----- | :--- | :------- |
@@ -19,21 +20,27 @@ This repository is here to share my code and help me review them.
 ## CCO
 | Contests | Problems | Status | Tags | Explains |
 | :------- | :------- | :----- | :--- | :------- |
->## CCC
+
+## CCC
 | Contests | Problems | Status | Tags | Explains |
 | :------- | :------- | :----- | :--- | :------- |
->## Codeforces
+
+## Codeforces
 | Contests | Problems | Status | Tags | Explains |
 | :------- | :------- | :----- | :--- | :------- |
->## NOI
+
+## NOI
 | Contests | Problems | Status | Tags | Explains |
 | :------- | :------- | :----- | :--- | :------- |
->## HDU
+
+## HDU
 | Contests | Problems | Status | Tags | Explains |
 | :------- | :------- | :----- | :--- | :------- |
->## CSP
+
+## CSP
 | Contests | Problems | Status | Tags | Explains |
 | :------- | :------- | :----- | :--- | :------- |
->## An Animal Contest
+
+## An Animal Contest
 | Contests | Problems | Status | Tags | Explains |
 | :------- | :------- | :----- | :--- | :------- |
