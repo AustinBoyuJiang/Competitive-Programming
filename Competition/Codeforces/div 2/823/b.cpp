@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 9/25/2022 7:11:56 AM
  * Problem:
  * Description:
 */
@@ -47,11 +47,56 @@ const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 
 const int N = 2e5+10;
-int T=1,n;
+int T=1,n,c[N];
+PI a[N];
+
+int check(double p){
+	double mxl=0;
+	int x=0;
+	rep(i,1,n){
+		if(p<a[i].fir) break;
+		double tm=a[i].sec+p-a[i].fir;
+		chkmax(mxl,tm);
+		x++;
+	}
+	double mxr=0;
+	rep(i,x+1,n){
+		double tm=a[i].sec+a[i].fir-p;
+		chkmax(mxr,tm);
+	}
+	if(mxl==mxr) return 2;
+	if(mxl<mxr) return 1;
+	else return 0;
+}
 
 void solve(int Case){
-	read(n);
-
+	cin>>n;
+	rep(i,1,n){
+		cin>>a[i].fir;
+	}
+	rep(i,1,n){
+		cin>>a[i].sec;
+	}
+	sort(a+1,a+n+1);
+	double l=0,r=100000000;
+	double pos=0;
+	while(l<=r){
+		double mid=(l+r)/2;
+		int x=check(mid);
+		if(x==2){
+			printf("%.1f\n",mid);
+			return;
+		}
+		if(x){
+			pos=mid;
+			l=mid+0.01;
+		}
+		else{
+			pos=mid;
+			r=mid-0.01;
+		}
+	}
+	printf("%.1f\n",pos);
 }
 
 signed main(){
@@ -61,6 +106,7 @@ signed main(){
 	//cin.tie(nullptr)->sync_with_stdio(false);
 	//freopen("in.txt","r",stdin);
 	//freopen("stdout.txt","w",stdout);
+	cin>>T;
 	rep(Case,1,T) solve(Case);
     //exit(0);
 	//system("fc stdout.txt out.txt");
@@ -77,3 +123,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) ╤тед
 */
+

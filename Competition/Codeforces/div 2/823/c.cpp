@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 9/25/2022 7:12:15 AM
  * Problem:
  * Description:
 */
@@ -47,11 +47,31 @@ const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 
 const int N = 2e5+10;
-int T=1,n;
+int T=1,n,a[N],cnt[20];
+string s;
 
 void solve(int Case){
-	read(n);
-
+	cin>>s;
+	n=s.size();
+	rep(i,1,n){
+		a[i]=s[i-1]-'0';
+	}
+	int mn=INF;
+	per(i,n,1){
+		mn=min(a[i],mn);
+		if(mn<a[i]){
+			cnt[min(a[i]+1,9)]++;
+		}
+		else cnt[a[i]]++;
+	}
+	rep(i,0,9){
+		if(!cnt[i]) continue;
+		while(cnt[i]--){
+			cout<<i;
+		}
+		cnt[i]=0;
+	}
+	cout<<endl;
 }
 
 signed main(){
@@ -61,6 +81,7 @@ signed main(){
 	//cin.tie(nullptr)->sync_with_stdio(false);
 	//freopen("in.txt","r",stdin);
 	//freopen("stdout.txt","w",stdout);
+	cin>>T;
 	rep(Case,1,T) solve(Case);
     //exit(0);
 	//system("fc stdout.txt out.txt");
@@ -77,3 +98,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) ╤тед
 */
+

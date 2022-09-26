@@ -1,11 +1,11 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 9/25/2022 4:55:16 PM
  * Problem:
  * Description:
 */
-//#pragma GCC optimize(2)
-//#pragma GCC optimize(3)
+#pragma GCC optimize(2)
+#pragma GCC optimize(3)
 #include<bits/stdc++.h>
 //#define int long long
 #define pb push_back
@@ -46,21 +46,51 @@ const ll LLINF = 0x3f3f3f3f3f3f3f3f;
 const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 
-const int N = 2e5+10;
-int T=1,n;
+const int N = 1e6+10;
+int T=1,n,sa[N],pos[N],rk[N],oldrk[N],cnt[N];
+string s;
 
 void solve(int Case){
-	read(n);
-
+	cin>>s;
+	n=s.size();
+	s=' '+s;
+	rep(i,1,n) cnt[rk[i]=s[i]]++;
+	rep(i,0,300) cnt[i]+=cnt[i-1];
+	per(i,n,1) sa[cnt[rk[i]]--]=i;
+	memcpy(oldrk,rk,sizeof(rk));
+	rep(i,1,n){
+		if(oldrk[sa[i]]==oldrk[sa[i-1]]) rk[sa[i]]=rk[sa[i-1]];
+		else rk[sa[i]]=rk[sa[i-1]]+1;
+	}
+	for(int w=1;w<n;w<<=1){
+		memset(cnt,0,sizeof(cnt));
+		memcpy(pos,sa,sizeof(sa));
+		rep(i,1,n) ++cnt[rk[pos[i]+w]];
+		rep(i,1,n) cnt[i]+=cnt[i-1];
+		per(i,n,1) sa[cnt[rk[pos[i]+w]]--]=pos[i];
+		memset(cnt,0,sizeof(cnt));
+		memcpy(pos,sa,sizeof(sa));
+		rep(i,1,n) ++cnt[rk[pos[i]]];
+		rep(i,1,n) cnt[i]+=cnt[i-1];
+		per(i,n,1) sa[cnt[rk[pos[i]]]--]=pos[i];
+		memcpy(oldrk,rk,sizeof(rk));
+		rep(i,1,n){
+			if(oldrk[sa[i]]==oldrk[sa[i-1]]&&
+			oldrk[sa[i]+w]==oldrk[sa[i-1]+w]) rk[sa[i]]=rk[sa[i-1]];
+			else rk[sa[i]]=rk[sa[i-1]]+1;
+		}
+	}
+	rep(i,1,n) cout<<sa[i]<<" ";
+	cout<<endl;
 }
 
 signed main(){
     //int size(512<<20);  //512M
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
 	//srand(time(0));
-	//cin.tie(nullptr)->sync_with_stdio(false);
-	//freopen("in.txt","r",stdin);
-	//freopen("stdout.txt","w",stdout);
+	cin.tie(nullptr)->sync_with_stdio(false);
+//	freopen("in.txt","r",stdin);
+//	freopen("stdout.txt","w",stdout);
 	rep(Case,1,T) solve(Case);
     //exit(0);
 	//system("fc stdout.txt out.txt");
@@ -77,3 +107,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) ╤тед
 */
+

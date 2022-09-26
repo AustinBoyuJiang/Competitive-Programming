@@ -1,7 +1,7 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
- * Problem:
+ * Date: 9/25/2022 9:24:45 PM
+ * Problem: Best Cow Line
  * Description:
 */
 //#pragma GCC optimize(2)
@@ -46,12 +46,49 @@ const ll LLINF = 0x3f3f3f3f3f3f3f3f;
 const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 
-const int N = 2e5+10;
-int T=1,n;
+const int N = 1e6+10;
+int T=1,n,m,sa[N],id[N],rk[N],oldrk[N],cnt[N];
+char s[N];
 
 void solve(int Case){
-	read(n);
-
+	cin>>n;
+	m=n*2;
+	rep(i,1,n) cin>>s[i];
+	rep(i,1,n) s[n+i]=s[n-i+1];
+	
+	rep(i,1,m) cnt[rk[i]=s[i]]++; 
+	rep(i,1,300) cnt[i]+=cnt[i-1];
+	per(i,m,1) sa[cnt[rk[i]]--]=i;
+	
+	memcpy(oldrk,rk,sizeof(rk));
+	rep(i,1,m) rk[sa[i]]=rk[sa[i-1]]+
+	!(oldrk[sa[i]]==oldrk[sa[i-1]]);
+	
+	for(int w=1;w<m;w<<=1){
+		memcpy(id,sa,sizeof(sa));
+		memset(cnt,0,sizeof(cnt));
+		rep(i,1,m) cnt[rk[id[i]+w]]++;
+		rep(i,1,m) cnt[i]+=cnt[i-1];
+		per(i,m,1) sa[cnt[rk[id[i]+w]]--]=id[i];
+		
+		memcpy(id,sa,sizeof(sa));
+		memset(cnt,0,sizeof(cnt));
+		rep(i,1,m) cnt[rk[id[i]]]++;
+		rep(i,1,m) cnt[i]+=cnt[i-1];
+		per(i,m,1) sa[cnt[rk[id[i]]]--]=id[i];
+		
+		memcpy(oldrk,rk,sizeof(rk));
+		rep(i,1,m) rk[sa[i]]=rk[sa[i-1]]+
+		!(oldrk[sa[i]]==oldrk[sa[i-1]]&&
+		oldrk[sa[i]+w]==oldrk[sa[i-1]+w]);
+	}
+	
+	int l=1,r=n,cnt=0;
+	rep(i,1,n){
+		if(rk[l]<rk[n*2-r+1]) cout<<s[l++];
+		else cout<<s[r--];
+		if(i%80==0) cout<<endl;
+	}
 }
 
 signed main(){
@@ -77,3 +114,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) ╤тед
 */
+

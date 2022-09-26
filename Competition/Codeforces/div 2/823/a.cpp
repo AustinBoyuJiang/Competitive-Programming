@@ -1,13 +1,13 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 9/25/2022 7:11:11 AM
  * Problem:
  * Description:
 */
 //#pragma GCC optimize(2)
 //#pragma GCC optimize(3)
 #include<bits/stdc++.h>
-//#define int long long
+#define int long long
 #define pb push_back
 #define fir first
 #define sec second
@@ -46,12 +46,22 @@ const ll LLINF = 0x3f3f3f3f3f3f3f3f;
 const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 
-const int N = 2e5+10;
-int T=1,n;
+const int N = 1e4+10;
+int T=1,n,c,a[N],cnt[N];
 
 void solve(int Case){
-	read(n);
-
+	cin>>n>>c;
+	memset(cnt,0,sizeof(cnt));
+	rep(i,1,n){
+		cin>>a[i];
+		cnt[a[i]]++;
+	}
+	int ans=0;
+	rep(i,0,100){
+		if(cnt[i]>c) ans+=c;
+		else ans+=cnt[i];
+	}
+	cout<<ans<<endl;
 }
 
 signed main(){
@@ -61,6 +71,7 @@ signed main(){
 	//cin.tie(nullptr)->sync_with_stdio(false);
 	//freopen("in.txt","r",stdin);
 	//freopen("stdout.txt","w",stdout);
+	cin>>T;
 	rep(Case,1,T) solve(Case);
     //exit(0);
 	//system("fc stdout.txt out.txt");
@@ -77,3 +88,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) ╤тед
 */
+

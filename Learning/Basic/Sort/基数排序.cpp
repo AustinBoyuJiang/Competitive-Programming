@@ -1,11 +1,11 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 9/25/2022 4:20:21 PM
  * Problem:
  * Description:
 */
-//#pragma GCC optimize(2)
-//#pragma GCC optimize(3)
+#pragma GCC optimize(2)
+#pragma GCC optimize(3)
 #include<bits/stdc++.h>
 //#define int long long
 #define pb push_back
@@ -46,12 +46,32 @@ const ll LLINF = 0x3f3f3f3f3f3f3f3f;
 const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 
-const int N = 2e5+10;
-int T=1,n;
+const int N = 2000;
+const int K = 9;
+int T=1,n,cnt[11];
 
-void solve(int Case){
+struct number{
+	int x,d[K];
+} a[N],b[N];
+
+inline void solve(int Case){
 	read(n);
-
+	rep(i,1,n){
+		int x=read();
+		a[i].x=x;
+		rep(j,0,K-1){
+			a[i].d[j]=x%10;
+			x/=10;
+		}
+	}
+	rep(i,0,K-1){
+		memset(cnt,0,sizeof(cnt));
+		rep(j,1,n) cnt[a[j].d[i]]++;
+		per(j,9,0) cnt[j]+=cnt[j+1];
+		per(j,n,1) b[cnt[a[j].d[i]]--]=a[j];
+		rep(j,1,n) a[j]=b[j];
+	}
+	rep(i,1,n) write(a[i].x,' ');
 }
 
 signed main(){
@@ -77,3 +97,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) ╤тед
 */
+
