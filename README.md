@@ -7,8 +7,8 @@ This repository is here to share my code and help me review them.
 [AustinJiang](https://dmoj.ca/user/AustinJiang) on DMOJ
 
 # Past Contests
-| Contests | Date | Time | Scores | Reflection |
-| :------- | :--- | :--- | :----- | :--------- |
+| Contests | Date | Time | Scores | Reflections |
+| :------- | :--- | :--- | :----- | :---------- |
 
 
 # Solved Problems
