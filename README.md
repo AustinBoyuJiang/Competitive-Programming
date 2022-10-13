@@ -12,7 +12,6 @@ This repository is here to share my code and help me review them.
 
 
 # Solved Problems
-
 ## USACO
 | Contests | Problems | Status | Tags | Explains |
 | :------- | :------- | :----- | :--- | :------- |
