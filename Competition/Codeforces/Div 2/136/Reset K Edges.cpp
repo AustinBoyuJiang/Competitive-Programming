@@ -1,20 +1,20 @@
 /*
  * Author: Austin Jiang
- * Date: 10/12/2022 12:55:22 PM
- * Problem:
- * Description: tarjan
+ * Date: 10/12/2022 10:48:53 PM
+ * Problem: Reset K Edges
+ * Description:
 */
 //#pragma GCC optimize(2)
 //#pragma GCC optimize(3)
 #include<bits/stdc++.h>
 //#define int long long
 #define pb push_back
-#define mp make_pair
 #define fir first
 #define sec second
 #define endl '\n'
 #define lb lower_bound
 #define ub upper_bound
+#define all(v) v.begin(),v.end()
 #define PQ priority_queue
 #define random(a,b) rand()%(b-a+1)+a
 #define rep(i,x,y) for(int i=(x);i<=(y);i++)
@@ -47,77 +47,43 @@ const ll LLINF = 0x3f3f3f3f3f3f3f3f;
 const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 
-const int N = 2e4;
-int T=1,n,m,tot,cnt,dfn[N],low[N],col[N],instk[N],vis[N],flag[N];
-stack<int> stk,ans;
+const int N = 2e5+10;
+int T=1,n,k,cnt,fa[N],height[N];
 VI e[N];
 
-int rev(int x){
-	return (x-1^1)+1;
-}
-
-int get(int x){
-	return (x+1)/2;
-}
-
-void dfs(int u){
-	dfn[u]=low[u]=++tot;
-	instk[u]=1,stk.push(u);
+void dfs(int u,int h){
+	height[u]=1;
 	for(auto v:e[u]){
-		if(!dfn[v]) dfs(v);
-		if(instk[v]) chkmin(low[u],low[v]);
+		dfs(v,h);
+		chkmax(height[u],height[v]+1);
 	}
-	if(dfn[u]!=low[u]) return;
-	col[u]=++cnt;
-	while(stk.top()!=u){
-		col[stk.top()]=cnt;
-		instk[stk.top()]=0;
-		stk.pop();
+	if(fa[u]!=1&&height[u]>=h){
+		height[u]=0;
+		cnt++;
 	}
-	instk[u]=0;
-	stk.pop();
 }
 
-bool find(int u){
-	if(vis[get(u)]){
-		if(vis[get(u)]==rev(u)){
-			while(!ans.empty()){
-				vis[get(ans.top())]=0;
-				ans.pop();
-			}
-			return 0;
-		}
-		return 1;
-	}
-	vis[get(u)]=u,ans.push(u);
-	for(auto v:e[u]){
-		if(!find(v)) return 0;
-	}
-	return 1;
+bool check(int h){
+	cnt=0;
+	dfs(1,h);
+	return cnt<=k;
 }
 
 void solve(int Case){
-	cin>>n>>m;
-	rep(i,1,m){
-		int u,v;
-		cin>>u>>v;
-		e[u].pb(rev(v));
-		e[v].pb(rev(u));
+	fa[1]=1;
+	cin>>n>>k;
+	rep(i,1,n) e[i].clear();
+	rep(i,2,n){
+		cin>>fa[i];
+		e[fa[i]].pb(i);
 	}
-	rep(i,1,n*2) if(!dfn[i]) dfs(i);
-	for(int i=1;i<=n*2;i+=2){
-		if(col[i]==col[i+1]){
-			cout<<"NIE"<<endl;
-			return;
-		}
+	int l=1,r=n;
+	while(l<=r){
+		int mid=l+r>>1;
+		if(check(mid)) r=mid-1;
+		else l=mid+1;
 	}
-	rep(i,1,n){
-		if(!find(i*2-1)) find(i*2);
-		while(!ans.empty()){
-			cout<<ans.top()<<endl;
-			ans.pop();
-		}
-	}
+	cout<<r+1<<endl;
 }
 
 signed main(){
@@ -127,6 +93,7 @@ signed main(){
 	//cin.tie(nullptr)->sync_with_stdio(false);
 	//freopen("in.txt","r",stdin);
 	//freopen("stdout.txt","w",stdout);
+	cin>>T;
 	rep(Case,1,T) solve(Case);
     //exit(0);
 	//system("fc stdout.txt out.txt");
