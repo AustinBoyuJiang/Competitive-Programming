@@ -1,7 +1,7 @@
 /*
  * Author: Austin Jiang
- * Date: 9/22/2022 3:50:59 PM
- * Problem: Winter Driving
+ * Date: 10/2/2022 8:25:59 AM
+ * Problem:
  * Description:
 */
 //#pragma GCC optimize(2)
@@ -14,7 +14,6 @@
 #define endl '\n'
 #define lb lower_bound
 #define ub upper_bound
-#define all(v) v.begin(),v.end()
 #define PQ priority_queue
 #define random(a,b) rand()%(b-a+1)+a
 #define rep(i,x,y) for(int i=(x);i<=(y);i++)
@@ -44,120 +43,62 @@ namespace comfun{
 
 const int INF = 0x3f3f3f3f;
 const ll LLINF = 0x3f3f3f3f3f3f3f3f;
-const int MOD = 1e9+7;
+const int MOD = 1e7+9;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 
-const int N = 2e5+10;
-int T=1,n,totsiz,res,ans,root,hson=INF,cnt1,cnt2,tot1,tot2,a[N],p[N];
-VI siz[2],sum[2],e[N];
+const int N = 1e3+10;
+const int K = 30;
+int T=1,n,k,a[N][K],cnt[N];
 
-int findRoot(int u,int fa){
-	int siz=a[u],mx=0;
-	for(auto v:e[u]){
-		if(v==fa) continue;
-		int res=findRoot(v,u);
-		siz+=res;
-		chkmax(mx,res);
-	}
-	chkmax(mx,totsiz-siz);
-	if(mx<hson){
-		root=u;
-		hson=mx;
-	}
-	return siz;
-}
-
-int getSize(int u,int fa){
-	int siz=a[u];
-	for(auto v:e[u]){
-		if(v==fa) continue;
-		siz+=getSize(v,u);
-	}
-	res+=a[u]*(siz-1);
-	return siz;
-}
-
-int tot=0;
-void dfs(int pos,int k){
-	if(pos==siz[k].size()){
-		sum[k].pb(tot);
-		return;
-	}
-	dfs(pos+1,k);
-	tot+=siz[k][pos];
-	dfs(pos+1,k);
-	tot-=siz[k][pos];
-}
-
-int check(int i,int j){
-	int x=sum[0][i]+tot2-sum[1][j];
-	int y=sum[1][j]+tot1-sum[0][i];
-	return x*y+a[root]*(x+y);
-}
+map<int,int> flag;
 
 void solve(int Case){
-	cin>>n;
+	cin>>n>>k;
 	rep(i,1,n){
-		cin>>a[i];
-		totsiz+=a[i];
-	}
-	rep(i,2,n){
-		cin>>p[i];
-		e[i].pb(p[i]);
-		e[p[i]].pb(i);
-	}
-	findRoot(1,0);
-	res=a[root]*(a[root]-1);
-	for(auto v:e[root]){
-		if(siz[0].size()*2<e[root].size()){
-			siz[0].pb(getSize(v,root));
-			tot1+=siz[0][siz[0].size()-1];
+		int res=0;
+		rep(j,1,k){
+			cin>>a[i][j];
+			res=res*3+a[i][j];
 		}
-		else{
-			siz[1].pb(getSize(v,root));
-			tot2+=siz[1][siz[1].size()-1];
-		}
+		flag[res]=i;
 	}
-	dfs(0,0),sort(all(sum[0]));
-	dfs(0,1),sort(all(sum[1]));
-	rep(i,0,sum[0].size()-1){
-		int l=0,r=sum[1].size()-1;
-		while(l<=r){
-			int mid=l+(r-l)/3;
-			int rmid=(r+mid)/2;
-			if(check(i,mid)>check(i,rmid)){
-				r=rmid-1;
-				chkmax(ans,check(i,rmid));
+	rep(i,1,n-2){
+		rep(j,i+1,n-1){
+			int b[K];
+			rep(d,1,k){
+				if(a[i][d]!=a[j][d]){
+					b[d]=3-a[i][d]-a[j][d];
+				}
+				else b[d]=a[i][d];
 			}
+			int res=0;
+			rep(d,1,k){
+				res=res*3+b[d];
+			}
+			if(!flag[res]||flag[res]<=j) continue;
 			else{
-				l=mid+1;
-				chkmax(ans,check(i,mid));
+				cnt[i]++;
+				cnt[j]++;
+				cnt[flag[res]]++;
 			}
 		}
 	}
-	cout<<ans+res<<endl;
+	int ans=0;
+	rep(i,1,n){
+		ans+=cnt[i]*(cnt[i]-1)/2;
+	}
+	cout<<ans<<endl;
 }
-/*
-37
-5948 6516 436 4408 824 9605 7220 2958 1130 7141 1909 8797 3690 1889 593 1619 8419 7960 6021 9458 8517 2766 6514 5248 9073 9436 6526 9447 6448 9886 6673 5286 3661 500 2937 3902 3766
-1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
-
-11655788958
-
-5
-5 2 3 4 5
-1 1 1 1
-*/
 
 signed main(){
-    int size(512<<20);  //512M
-    __asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
+    //int size(512<<20);  //512M
+    //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
 	//srand(time(0));
 	//cin.tie(nullptr)->sync_with_stdio(false);
 	//freopen("in.txt","r",stdin);
 	//freopen("stdout.txt","w",stdout);
 	rep(Case,1,T) solve(Case);
-    exit(0);
+    //exit(0);
 	//system("fc stdout.txt out.txt");
 	return 0;
 }

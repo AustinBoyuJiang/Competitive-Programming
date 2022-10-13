@@ -14,6 +14,7 @@
 #define endl '\n'
 #define lb lower_bound
 #define ub upper_bound
+#define all(v) v.begin(),v.end()
 #define PQ priority_queue
 #define random(a,b) rand()%(b-a+1)+a
 #define rep(i,x,y) for(int i=(x);i<=(y);i++)

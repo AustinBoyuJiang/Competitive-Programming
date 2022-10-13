@@ -74,6 +74,10 @@ void solve(int Case){
 			if(x!=p[j].end()) e[i].pb(*x);
 			auto y=lb(all(p[j]),i);
 			if(y!=p[j].begin()) e[i].pb(*(y-1));
+			if(p[j].size()){
+				e[i].pb(p[j][0]);
+				e[i].pb(p[j][p[j].size()-1]);
+			}
 		}
 	}
 	memset(dist,0x3f,sizeof(dist));
@@ -100,8 +104,8 @@ signed main(){
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
 	//srand(time(0));
 	//cin.tie(nullptr)->sync_with_stdio(false);
-	freopen("in.txt","r",stdin);
-//	freopen("stdout.txt","w",stdout);
+	//freopen("in.txt","r",stdin);
+	//freopen("stdout.txt","w",stdout);
 	rep(Case,1,T) solve(Case);
     //exit(0);
 	//system("fc stdout.txt out.txt");

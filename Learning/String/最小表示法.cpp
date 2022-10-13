@@ -31,8 +31,8 @@ signed main(){
 	while(i<n&&j<n&&k<n){
 		if(str[i+k]==str[j+k]) k++;
 		else{
-			if(str[i+k]>str[j+k]) i++;
-			else j++;
+			if(str[i+k]>str[j+k]) i+=k+1;
+			else j+=k+1;
 			if(i==j) i++;
 			k=0;
 		}

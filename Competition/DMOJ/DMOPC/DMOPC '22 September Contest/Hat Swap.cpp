@@ -1,20 +1,19 @@
 /*
  * Author: Austin Jiang
- * Date: 9/22/2022 3:50:59 PM
- * Problem: Winter Driving
+ * Date: 9/30/2022 8:49:01 AM
+ * Problem:
  * Description:
 */
 //#pragma GCC optimize(2)
 //#pragma GCC optimize(3)
 #include<bits/stdc++.h>
-#define int long long
+//#define int long long
 #define pb push_back
 #define fir first
 #define sec second
 #define endl '\n'
 #define lb lower_bound
 #define ub upper_bound
-#define all(v) v.begin(),v.end()
 #define PQ priority_queue
 #define random(a,b) rand()%(b-a+1)+a
 #define rep(i,x,y) for(int i=(x);i<=(y);i++)
@@ -47,117 +46,75 @@ const ll LLINF = 0x3f3f3f3f3f3f3f3f;
 const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 
-const int N = 2e5+10;
-int T=1,n,totsiz,res,ans,root,hson=INF,cnt1,cnt2,tot1,tot2,a[N],p[N];
-VI siz[2],sum[2],e[N];
+const int N = 1e6+10;
+int T=1,n,m,c[N],dist[2][N];
+PI disc[2][N][2];
+VI e[N];
 
-int findRoot(int u,int fa){
-	int siz=a[u],mx=0;
-	for(auto v:e[u]){
-		if(v==fa) continue;
-		int res=findRoot(v,u);
-		siz+=res;
-		chkmax(mx,res);
+void bfs(int st,int k){
+	memset(dist[k],0x3f,sizeof(dist[k]));
+	dist[k][st]=0;
+	queue<int> q;
+	q.push(st);
+	while(!q.empty()){
+		int u=q.front();
+		q.pop();
+		for(auto v:e[u]){
+			if(dist[k][v]!=INF) continue;
+			dist[k][v]=dist[k][u]+1;
+			q.push(v);
+		}
 	}
-	chkmax(mx,totsiz-siz);
-	if(mx<hson){
-		root=u;
-		hson=mx;
-	}
-	return siz;
 }
 
-int getSize(int u,int fa){
-	int siz=a[u];
-	for(auto v:e[u]){
-		if(v==fa) continue;
-		siz+=getSize(v,u);
+int check(int i){
+	if(disc[0][i][0].fir==INF||disc[1][i][0].fir==INF) return INF;
+	if(disc[0][i][0].sec==disc[1][i][0].sec){
+		return min(disc[0][i][0].fir+disc[1][i][1].fir,disc[0][i][1].fir+disc[1][i][0].fir);
 	}
-	res+=a[u]*(siz-1);
-	return siz;
-}
-
-int tot=0;
-void dfs(int pos,int k){
-	if(pos==siz[k].size()){
-		sum[k].pb(tot);
-		return;
-	}
-	dfs(pos+1,k);
-	tot+=siz[k][pos];
-	dfs(pos+1,k);
-	tot-=siz[k][pos];
-}
-
-int check(int i,int j){
-	int x=sum[0][i]+tot2-sum[1][j];
-	int y=sum[1][j]+tot1-sum[0][i];
-	return x*y+a[root]*(x+y);
+	return disc[0][i][0].fir+disc[1][i][0].fir;
 }
 
 void solve(int Case){
-	cin>>n;
+	cin>>n>>m;
+	rep(i,1,n) cin>>c[i];
+	rep(i,1,m){
+		int u,v;
+		cin>>u>>v;
+		e[u].pb(v);
+		e[v].pb(u);
+	}
+	bfs(1,0);
+	bfs(n,1);
 	rep(i,1,n){
-		cin>>a[i];
-		totsiz+=a[i];
+		disc[0][i][0]=disc[0][i][1]={INF,INF};
+		disc[1][i][0]=disc[1][i][1]={INF,INF};
 	}
-	rep(i,2,n){
-		cin>>p[i];
-		e[i].pb(p[i]);
-		e[p[i]].pb(i);
+	rep(i,1,n){
+		chkmin(disc[0][c[i]][1],max(disc[0][c[i]][0],{dist[0][i],i}));
+		chkmin(disc[0][c[i]][0],{dist[0][i],i});
 	}
-	findRoot(1,0);
-	res=a[root]*(a[root]-1);
-	for(auto v:e[root]){
-		if(siz[0].size()*2<e[root].size()){
-			siz[0].pb(getSize(v,root));
-			tot1+=siz[0][siz[0].size()-1];
-		}
-		else{
-			siz[1].pb(getSize(v,root));
-			tot2+=siz[1][siz[1].size()-1];
-		}
+	rep(i,1,n){
+		chkmin(disc[1][c[i]][1],max(disc[1][c[i]][0],{dist[1][i],i}));
+		chkmin(disc[1][c[i]][0],{dist[1][i],i});
 	}
-	dfs(0,0),sort(all(sum[0]));
-	dfs(0,1),sort(all(sum[1]));
-	rep(i,0,sum[0].size()-1){
-		int l=0,r=sum[1].size()-1;
-		while(l<=r){
-			int mid=l+(r-l)/3;
-			int rmid=(r+mid)/2;
-			if(check(i,mid)>check(i,rmid)){
-				r=rmid-1;
-				chkmax(ans,check(i,rmid));
-			}
-			else{
-				l=mid+1;
-				chkmax(ans,check(i,mid));
-			}
-		}
+	int ans=INF;
+	rep(i,1,n){
+		chkmin(ans,check(i));
 	}
-	cout<<ans+res<<endl;
+	if(ans==INF) ans=-1;
+	cout<<ans<<endl;
 }
-/*
-37
-5948 6516 436 4408 824 9605 7220 2958 1130 7141 1909 8797 3690 1889 593 1619 8419 7960 6021 9458 8517 2766 6514 5248 9073 9436 6526 9447 6448 9886 6673 5286 3661 500 2937 3902 3766
-1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
-
-11655788958
-
-5
-5 2 3 4 5
-1 1 1 1
-*/
 
 signed main(){
-    int size(512<<20);  //512M
-    __asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
+    //int size(512<<20);  //512M
+    //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
 	//srand(time(0));
 	//cin.tie(nullptr)->sync_with_stdio(false);
 	//freopen("in.txt","r",stdin);
 	//freopen("stdout.txt","w",stdout);
 	rep(Case,1,T) solve(Case);
-    exit(0);
+    //exit(0);
 	//system("fc stdout.txt out.txt");
 	return 0;
 }
