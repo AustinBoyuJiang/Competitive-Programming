@@ -1,10 +1,9 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
- * Problem:
+ * Date: 10/14/2022 10:17:46 AM
+ * Problem: 均分数据
  * Description:
 */
-
 //#pragma GCC optimize(2)
 //#pragma GCC optimize(3)
 #include<bits/stdc++.h>
@@ -43,41 +42,58 @@ namespace comfun{
 	template<typename T> inline bool is_prime(T x){if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false; return true;}
 } using namespace comfun;
 
-
 const int INF = 0x3f3f3f3f;
 const ll LLINF = 0x3f3f3f3f3f3f3f3f;
 const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 
-struct fenwick{ 
-	int sum[(int)1e6+10];
-	void add(int x,int y){ for(int i=x;i<=1e6;i+=lowbit(i)) sum[i]+=y;}
-	int ask(int x,int y){ int res=0; for(int i=y;i>0;i-=lowbit(i)) res+=sum[i];
-	for(int i=x-1;i>0;i-=lowbit(i)) res-=sum[i]; return res;}
-};
+const int N = 30;
+const int M = 10;
+int T=1,n,m,a[N],sum[M];
+double ans=INF;
 
-// =======================================| Program |=======================================
+double calc(){
+	memset(sum,0,sizeof(sum));
+	rep(i,1,n){
+		int k=1;
+		rep(j,1,m) if(sum[j]<sum[k]) k=j;
+		sum[k]+=a[i];
+	}
+	double avg=0,res=0;
+	rep(i,1,m) avg+=sum[i];
+	avg/=m;
+	rep(i,1,m) res+=(sum[i]-avg)*(sum[i]-avg);
+	res=sqrt(res/m);
+	chkmin(ans,res);
+	return res;
+}
 
-const int N = 1e6+10;
-int n;
+void simulated_anneal(){
+	random_shuffle(a+1,a+n+1);
+	for(double t=1e4;t>=1e-6;t*=0.99){
+		int x=random(1,n),y=random(1,n);
+		double res=calc();
+		swap(a[x],a[y]);
+		int delta=calc()-res;
+		if(exp(-delta/t)<(double)rand()/RAND_MAX) swap(a[x],a[y]);
+	}
+}
 
 void solve(int Case){
-	cin>>n;
-	
+	scanf("%d %d",&n,&m);
+	rep(i,1,n) scanf("%d",&a[i]);
+	rep(i,1,100) simulated_anneal();
+	printf("%.2lf\n",ans);
 }
-                              
-// =====================================| Program End |=====================================
 
 signed main(){
-	srand(time(0));
     //int size(512<<20);  //512M
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
+	srand(time(0));
 	//cin.tie(nullptr)->sync_with_stdio(false);
 	//freopen("in.txt","r",stdin);
 	//freopen("stdout.txt","w",stdout);
-	int CASE=1;
-	//cin>>CASE;
-	rep(Case,1,CASE) solve(Case);
+	rep(Case,1,T) solve(Case);
     //exit(0);
 	//system("fc stdout.txt out.txt");
 	return 0;
@@ -91,5 +107,6 @@ signed main(){
     * don't stuck on one question for two long (like 30-45 min)
     * Debug: (a) read your code once, check overflow, check edge case
     * Debug: (b) create your own test case
-    * Debug: (c) duipai
+    * Debug: (c) 对拍
 */
+

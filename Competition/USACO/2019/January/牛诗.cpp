@@ -1,14 +1,14 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
- * Problem:
+ * Date: 10/16/2022 11:05:46 PM
+ * Problem: 
  * Description:
 */
 
 //#pragma GCC optimize(2)
 //#pragma GCC optimize(3)
 #include<bits/stdc++.h>
-//#define int long long
+#define int long long
 #define pb push_back
 #define fir first
 #define sec second
@@ -49,7 +49,7 @@ const ll LLINF = 0x3f3f3f3f3f3f3f3f;
 const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 
-struct fenwick{ 
+struct fenwick{
 	int sum[(int)1e6+10];
 	void add(int x,int y){ for(int i=x;i<=1e6;i+=lowbit(i)) sum[i]+=y;}
 	int ask(int x,int y){ int res=0; for(int i=y;i>0;i-=lowbit(i)) res+=sum[i];
@@ -58,14 +58,56 @@ struct fenwick{
 
 // =======================================| Program |=======================================
 
-const int N = 1e6+10;
-int n;
+const int N = 5010;
+int n,m,k,s[N],c[N],dp[N],sum[N],cnt[N];
+
+int pow(int a,int b){
+	int ans=1;
+	while(b){
+		if(b&1){
+			ans*=a;
+			ans%=MOD;
+		}
+		a*=a;
+		a%=MOD;
+		b>>=1;
+	}
+	return ans;
+}
 
 void solve(int Case){
-	cin>>n;
-	
+	cin>>n>>m>>k;
+	rep(i,1,n) cin>>s[i]>>c[i];
+	dp[0]=1;
+	rep(i,1,k-1){
+		rep(j,1,n){
+			if(i-s[j]>=0) dp[i]+=dp[i-s[j]];
+			dp[i]%=MOD;
+		}
+	}
+	rep(i,1,n){
+		sum[c[i]]+=dp[k-s[i]];
+		sum[c[i]]%=MOD;
+	}
+	rep(i,1,m){
+		char x;
+		cin>>x;
+		cnt[x-'A'+1]++;
+	}
+	int ans=1;
+	rep(i,1,26){
+		if(!cnt[i]) continue;
+		int res=0;
+		rep(j,1,n){
+			res+=pow(sum[j],cnt[i]);
+			res%=MOD;
+		}
+		ans*=res;
+		ans%=MOD;
+	}
+	cout<<ans<<endl;
 }
-                              
+
 // =====================================| Program End |=====================================
 
 signed main(){
@@ -93,3 +135,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) duipai
 */
+

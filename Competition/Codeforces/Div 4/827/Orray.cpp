@@ -1,12 +1,11 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 10/13/2022 9:02:36 AM
  * Problem:
  * Description:
 */
-
-//#pragma GCC optimize(2)
-//#pragma GCC optimize(3)
+#pragma GCC optimize(2)
+#pragma GCC optimize(3)
 #include<bits/stdc++.h>
 //#define int long long
 #define pb push_back
@@ -43,41 +42,52 @@ namespace comfun{
 	template<typename T> inline bool is_prime(T x){if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false; return true;}
 } using namespace comfun;
 
-
 const int INF = 0x3f3f3f3f;
 const ll LLINF = 0x3f3f3f3f3f3f3f3f;
 const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 
-struct fenwick{ 
-	int sum[(int)1e6+10];
-	void add(int x,int y){ for(int i=x;i<=1e6;i+=lowbit(i)) sum[i]+=y;}
-	int ask(int x,int y){ int res=0; for(int i=y;i>0;i-=lowbit(i)) res+=sum[i];
-	for(int i=x-1;i>0;i-=lowbit(i)) res-=sum[i]; return res;}
-};
+const int N = 2e5+10;
+int T=1,n,a[N],b[N],f[N],flag[N];
+VI e[32];
 
-// =======================================| Program |=======================================
-
-const int N = 1e6+10;
-int n;
+bool cmp(int i,int j){
+	if(flag[i]==flag[j]) return b[i]>b[j];
+	return flag[i]<flag[j];
+}
 
 void solve(int Case){
 	cin>>n;
-	
+	rep(i,1,n){
+		cin>>a[i];
+		b[i]=a[i];
+		f[i]=i;
+		flag[i]=0;
+	}
+	int cnt=0,ans=0;
+	per(i,31,0){
+		int pos=0;
+		rep(i,1,n) if(!flag[i]&&(!pos||b[i]>b[pos])) pos=i;
+		if(pos&&b[f[pos]]&(1<<i)){
+			cout<<a[f[pos]]<<" ";
+			ans+=b[f[pos]];
+			flag[f[pos]]=1;
+		}
+		rep(i,1,n) b[i]&=~ans;
+	}
+	rep(i,1,n) if(!flag[i]) cout<<a[i]<<" ";
+	cout<<endl;
 }
-                              
-// =====================================| Program End |=====================================
 
 signed main(){
-	srand(time(0));
     //int size(512<<20);  //512M
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
+	//srand(time(0));
 	//cin.tie(nullptr)->sync_with_stdio(false);
 	//freopen("in.txt","r",stdin);
 	//freopen("stdout.txt","w",stdout);
-	int CASE=1;
-	//cin>>CASE;
-	rep(Case,1,CASE) solve(Case);
+	cin>>T;
+	rep(Case,1,T) solve(Case);
     //exit(0);
 	//system("fc stdout.txt out.txt");
 	return 0;
@@ -91,5 +101,6 @@ signed main(){
     * don't stuck on one question for two long (like 30-45 min)
     * Debug: (a) read your code once, check overflow, check edge case
     * Debug: (b) create your own test case
-    * Debug: (c) duipai
+    * Debug: (c) ╤тед
 */
+

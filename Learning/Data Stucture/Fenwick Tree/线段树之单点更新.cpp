@@ -25,8 +25,8 @@ int lowbit(int x){
 	return x&-x;
 }
 
-void update(int x,int v){
-	for(int i=x;i<=n;i+=lowbit(i)) sum[i]+=v;
+void update(int x,int y){
+	for(int i=x;i<=n;i+=lowbit(i)) sum[i]+=y;
 }
 
 int query(int x){

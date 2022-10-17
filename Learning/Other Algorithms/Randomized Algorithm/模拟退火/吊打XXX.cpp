@@ -1,10 +1,9 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
- * Problem:
+ * Date: 10/14/2022 11:14:32 AM
+ * Problem: µı¥ÚXXX
  * Description:
 */
-
 //#pragma GCC optimize(2)
 //#pragma GCC optimize(3)
 #include<bits/stdc++.h>
@@ -43,41 +42,78 @@ namespace comfun{
 	template<typename T> inline bool is_prime(T x){if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false; return true;}
 } using namespace comfun;
 
-
 const int INF = 0x3f3f3f3f;
 const ll LLINF = 0x3f3f3f3f3f3f3f3f;
 const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 
-struct fenwick{ 
-	int sum[(int)1e6+10];
-	void add(int x,int y){ for(int i=x;i<=1e6;i+=lowbit(i)) sum[i]+=y;}
-	int ask(int x,int y){ int res=0; for(int i=y;i>0;i-=lowbit(i)) res+=sum[i];
-	for(int i=x-1;i>0;i-=lowbit(i)) res-=sum[i]; return res;}
-};
+const int N = 1e4+10;
+int T=1,n;
+double ans=INF,ansx,ansy;
 
-// =======================================| Program |=======================================
+struct node{
+	int x,y,w;
+} st[N];
 
-const int N = 1e6+10;
-int n;
+double Rand(){
+	return (double) rand()/RAND_MAX;
+}
+
+double calc(double x,double y){
+	double res=0;
+	rep(i,1,n){
+		double dx=x-st[i].x;
+		double dy=y-st[i].y;
+		double dis=sqrt(dx*dx+dy*dy);
+		res+=dis*st[i].w;
+	}
+	if(res<ans){
+		ansx=x;
+		ansy=y;
+		ans=res;
+	}
+	return res;
+}
+
+void simulated_anneal(){
+	double t=1e5;
+	for(;t>1e-3;t*=0.99){
+		double nxtx=ansx+t*(Rand()*2-1);
+		double nxty=ansy+t*(Rand()*2-1);
+		double delta=calc(nxtx,nxty)-calc(ansx,ansy);
+		if(exp(-delta/t)>Rand()){
+			ansx=nxtx;
+			ansy=nxty;
+		}
+	}
+	rep(i,1,1000){
+		double nxtx=ansx+t*(Rand()*2-1);
+		double nxty=ansy+t*(Rand()*2-1);
+		calc(nxtx,nxty);
+	}
+}
 
 void solve(int Case){
-	cin>>n;
-	
+	scanf("%d",&n);
+	rep(i,1,n){
+		scanf("%d %d %d",&st[i].x,&st[i].y,&st[i].w);
+		ansx+=st[i].x;
+		ansy+=st[i].y;
+	}
+	ansx/=n,ansy/=n;
+	ans=calc(ansx,ansy);
+	simulated_anneal();
+	printf("%.3lf %.3lf",ansx,ansy);
 }
-                              
-// =====================================| Program End |=====================================
 
 signed main(){
-	srand(time(0));
     //int size(512<<20);  //512M
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
+	srand(time(0));
 	//cin.tie(nullptr)->sync_with_stdio(false);
 	//freopen("in.txt","r",stdin);
 	//freopen("stdout.txt","w",stdout);
-	int CASE=1;
-	//cin>>CASE;
-	rep(Case,1,CASE) solve(Case);
+	rep(Case,1,T) solve(Case);
     //exit(0);
 	//system("fc stdout.txt out.txt");
 	return 0;
@@ -91,5 +127,6 @@ signed main(){
     * don't stuck on one question for two long (like 30-45 min)
     * Debug: (a) read your code once, check overflow, check edge case
     * Debug: (b) create your own test case
-    * Debug: (c) duipai
+    * Debug: (c) ∂‘≈ƒ
 */
+

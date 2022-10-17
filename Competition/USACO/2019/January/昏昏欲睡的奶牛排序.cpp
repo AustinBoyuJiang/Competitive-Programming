@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 10/17/2022 12:09:22 AM
  * Problem:
  * Description:
 */
@@ -49,23 +49,37 @@ const ll LLINF = 0x3f3f3f3f3f3f3f3f;
 const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 
-struct fenwick{ 
+struct fenwick{
 	int sum[(int)1e6+10];
 	void add(int x,int y){ for(int i=x;i<=1e6;i+=lowbit(i)) sum[i]+=y;}
 	int ask(int x,int y){ int res=0; for(int i=y;i>0;i-=lowbit(i)) res+=sum[i];
 	for(int i=x-1;i>0;i-=lowbit(i)) res-=sum[i]; return res;}
-};
+} fw;
 
 // =======================================| Program |=======================================
 
 const int N = 1e6+10;
-int n;
+int n,k,a[N];
 
 void solve(int Case){
 	cin>>n;
-	
+	rep(i,1,n){
+		cin>>a[i];
+	}
+	k=n-1;
+	per(i,n,2){
+		if(a[i]>a[i-1]) k--;
+		else break;
+	}
+	rep(i,k+1,n) fw.add(a[i],1);
+	cout<<k<<endl;
+	for(int i=1;i<=k;i++){
+		cout<<k-i+fw.ask(1,a[i])<<" ";
+		fw.add(a[i],1);
+	}
+	cout<<endl;
 }
-                              
+
 // =====================================| Program End |=====================================
 
 signed main(){
@@ -93,3 +107,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) duipai
 */
+
