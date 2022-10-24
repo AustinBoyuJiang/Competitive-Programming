@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 10/24/2022 12:53:52 AM
  * Problem:
  * Description:
 */
@@ -68,14 +68,54 @@ struct fenwick_interval{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
-int n;
+const int N = 1e5+10;
+int n,ans,a[N],b[N],bs[N],res[N];
+stack<int> stk[N];
+
+int check(int x){
+	int hd=1,tp=0,cnt=1;
+	rep(i,1,x) b[i]=a[i];
+	sort(b+1,b+x+1);
+	rep(i,1,x){
+		int pos=tp+1,l=hd,r=tp;
+		while(l<=r){
+			int mid=l+r>>1;
+			if(a[i]<bs[mid]){
+				pos=mid;
+				r=mid-1;
+			}
+			else l=mid+1;
+		}
+		if(pos==tp+1) bs[++tp]=a[i];
+		stk[pos].push(a[i]);
+		if(pos==hd) while(1){
+			while(!stk[hd].empty()&&b[cnt]==stk[hd].top()){
+				stk[hd].pop();
+				cnt++;
+			}
+			if(hd<=tp&&stk[hd].empty()) hd++;
+			else break;
+		}
+	}
+	rep(i,1,n) while(!stk[i].empty()) stk[i].pop();
+	return cnt>x;
+}
 
 void solve(int Case){
 	cin>>n;
-
+	rep(i,1,n) cin>>a[i];
+	int l=1,r=n;
+	while(l<=r){
+		int mid=l+r>>1;
+		if(check(mid)){
+			ans=mid;
+			l=mid+1;
+		}
+		else r=mid-1;
+	}
+	cout<<ans<<endl;
 }
-                              
+
 /* ======================================| Main Program End |====================================== */
 
 signed main(){
@@ -103,3 +143,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) duipai
 */
+

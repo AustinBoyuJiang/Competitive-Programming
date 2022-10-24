@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 10/23/2022 12:23:04 AM
  * Problem:
  * Description:
 */
@@ -69,13 +69,70 @@ struct fenwick_interval{
 /* ========================================| Main Program |======================================== */
 
 const int N = 1e6+10;
-int n;
+int n,sum,a[N];
+VPI ans;
 
 void solve(int Case){
 	cin>>n;
-
+	sum=0;
+	ans.clear();
+	rep(i,1,n){
+		cin>>a[i];
+		if(i%2==1) sum+=a[i];
+		else sum-=a[i];
+	}
+	if(abs(sum)%2==1){
+		cout<<-1<<endl;
+		return;
+	}
+	if(sum==0){
+		cout<<1<<endl;
+		cout<<1<<" "<<n<<endl;
+		return;
+	}
+	for(int i=1;i<=n;i+=2){
+		if(a[i]==a[i+1]){
+			ans.pb({i,i+1});
+		}
+		else{
+			ans.pb({i,i});
+			ans.pb({i+1,i+1});
+		}
+	}
+	cout<<ans.size()<<endl;
+	for(auto x:ans){
+		cout<<x.fir<<" "<<x.sec<<endl;
+	}
+//	if(sum%2==1){
+//		cout<<-1<<endl;
+//		return;
+//	}
+//	int tmp=abs(sum);
+//	cout<<sum<<endl;
+//	int lst=0;
+//	rep(i,1,n){
+//		if(sum>0&&(i-lst)%2==0&&a[i]<0){
+//			ans.pb({lst+1,i-1});
+//			sum-=2;
+//			lst=i-1;
+//		}
+//		if(sum<0&&(i-lst)%2==0&&a[i]>0){
+//			ans.pb({lst+1,i-1});
+//			sum+=2;
+//			lst=i-1;
+//		}
+//	}
+//	if(lst+1<=n) ans.pb({lst+1,n});
+//	if(sum!=0){
+//		cout<<-1<<endl;
+//		return;
+//	}
+//	cout<<tmp/2+1<<endl;
+//	for(auto x:ans){
+//		cout<<x.fir<<" "<<x.sec<<endl;
+//	}
 }
-                              
+
 /* ======================================| Main Program End |====================================== */
 
 signed main(){
@@ -86,7 +143,7 @@ signed main(){
 	//freopen("in.txt","r",stdin);
 	//freopen("stdout.txt","w",stdout);
 	int CASE=1;
-	//cin>>CASE;
+	cin>>CASE;
 	rep(Case,1,CASE) solve(Case);
     //exit(0);
 	//system("fc stdout.txt out.txt");
@@ -103,3 +160,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) duipai
 */
+

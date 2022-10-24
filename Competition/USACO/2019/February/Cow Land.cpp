@@ -1,7 +1,7 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
- * Problem:
+ * Date: 10/23/2022 11:06:34 PM
+ * Problem: Cow Land
  * Description:
 */
 
@@ -68,14 +68,115 @@ struct fenwick_interval{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
-int n;
+const int N = 1e5+10;
+int n,q,a[N],st[N<<2];
+int dep[N],f[N][20];
+int tot,dfn[N],rnk[N],siz[N],hson[N],top[N];
+VI e[N];
+
+void dfs1(int u,int fa){
+	dep[u]=dep[fa]+1;
+	f[u][0]=fa;
+	rep(i,1,19) f[u][i]=f[f[u][i-1]][i-1];
+	siz[u]=1;
+	for(auto v:e[u]){
+		if(v==fa) continue;
+		dfs1(v,u);
+		siz[u]+=siz[v];
+		if(siz[v]>siz[hson[u]])
+			hson[u]=v;
+	}
+}
+
+void dfs2(int u,int tp){
+	top[u]=tp;
+	dfn[u]=++tot;
+	rnk[tot]=u;
+	if(hson[u]) dfs2(hson[u],tp);
+	for(auto v:e[u]){
+		if(v==hson[u]||v==f[u][0]) continue;
+		dfs2(v,v);
+	}
+}
+
+void build(int rt,int l,int r){
+	if(l==r){
+		st[rt]=a[rnk[l]];
+		return;
+	}
+	int mid=l+r>>1;
+	build(rt<<1,l,mid);
+	build(rt<<1|1,mid+1,r);
+	st[rt]=st[rt<<1]^st[rt<<1|1];
+}
+
+void update(int rt,int l,int r,int x,int y){
+	if(l==r){
+		st[rt]=y;
+		return;
+	}
+	int mid=l+r>>1;
+	if(x<=mid) update(rt<<1,l,mid,x,y);
+	else update(rt<<1|1,mid+1,r,x,y);
+	st[rt]=st[rt<<1]^st[rt<<1|1];
+}
+
+int query(int rt,int l,int r,int x,int y){
+	if(l==x&&r==y) return st[rt];
+	int mid=l+r>>1;
+	if(y<=mid) return query(rt<<1,l,mid,x,y);
+	else if(x>mid) return query(rt<<1|1,mid+1,r,x,y);
+	return query(rt<<1,l,mid,x,mid)^query(rt<<1|1,mid+1,r,mid+1,y);
+}
+
+int check(int x,int tar){
+	int ans=0;
+	while(top[x]!=top[tar]){
+		ans^=query(1,1,n,dfn[top[x]],dfn[x]);
+		x=f[top[x]][0];
+	}
+	ans^=query(1,1,n,dfn[tar],dfn[x]);
+	return ans;
+}
+
+int LCA(int x,int y){
+	if(dep[x]<dep[y]) swap(x,y);
+	per(i,19,0){
+		if(dep[f[x][i]]>=dep[y]) x=f[x][i];
+		if(x==y) return x;
+	}
+	per(i,19,0){
+		if(f[x][i]!=f[y][i]){
+			x=f[x][i];
+			y=f[y][i];
+		}
+	}
+	return f[x][0];
+}
 
 void solve(int Case){
-	cin>>n;
-
+	cin>>n>>q;
+	rep(i,1,n) cin>>a[i];
+	rep(i,1,n-1){
+		int u,v;
+		cin>>u>>v;
+		e[u].pb(v);
+		e[v].pb(u);
+	}
+	dfs1(1,0);
+	dfs2(1,1);
+	build(1,1,n);
+	rep(i,1,q){
+		int opt,x,y;
+		cin>>opt>>x>>y;
+		if(opt==1) update(1,1,n,dfn[x],y);
+		else{
+			int lca=LCA(x,y);
+			cout<<(check(x,lca)^check(y,lca)^query(1,1,n,dfn[lca],dfn[lca]))<<endl;
+		}
+	}
 }
-                              
+
 /* ======================================| Main Program End |====================================== */
 
 signed main(){
@@ -103,3 +204,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) duipai
 */
+

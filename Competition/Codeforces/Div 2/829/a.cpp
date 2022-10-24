@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 10/23/2022 12:22:14 AM
  * Problem:
  * Description:
 */
@@ -73,9 +73,24 @@ int n;
 
 void solve(int Case){
 	cin>>n;
-
+	string s;
+	cin>>s;
+	if(s[0]=='A'){
+		cout<<"No"<<endl;
+		return;
+	}
+	int cnt=0;
+	for(auto x:s){
+		if(x=='Q') cnt++;
+		else cnt=max(0,cnt-1);
+	}
+	if(cnt){
+		cout<<"No"<<endl;
+		return;
+	}
+	cout<<"Yes"<<endl;
 }
-                              
+
 /* ======================================| Main Program End |====================================== */
 
 signed main(){
@@ -86,7 +101,7 @@ signed main(){
 	//freopen("in.txt","r",stdin);
 	//freopen("stdout.txt","w",stdout);
 	int CASE=1;
-	//cin>>CASE;
+	cin>>CASE;
 	rep(Case,1,CASE) solve(Case);
     //exit(0);
 	//system("fc stdout.txt out.txt");
@@ -103,3 +118,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) duipai
 */
+

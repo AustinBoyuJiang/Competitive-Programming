@@ -1,7 +1,7 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
- * Problem:
+ * Date: 10/23/2022 6:14:10 PM
+ * Problem: 
  * Description:
 */
 
@@ -68,14 +68,131 @@ struct fenwick_interval{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
-int n;
+const int N = 1e5+10;
+const int M = 1e5+10;
+int n,m,tot,a[N],ans[M];
+int dep[N],siz[N],hson[N],f[N][20],dfn[N],rnk[N],top[N];
+int st[N<<2];
+VI e[N],pos[N];
+
+struct Query{
+	int a,b,c,id;
+} q[M];
+
+bool cmp(Query a,Query b){
+	return a.c>b.c;
+}
+
+void dfs1(int u,int fa){
+	dep[u]=dep[fa]+1;
+	f[u][0]=fa;
+	rep(i,1,19) f[u][i]=f[f[u][i-1]][i-1];
+	siz[u]=1;
+	for(auto v:e[u]){
+		if(v==fa) continue;
+		dfs1(v,u);
+		siz[u]+=siz[v];
+		if(siz[v]>siz[hson[u]]) hson[u]=v;
+	}
+}
+
+void dfs2(int u,int tp){
+	dfn[u]=++tot;
+	rnk[tot]=u;
+	top[u]=tp;
+	if(hson[u]) dfs2(hson[u],tp);
+	for(auto v:e[u]){
+		if(v==hson[u]||v==f[u][0]) continue;
+		dfs2(v,v);
+	}
+}
+
+void build(int rt,int l,int r){
+	if(l==r){
+		st[rt]=a[rnk[l]];
+		return;
+	}
+	int mid=l+r>>1;
+	build(rt<<1,l,mid);
+	build(rt<<1|1,mid+1,r);
+	st[rt]=max(st[rt<<1],st[rt<<1|1]);
+}
+
+void update(int rt,int l,int r,int x,int y){
+	if(l==r){
+		st[rt]=y;
+		return;
+	}
+	int mid=l+r>>1;
+	if(x<=mid) update(rt<<1,l,mid,x,y);
+	else update(rt<<1|1,mid+1,r,x,y);
+	st[rt]=max(st[rt<<1],st[rt<<1|1]);
+}
+
+int query(int rt,int l,int r,int x,int y){
+	if(l==x&&r==y) return st[rt];
+	int mid=l+r>>1;
+	if(y<=mid) return query(rt<<1,l,mid,x,y);
+	else if(x>mid) return query(rt<<1|1,mid+1,r,x,y);
+	else return max(query(rt<<1,l,mid,x,mid),query(rt<<1|1,mid+1,r,mid+1,y));
+}
+
+int LCA(int x,int y){
+	if(dep[x]<dep[y]) swap(x,y);
+	per(i,19,0){
+		if(dep[f[x][i]]>=dep[y]) x=f[x][i];
+		if(x==y) return x;
+	}
+	per(i,19,0){
+		if(f[x][i]!=f[y][i]){
+			x=f[x][i];
+			y=f[y][i];
+		}
+	}
+	return f[x][0];
+}
+
+int check(int x,int tar){
+	int ans=0;
+	while(top[x]!=top[tar]){
+		chkmax(ans,query(1,1,n,dfn[top[x]],dfn[x]));
+		x=f[top[x]][0];
+	}
+	chkmax(ans,query(1,1,n,dfn[tar],dfn[x]));
+	return ans;
+}
 
 void solve(int Case){
-	cin>>n;
-
+	cin>>n>>m;
+	rep(i,1,n){
+		cin>>a[i];
+		pos[a[i]].pb(i);
+	}
+	rep(i,1,n-1){
+		int u,v;
+		cin>>u>>v;
+		e[u].pb(v);
+		e[v].pb(u);
+	}
+	dfs1(1,0);
+	dfs2(1,1);
+	build(1,1,n);
+	rep(i,1,m){
+		cin>>q[i].a>>q[i].b>>q[i].c;
+		q[i].id=i;
+	}
+	sort(q+1,q+m+1,cmp);
+	int lst=n;
+	rep(i,1,m){
+		int a=q[i].a,b=q[i].b,c=q[i].c,lca=LCA(a,b);
+		rep(j,c+1,lst) for(auto x:pos[j]) update(1,1,n,dfn[x],0);
+		if(c==max(check(a,lca),check(b,lca))) ans[q[i].id]=1;
+		lst=c;
+	}
+	rep(i,1,m) cout<<ans[i];
+	cout<<endl;
 }
-                              
+
 /* ======================================| Main Program End |====================================== */
 
 signed main(){
@@ -103,3 +220,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) duipai
 */
+

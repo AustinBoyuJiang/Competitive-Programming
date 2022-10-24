@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 10/22/2022 9:42:39 PM
  * Problem:
  * Description:
 */
@@ -8,7 +8,7 @@
 //#pragma GCC optimize(2)
 //#pragma GCC optimize(3)
 #include<bits/stdc++.h>
-//#define int long long
+#define int long long
 #define pb push_back
 #define fir first
 #define sec second
@@ -46,8 +46,7 @@ namespace comfun{
 	template<typename T> inline T lcm(T a,T b){return a/gcd(a,b)*b;}
 	template<typename T> inline T chkmax(T &a,T b){return a=max(a,b);}
 	template<typename T> inline T chkmin(T &a,T b){return a=min(a,b);}
-	template<typename T> inline T pow(T a,T b){T ans=1;while(b){if(b&1) ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
-	template<typename T> inline T inv(T x){return pow(x,MOD-2);}
+	template<typename T> inline T pow(T a,int b){T ans=1;while(b){if(b&1) ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
 	template<typename T> inline bool is_prime(T x){if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false; return true;}
 } using namespace comfun;
 
@@ -69,24 +68,51 @@ struct fenwick_interval{
 /* ========================================| Main Program |======================================== */
 
 const int N = 1e6+10;
-int n;
+int n,a[3][N],flag[3],sum[3];
+string ans[3];
 
 void solve(int Case){
 	cin>>n;
-
+	sum[0]=sum[1]=sum[2]=0;
+	rep(j,0,2) rep(i,1,n) cin>>a[j][i],sum[j]+=a[j][i];
+	flag[0]=flag[1]=flag[2]=0;
+	rep(i,1,n){
+		rep(j,0,2){
+			if(a[j][i]>a[(j+1)%3][i]&&a[j][i]>a[(j+2)%3][i]) flag[j]=1;
+		}
+	}
+	int x,y;
+	rep(i,0,2) if(flag[i]==0||(sum[i]==min(sum[0],min(sum[1],sum[2]))&&sum[i]!=sum[(i+1)%3])){
+		ans[i]="Mike";
+		x=(i+1)%3;
+		y=(i+2)%3;
+	}
+	rep(i,1,n){
+		if(a[x][i]>a[y][i]){
+			ans[x]="Josh";
+			ans[y]="Nils";
+			break;
+		}
+		if(a[y][i]>a[x][i]){
+			ans[x]="Nils";
+			ans[y]="Josh";
+			break;
+		}
+	}
+	cout<<ans[0]<<" "<<ans[1]<<" "<<ans[2]<<endl;
 }
-                              
+
 /* ======================================| Main Program End |====================================== */
 
 signed main(){
 	srand(time(0));
     //int size(512<<20);  //512M
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
-	//cin.tie(nullptr)->sync_with_stdio(false);
+	cin.tie(nullptr)->sync_with_stdio(false);
 	//freopen("in.txt","r",stdin);
 	//freopen("stdout.txt","w",stdout);
 	int CASE=1;
-	//cin>>CASE;
+	cin>>CASE;
 	rep(Case,1,CASE) solve(Case);
     //exit(0);
 	//system("fc stdout.txt out.txt");
@@ -94,7 +120,7 @@ signed main(){
 }
 
 /* stuff you should look for
-	* read questions at least 3 times!!!
+	 * read questions at least 3 times!!!
     * think more and then code!!!
     * partial points are GOD.
 	* remember to initialize variables
@@ -103,3 +129,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) duipai
 */
+

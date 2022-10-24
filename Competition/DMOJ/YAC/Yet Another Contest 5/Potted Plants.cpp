@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 10/22/2022 10:39:26 PM
  * Problem:
  * Description:
 */
@@ -46,8 +46,7 @@ namespace comfun{
 	template<typename T> inline T lcm(T a,T b){return a/gcd(a,b)*b;}
 	template<typename T> inline T chkmax(T &a,T b){return a=max(a,b);}
 	template<typename T> inline T chkmin(T &a,T b){return a=min(a,b);}
-	template<typename T> inline T pow(T a,T b){T ans=1;while(b){if(b&1) ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
-	template<typename T> inline T inv(T x){return pow(x,MOD-2);}
+	template<typename T> inline T pow(T a,int b){T ans=1;while(b){if(b&1) ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
 	template<typename T> inline bool is_prime(T x){if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false; return true;}
 } using namespace comfun;
 
@@ -73,9 +72,11 @@ int n;
 
 void solve(int Case){
 	cin>>n;
-
+	rep(i,1,n) cout<<i<<" ";
+	per(i,n,2) cout<<i<<" ";
+	cout<<1<<endl;
 }
-                              
+
 /* ======================================| Main Program End |====================================== */
 
 signed main(){
@@ -94,7 +95,7 @@ signed main(){
 }
 
 /* stuff you should look for
-	* read questions at least 3 times!!!
+	 * read questions at least 3 times!!!
     * think more and then code!!!
     * partial points are GOD.
 	* remember to initialize variables
@@ -103,3 +104,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) duipai
 */
+

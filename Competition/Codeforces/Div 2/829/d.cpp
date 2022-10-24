@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 10/23/2022 12:23:04 AM
  * Problem:
  * Description:
 */
@@ -69,13 +69,99 @@ struct fenwick_interval{
 /* ========================================| Main Program |======================================== */
 
 const int N = 1e6+10;
-int n;
+int n,a[N];
+VPI opt,ans;
 
 void solve(int Case){
 	cin>>n;
-
+	opt.clear();
+	ans.clear();
+	int sum=0;
+	rep(i,1,n){
+		cin>>a[i];
+		sum+=a[i];
+	}
+	if(sum%2==1){
+		cout<<-1<<endl;
+		return;
+	}
+	int lst=1;
+	for(int i=2;i<=n;i+=1){
+		if(a[i-1]==0&&a[i]!=0){
+			opt.pb({lst,i-1});
+			lst=i;
+		}
+	}
+	opt.pb({lst,n});
+	int tmp=0;
+	for(auto x:opt){
+		int cnt=0;
+		for(int i=x.fir;i<=x.sec;i++){
+			cnt+=abs(a[i]);
+		}
+		if(cnt%2==1){
+			if(!ans.size()){
+				ans.pb({x.fir,x.fir});
+				tmp+=a[x.fir];
+			}
+			else{
+				if(tmp>0&&a[x.fir]==1){
+					ans[ans.size()-1].sec--;
+					if(ans[ans.size()-1].sec<ans[ans.size()-1].fir){
+						ans[ans.size()-1]={x.fir-1,x.fir};
+					}
+					else ans.pb({x.fir-1,x.fir});
+					tmp--;
+				}
+				else if(tmp<0&&a[x.fir]==-1){
+					ans[ans.size()-1].sec--;
+					if(ans[ans.size()-1].sec<ans[ans.size()-1].fir){
+						ans[ans.size()-1]={x.fir-1,x.fir};
+					}
+					else ans.pb({x.fir-1,x.fir});
+					tmp++;
+				}
+				else{
+					ans.pb({x.fir,x.fir});
+					tmp+=a[x.fir];
+				}
+			}
+			for(int i=x.fir+1;i<=x.sec;i+=2){
+				if(a[i]==0&&i==x.sec){
+					ans.pb({i,i});
+					continue;
+				}
+				if(a[i]==a[i+1]){
+					ans.pb({i,i+1});
+				}
+				else{
+					ans.pb({i,i});
+					ans.pb({i+1,i+1});
+				}
+			}
+		}
+		else{
+			for(int i=x.fir;i<=x.sec;i+=2){
+				if(a[i]==0&&i==x.sec){
+					ans.pb({i,i});
+					continue;
+				}
+				if(a[i]==a[i+1]){
+					ans.pb({i,i+1});
+				}
+				else{
+					ans.pb({i,i});
+					ans.pb({i+1,i+1});
+				}
+			}
+		}
+	}
+	cout<<ans.size()<<endl;
+	for(auto x:ans){
+		cout<<x.fir<<" "<<x.sec<<endl;
+	}
 }
-                              
+
 /* ======================================| Main Program End |====================================== */
 
 signed main(){
@@ -86,7 +172,7 @@ signed main(){
 	//freopen("in.txt","r",stdin);
 	//freopen("stdout.txt","w",stdout);
 	int CASE=1;
-	//cin>>CASE;
+	cin>>CASE;
 	rep(Case,1,CASE) solve(Case);
     //exit(0);
 	//system("fc stdout.txt out.txt");
@@ -103,3 +189,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) duipai
 */
+

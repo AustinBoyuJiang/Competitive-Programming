@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 10/23/2022 10:14:40 PM
  * Problem:
  * Description:
 */
@@ -68,14 +68,28 @@ struct fenwick_interval{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
-int n;
+const int N = 2e5+10;
+const int M = 30;
+int n,m,k,a[N],c[M][M],sum[N][M],dp[N],lst[M];
+string s;
 
 void solve(int Case){
-	cin>>n;
-
+	cin>>n>>m>>k>>s;
+	rep(i,1,n) a[i]=s[i-1]-'a'+1;
+	rep(i,1,m) rep(j,1,m) cin>>c[i][j];
+	rep(k,1,m) rep(i,1,m) rep(j,1,m)
+		chkmin(c[i][j],c[i][k]+c[k][j]);
+	rep(i,1,n) rep(j,1,m) sum[i][j]=sum[i-1][j]+c[a[i]][j];
+	memset(dp,0x3f,sizeof(dp));
+	memset(lst,0x3f,sizeof(lst));
+	rep(i,1,2*k-1) rep(j,1,m) chkmin(dp[i],sum[i][j]);
+	rep(i,2*k,n){
+		rep(j,1,m) chkmin(lst[j],dp[i-k]-sum[i-k][j]);
+		rep(j,1,m) chkmin(dp[i],sum[i][j]+lst[j]);
+	}
+	cout<<dp[n]<<endl;
 }
-                              
+
 /* ======================================| Main Program End |====================================== */
 
 signed main(){
@@ -103,3 +117,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) duipai
 */
+

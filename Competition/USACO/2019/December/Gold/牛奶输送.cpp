@@ -1,7 +1,7 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
- * Problem:
+ * Date: 10/23/2022 5:55:14 PM
+ * Problem: 
  * Description:
 */
 
@@ -68,14 +68,54 @@ struct fenwick_interval{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
-int n;
+const int N = 1e3+10;
+const int M = 1e3+10;
+int n,m,ans,dist[N],vis[N];
+VPI e[N];
+
+struct Edge{
+	int a,b,c,f;
+} edge[M];
+
+int check(int x){
+	rep(i,1,n) e[i].clear();
+	rep(i,1,m){
+		if(edge[i].f>=x){
+			int u=edge[i].a;
+			int v=edge[i].b;
+			int w=edge[i].c;
+			e[u].pb({v,w});
+			e[v].pb({u,w});
+		}
+	}
+	memset(dist,0x3f,sizeof(dist));
+	memset(vis,0,sizeof(vis));
+	dist[1]=0;
+	PQ<PI,VPI,greater<PI>> q;
+	q.push({0,1});
+	while(!q.empty()){
+		int u=q.top().sec;
+		q.pop();
+		if(vis[u]) continue;
+		vis[u]=1;
+		for(auto i:e[u]){
+			int v=i.fir;
+			if(dist[u]+i.sec<dist[v]){
+				dist[v]=dist[u]+i.sec;
+				q.push({dist[v],v});
+			}
+		}
+	}
+	return dist[n];
+}
 
 void solve(int Case){
-	cin>>n;
-
+	cin>>n>>m;
+	rep(i,1,m) cin>>edge[i].a>>edge[i].b>>edge[i].c>>edge[i].f;
+	rep(i,1,1000) chkmax(ans,1000000*i/check(i));
+	cout<<ans<<endl;
 }
-                              
+
 /* ======================================| Main Program End |====================================== */
 
 signed main(){
@@ -103,3 +143,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) duipai
 */
+
