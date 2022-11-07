@@ -7,8 +7,9 @@ This repository is here to share my code and help me review them.
 [AustinJiang](https://dmoj.ca/user/AustinJiang) on DMOJ
 
 # Past Contests
-| Contests | Date | Time | Scores | Reflections |
-| :------- | :--- | :--- | :----- | :---------- |
+| Contests | Date | Time | Scores | Rank | Reflections |
+| :------- | :--- | :--- | :----- | :--- | :---------- |
+| CodeTON Round 3 (Div.1+Div.2) | Nov/06/2022 | 06:35 | 2300 | 1718 | I know the way to solve the fourth problem, but I thought the time complexity was too high so I didn't try it. What a pity! |
 
 
 # Solved Problems
