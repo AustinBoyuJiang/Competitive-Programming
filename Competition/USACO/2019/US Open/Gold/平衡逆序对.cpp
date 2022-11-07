@@ -1,7 +1,7 @@
 /*
  * Author: Austin Jiang
- * Date: 11/2/2022 11:43:14 PM
- * Problem: 
+ * Date: 11/7/2022 12:33:35 PM
+ * Problem:
  * Description:
 */
 
@@ -68,63 +68,50 @@ struct fenwick_interval{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
-int n,a[2][N],cnt[2][2],sum,ans;
-VI dist[N];
+const int N = 1e5+10;
+int n,ans,a[2][N],cnt[2][2],res[2];
 
 void solve(int Case){
 	cin>>n;
-	rep(i,0,1) rep(j,1,n) cin>>a[i][j];
-	rep(i,0,1){
-		rep(j,1,n){
-			cnt[i][a[i][j]]++;
-			if(!a[i][j]){
-				if(i==1) sum+=cnt[i][1];
-				else sum-=cnt[i][1];
-			}
-		}
+	rep(k,0,1) rep(i,1,n){
+		cin>>a[k][i];
+		cnt[k][a[k][i]]++;
+		if(!a[k][i]) res[k]+=cnt[k][1];
+		
 	}
-	int k=cnt[1][0]-cnt[0][1];
-	if(sum==0){
-		cout<<0<<endl;
-		return;
-	}
-	else if(sum<0){
-		if(k<=0){
-			cout<<-sum<<endl;
-			return;
-		}
-		per(j,n,1) if(a[0][j]==0) dist[0].pb(n-j);
-		rep(j,1,n) if(a[1][j]==1) dist[1].pb(j-1);
-		rep(i,0,(int)min(dist[0].size(),dist[1].size())-1){
-			if(-sum>=dist[0][i]+dist[1][i]+k){
-				sum+=dist[0][i]+dist[1][i]+k;
-				ans+=dist[0][i]+dist[1][i]+1;
-			}
-			else break;
-		}
-		ans+=-sum;
-		cout<<ans<<endl;
-		return;
-	}
-	else{
-		if(k>=0){
-			cout<<sum<<endl;
-			return;
-		}
-		per(j,n,1) if(a[0][j]==0) dist[0].pb(n-j);
-		rep(j,1,n) if(a[1][j]==1) dist[1].pb(j-1);
-		rep(i,0,(int)min(dist[0].size(),dist[1].size())-1){
-			if(sum>=dist[0][i]+dist[1][i]-k){
-				sum-=dist[0][i]+dist[1][i]-k;
-				ans+=dist[0][i]+dist[1][i]+1;
-			}
-			else break;
+	if(res[0]>res[1]){
+		int sum=res[0]-res[1];
+		VI pos[2];
+		per(i,n,1) if(a[0][i]==1) pos[0].pb(i);
+		rep(i,1,n) if(a[1][i]==0) pos[1].pb(n+i);
+		rep(i,0,min(pos[0].size(),pos[1].size())-1){
+			if(cnt[0][1]-cnt[1][0]<pos[1][i]-pos[0][i]) break;
+			ans+=pos[1][i]-pos[0][i];
+			sum-=cnt[0][1]-cnt[1][0];
+			cnt[0][0]--,cnt[0][1]++;
+			cnt[1][0]++,cnt[1][1]--;
 		}
 		ans+=sum;
-		cout<<ans<<endl;
-		return;
 	}
+	if(res[0]<res[1]){
+		int sum=res[1]-res[0];
+		VI pos[2];
+		per(i,n,1) if(a[0][i]==0) pos[0].pb(i);
+		rep(i,1,n) if(a[1][i]==1) pos[1].pb(n+i);
+		rep(i,0,min(pos[0].size(),pos[1].size())-1){
+			if(cnt[0][0]-cnt[1][1]<pos[1][i]-pos[0][i]) break;
+			ans+=pos[1][i]-pos[0][i];
+			sum-=cnt[0][0]-cnt[1][1];
+			cnt[0][0]++,cnt[0][1]--;
+			cnt[1][0]--,cnt[1][1]++;
+		}
+		ans+=sum;
+	}
+	cout<<ans<<endl;
+	/*
+	0 0 0 1 0: 1
+	1 0 0 0 1: 3
+	*/
 }
 
 /* ======================================| Main Program End |====================================== */
