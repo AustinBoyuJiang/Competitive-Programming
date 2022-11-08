@@ -68,8 +68,10 @@ struct fenwick_interval{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e5+10;
-int n,d;
+const int N = 2e5+10;
+int n,d,ans[N];
+queue<int> q;
+VI e[N];
 
 struct node{
 	int v[2];
@@ -79,21 +81,40 @@ void solve(int Case){
 	cin>>n>>d;
 	rep(i,1,n) cin>>a[i].v[0]>>a[i].v[1];
 	rep(i,n+1,n*2) cin>>a[i].v[0]>>a[i].v[1];
+	memset(ans,-1,sizeof(ans));
 	rep(i,1,n){
 		rep(j,n+1,n*2){
-			if(abs(a[i].v[1]-a[j].v[1])<=d){
-				e[i].pb(j);
-			}
-		}
-	}
-	rep(i,n+1,n*2){
-		rep(j,1,n){
 			if(abs(a[i].v[0]-a[j].v[0])<=d){
 				e[i].pb(j);
 			}
 		}
+		if(a[i].v[1]==0){
+			q.push(i);
+			ans[i]=1;
+		}
 	}
-	
+	rep(i,n+1,n*2){
+		rep(j,1,n){
+			if(abs(a[i].v[1]-a[j].v[1])<=d){
+				e[i].pb(j);
+			}
+		}
+		if(a[i].v[0]==1){
+			q.push(i);
+			ans[i]=1;
+		}
+	}
+	while(!q.empty()){
+		int u=q.front();
+		q.pop();
+		for(auto v:e[u]){
+			if(ans[v]==-1){
+				ans[v]=ans[u]+1;
+				q.push(v);
+			}
+		}
+	}
+	rep(i,1,n) cout<<ans[i]<<endl;
 }
 
 /* ======================================| Main Program End |====================================== */
