@@ -1,10 +1,5 @@
 # Introduction
-This is Austin Jiang, a West Vancouver Secondary School student graduating in 2025.
-This repository is here to share my code and help me review them.
-
-[Austin Jiang](https://codeforces.com/profile/Austin_Jiang) on Codeforces
-
-[AustinJiang](https://dmoj.ca/user/AustinJiang) on DMOJ
+This repository is here to share my code and help me to review them.
 
 # Past Contests
 | Contests | Date | Time | Scores | Rank | Reflections |
