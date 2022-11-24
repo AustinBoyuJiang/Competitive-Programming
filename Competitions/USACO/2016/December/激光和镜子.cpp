@@ -1,12 +1,12 @@
 /*
  * Author: Austin Jiang
- * Date: 11/7/2022 1:13:12 PM
+ * Date: 11/22/2022 1:19:34 AM
  * Problem: 
  * Description:
 */
 
-#pragma GCC optimize(2)
-#pragma GCC optimize(3)
+//#pragma GCC optimize(2)
+//#pragma GCC optimize(3)
 #include<bits/stdc++.h>
 //#define int long long
 #define pb push_back
@@ -69,83 +69,47 @@ struct fenwick_interval{
 /* ========================================| Main Program |======================================== */
 
 const int N = 1e5+10;
-int n,d,tot,ans[N],root[2],id[2][N<<2],dist[N<<3],vis[N<<3];
-VPI e[N<<3];
-deque<PI> q;
-
-struct pie{
-	int x,y,pos;
-} p[2][N];
-
-struct node{
-	int lc,rc;
-} st[N<<3];
-
-int lbx(int x){	int l=1,r=n,res=n+1; while(l<=r){ int mid=l+r>>1; if(p[1][mid].x>=x) r=mid-1,res=mid; else l=mid+1;} return res;}
-int ubx(int x){ int l=1,r=n,res=0; while(l<=r){ int mid=l+r>>1; if(p[1][mid].x<=x) l=mid+1,res=mid; else r=mid-1;} return res;}
-int lby(int y){ int l=1,r=n,res=n+1; while(l<=r){ int mid=l+r>>1; if(p[0][mid].y>=y) r=mid-1,res=mid; else l=mid+1;} return res;}
-int uby(int y){	int l=1,r=n,res=0; while(l<=r){ int mid=l+r>>1; if(p[0][mid].y<=y) l=mid+1,res=mid; else r=mid-1;} return res;}
-
-void build(int k,int &rt,int l,int r){
-	rt=++tot;
-	if(l==r){
-		id[k][l]=rt;
-		return;
-	}
-	int mid=l+r>>1;
-	build(k,st[rt].lc,l,mid);
-	build(k,st[rt].rc,mid+1,r);
-	e[rt].pb({st[rt].lc,0});
-	e[rt].pb({st[rt].rc,0});
-}
-
-void add(int u,int v,int l,int r,int x,int y){
-	if(x>y) return;
-	if(l==x&&r==y){
-		e[u].pb({v,1});
-		return;
-	}
-	int mid=l+r>>1;
-	if(y<=mid) add(u,st[v].lc,l,mid,x,y);
-	else if(x>mid) add(u,st[v].rc,mid+1,r,x,y);
-	else add(u,st[v].lc,l,mid,x,mid),add(u,st[v].rc,mid+1,r,mid+1,y);
-}
+int n,sx,sy,ex,ey,x[N],y[N],dist[N],vis[N];
+set<int> num;
+VI tmp,row[N],col[N];
 
 void solve(int Case){
-	cin>>n>>d;
-	rep(k,0,1) rep(i,1,n){
-		cin>>p[k][i].x>>p[k][i].y;
-		p[k][i].pos=i;
+	cin>>n;
+	n++;
+	cin>>x[0]>>y[0]>>x[n]>>y[n];
+	rep(i,1,n-1) cin>>x[i]>>y[i];
+	rep(i,0,n){
+		num.insert(x[i]);
+		num.insert(y[i]);
 	}
-	sort(p[0]+1,p[0]+n+1,[](pie a,pie b){return a.y<b.y;});
-	sort(p[1]+1,p[1]+n+1,[](pie a,pie b){return a.x<b.x;});
-	build(0,root[0],1,n);
-	build(1,root[1],1,n);
-	rep(i,1,n){
-		add(id[0][i],root[1],1,n,lbx(p[0][i].x-d),ubx(p[0][i].x));
-		add(id[1][i],root[0],1,n,lby(p[1][i].y-d),uby(p[1][i].y));
-		if(p[0][i].y==0) e[0].pb({id[0][i],1});
-		if(p[1][i].x==0) e[0].pb({id[1][i],1});
+	for(auto x:num) tmp.pb(x);
+	rep(i,0,n){
+		x[i]=lb(all(tmp),x[i])-tmp.begin()+1;
+		y[i]=lb(all(tmp),y[i])-tmp.begin()+1;
+		row[x[i]].pb(i);
+		col[y[i]].pb(i);
 	}
 	memset(dist,0x3f,sizeof(dist));
 	dist[0]=0;
-	q.pb({0,0});
+	queue<int> q;
+	q.push(0);
 	while(!q.empty()){
-		int u=q.front().fir;
-		q.pop_front();
+		int u=q.front();
+		q.pop();
 		if(vis[u]) continue;
 		vis[u]=1;
-		for(auto r:e[u]){
-			int v=r.fir,w=r.sec;
-			if(dist[u]+w<dist[v]){
-				dist[v]=dist[u]+w;
-				if(w) q.pb({v,dist[v]});
-				else q.push_front({v,dist[v]});
-			}
+		for(auto v:row[x[u]]){
+			chkmin(dist[v],dist[u]+1);
+			q.push(v);
 		}
+		for(auto v:col[y[u]]){
+			chkmin(dist[v],dist[u]+1);
+			q.push(v);
+		}
+		row[x[u]].clear();
+		col[y[u]].clear();
 	}
-	rep(i,1,n) ans[p[0][i].pos]=dist[id[0][i]];
-	rep(i,1,n) cout<<(ans[i]==INF?-1:ans[i])<<endl;
+	cout<<dist[n]-1<<endl;
 }
 
 /* ======================================| Main Program End |====================================== */
@@ -154,7 +118,7 @@ signed main(){
 	srand(time(0));
     //int size(512<<20);  //512M
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
-	cin.tie(nullptr)->sync_with_stdio(false);
+	//cin.tie(nullptr)->sync_with_stdio(false);
 	//freopen("in.txt","r",stdin);
 	//freopen("stdout.txt","w",stdout);
 	int CASE=1;
@@ -175,3 +139,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) duipai
 */
+

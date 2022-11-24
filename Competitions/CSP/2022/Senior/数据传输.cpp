@@ -1,14 +1,14 @@
 /*
  * Author: Austin Jiang
- * Date: 11/7/2022 1:13:12 PM
- * Problem: 
+ * Date: 11/14/2022 11:26:46 PM
+ * Problem:
  * Description:
 */
 
-#pragma GCC optimize(2)
-#pragma GCC optimize(3)
+//#pragma GCC optimize(2)
+//#pragma GCC optimize(3)
 #include<bits/stdc++.h>
-//#define int long long
+#define int long long
 #define pb push_back
 #define fir first
 #define sec second
@@ -68,84 +68,167 @@ struct fenwick_interval{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e5+10;
-int n,d,tot,ans[N],root[2],id[2][N<<2],dist[N<<3],vis[N<<3];
-VPI e[N<<3];
-deque<PI> q;
-
-struct pie{
-	int x,y,pos;
-} p[2][N];
+const int N = 2e5+10;
+int n,q,k,tot,v[N],siz[N],dep[N],hson[N],top[N],dfn[N],rnk[N],f[N][25];
+VI e[N];
 
 struct node{
-	int lc,rc;
-} st[N<<3];
-
-int lbx(int x){	int l=1,r=n,res=n+1; while(l<=r){ int mid=l+r>>1; if(p[1][mid].x>=x) r=mid-1,res=mid; else l=mid+1;} return res;}
-int ubx(int x){ int l=1,r=n,res=0; while(l<=r){ int mid=l+r>>1; if(p[1][mid].x<=x) l=mid+1,res=mid; else r=mid-1;} return res;}
-int lby(int y){ int l=1,r=n,res=n+1; while(l<=r){ int mid=l+r>>1; if(p[0][mid].y>=y) r=mid-1,res=mid; else l=mid+1;} return res;}
-int uby(int y){	int l=1,r=n,res=0; while(l<=r){ int mid=l+r>>1; if(p[0][mid].y<=y) l=mid+1,res=mid; else r=mid-1;} return res;}
-
-void build(int k,int &rt,int l,int r){
-	rt=++tot;
-	if(l==r){
-		id[k][l]=rt;
-		return;
+	int ans[3][3],len=1;
+	node(){
+		memset(ans,0x3f,sizeof(ans));
 	}
-	int mid=l+r>>1;
-	build(k,st[rt].lc,l,mid);
-	build(k,st[rt].rc,mid+1,r);
-	e[rt].pb({st[rt].lc,0});
-	e[rt].pb({st[rt].rc,0});
-}
+} st[N<<2];
 
-void add(int u,int v,int l,int r,int x,int y){
-	if(x>y) return;
-	if(l==x&&r==y){
-		e[u].pb({v,1});
-		return;
+node merge(node x,node y){
+	node res;
+	res.len=x.len+y.len;
+	if(res.len==2){
+		res.ans[0][1]=x.ans[0][0];
+		res.ans[1][0]=y.ans[0][0];
+		res.ans[0][0]=x.ans[0][0]+y.ans[0][0];
+		return res;
 	}
-	int mid=l+r>>1;
-	if(y<=mid) add(u,st[v].lc,l,mid,x,y);
-	else if(x>mid) add(u,st[v].rc,mid+1,r,x,y);
-	else add(u,st[v].lc,l,mid,x,mid),add(u,st[v].rc,mid+1,r,mid+1,y);
-}
-
-void solve(int Case){
-	cin>>n>>d;
-	rep(k,0,1) rep(i,1,n){
-		cin>>p[k][i].x>>p[k][i].y;
-		p[k][i].pos=i;
-	}
-	sort(p[0]+1,p[0]+n+1,[](pie a,pie b){return a.y<b.y;});
-	sort(p[1]+1,p[1]+n+1,[](pie a,pie b){return a.x<b.x;});
-	build(0,root[0],1,n);
-	build(1,root[1],1,n);
-	rep(i,1,n){
-		add(id[0][i],root[1],1,n,lbx(p[0][i].x-d),ubx(p[0][i].x));
-		add(id[1][i],root[0],1,n,lby(p[1][i].y-d),uby(p[1][i].y));
-		if(p[0][i].y==0) e[0].pb({id[0][i],1});
-		if(p[1][i].x==0) e[0].pb({id[1][i],1});
-	}
-	memset(dist,0x3f,sizeof(dist));
-	dist[0]=0;
-	q.pb({0,0});
-	while(!q.empty()){
-		int u=q.front().fir;
-		q.pop_front();
-		if(vis[u]) continue;
-		vis[u]=1;
-		for(auto r:e[u]){
-			int v=r.fir,w=r.sec;
-			if(dist[u]+w<dist[v]){
-				dist[v]=dist[u]+w;
-				if(w) q.pb({v,dist[v]});
-				else q.push_front({v,dist[v]});
+	if(res.len<=4){
+		rep(l,0,2) rep(r,0,res.len-1-l){
+			if(l+1>x.len){
+				res.ans[l][r]=y.ans[l-x.len][r];
+			}
+			else if(r+1>y.len){
+				res.ans[l][r]=x.ans[l][r-y.len];
+			}
+			else{
+				res.ans[l][r]=x.ans[0][x.len-1]+y.ans[y.len-1][0];
 			}
 		}
 	}
-	rep(i,1,n) ans[p[0][i].pos]=dist[id[0][i]];
-	rep(i,1,n) cout<<(ans[i]==INF?-1:ans[i])<<endl;
+	rep(l,0,2) rep(r,0,2){
+		if(l+1>x.len){
+			res.ans[l][r]=y.ans[l-x.len][r];
+		}
+		else if(r+1>y.len){
+			res.ans[l][r]=x.ans[l][r-y.len];
+		}
+		else rep(i,0,2) rep(j,0,2-i){
+			chkmin(res.ans[l][r],x.ans[l][i]+y.ans[j][r]);
+		}
+	}
+	return res;
+}
+
+node flip(node x){
+	node res=x;
+	rep(l,0,2) rep(r,0,2){
+		res.ans[l][r]=x.ans[r][l];
+	}
+	return res;
+}
+
+void build(int rt,int l,int r){
+	if(l==r){
+		st[rt].ans[0][0]=v[rnk[l]];
+		return;
+	}
+	int mid=l+r>>1;
+	build(rt<<1,l,mid);
+	build(rt<<1|1,mid+1,r);
+	st[rt]=merge(st[rt<<1],st[rt<<1|1]);
+}
+
+node query(int rt,int l,int r,int x,int y){
+	if(l==x&&r==y) return st[rt];
+	int mid=l+r>>1;
+	if(y<=mid) return query(rt<<1,l,mid,x,y);
+	else if(x>mid) return query(rt<<1|1,mid+1,r,x,y);
+	else return merge(query(rt<<1,l,mid,x,mid),query(rt<<1|1,mid+1,r,mid+1,y));
+}
+
+node find(int x,int tar){
+	node res;
+	bool flag=0;
+	while(top[x]!=top[tar]){
+		if(!flag) res=flip(query(1,1,n,dfn[top[x]],dfn[x])),flag=1;
+		else res=merge(res,flip(query(1,1,n,dfn[top[x]],dfn[x])));
+		x=f[top[x]][0];
+	}
+	if(!flag) res=flip(query(1,1,n,dfn[tar],dfn[x]));
+	else res=merge(res,flip(query(1,1,n,dfn[tar],dfn[x])));
+	return res;
+}
+
+void dfs1(int u,int fa){
+	siz[u]=1;
+	dep[u]=dep[fa]+1;
+	f[u][0]=fa;
+	rep(i,1,20) f[u][i]=f[f[u][i-1]][i-1];
+	for(auto v:e[u]){
+		if(v==fa) continue;
+		dfs1(v,u);
+		siz[u]+=siz[v];
+		if(siz[v]>siz[hson[u]]) hson[u]=v;
+	}
+}
+
+void dfs2(int u,int tp){
+	top[u]=tp;
+	dfn[u]=++tot;
+	rnk[tot]=u;
+	if(hson[u]) dfs2(hson[u],tp);
+	for(auto v:e[u]){
+		if(v==f[u][0]||v==hson[u]) continue;
+		dfs2(v,v);
+	}
+}
+
+PI LCA(int x,int y){
+	bool flip=0;
+	if(dep[x]<dep[y]){
+		flip=1;
+		swap(x,y);
+	}
+	per(i,20,0){
+		if(dep[f[x][i]]>dep[y]) x=f[x][i];
+		if(f[x][0]==y){
+			if(flip) return {f[x][0],x};
+			else return {x,f[x][0]};
+		}
+	}
+	if(dep[x]!=dep[y]) x=f[x][0];
+	per(i,20,0){
+		if(f[x][i]!=f[y][i]){
+			x=f[x][i];
+			y=f[y][i];
+		}
+	}
+	if(flip) return {f[x][0],x};
+	else return {x,f[x][0]};
+}
+
+void solve(int Case){
+//	node a[110];
+//	rep(i,1,7) a[i].ans[0][0]=i;
+//	node res=a[1];
+//	rep(i,2,7) res=merge(res,a[i]);
+//	cout<<res.ans[0][0]<<endl;
+//	return;
+	
+	cin>>n>>q>>k;
+	rep(i,1,n) cin>>v[i];
+	rep(i,1,n-1){
+		int u,v;
+		cin>>u>>v;
+		e[u].pb(v);
+		e[v].pb(u);
+	}
+	dfs1(1,0);
+	dfs2(1,1);
+	build(1,1,n);
+	rep(i,1,q){
+		int x,y;
+		cin>>x>>y;
+		PI lca=LCA(x,y);
+		cout<<lca.fir<<" "<<lca.sec<<endl;
+		cout<<merge(find(x,lca.fir),flip(find(y,lca.sec))).ans[0][0]<<endl;
+	}
 }
 
 /* ======================================| Main Program End |====================================== */
@@ -154,7 +237,7 @@ signed main(){
 	srand(time(0));
     //int size(512<<20);  //512M
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
-	cin.tie(nullptr)->sync_with_stdio(false);
+	//cin.tie(nullptr)->sync_with_stdio(false);
 	//freopen("in.txt","r",stdin);
 	//freopen("stdout.txt","w",stdout);
 	int CASE=1;
@@ -175,3 +258,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) duipai
 */
+

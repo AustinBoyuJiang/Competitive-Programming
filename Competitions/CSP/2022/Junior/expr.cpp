@@ -1,12 +1,12 @@
 /*
  * Author: Austin Jiang
- * Date: 11/7/2022 1:13:12 PM
- * Problem: 
+ * Date: 11/6/2022 11:21:37 PM
+ * Problem: expr
  * Description:
 */
 
-#pragma GCC optimize(2)
-#pragma GCC optimize(3)
+//#pragma GCC optimize(2)
+//#pragma GCC optimize(3)
 #include<bits/stdc++.h>
 //#define int long long
 #define pb push_back
@@ -68,84 +68,135 @@ struct fenwick_interval{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e5+10;
-int n,d,tot,ans[N],root[2],id[2][N<<2],dist[N<<3],vis[N<<3];
-VPI e[N<<3];
-deque<PI> q;
-
-struct pie{
-	int x,y,pos;
-} p[2][N];
-
-struct node{
-	int lc,rc;
-} st[N<<3];
-
-int lbx(int x){	int l=1,r=n,res=n+1; while(l<=r){ int mid=l+r>>1; if(p[1][mid].x>=x) r=mid-1,res=mid; else l=mid+1;} return res;}
-int ubx(int x){ int l=1,r=n,res=0; while(l<=r){ int mid=l+r>>1; if(p[1][mid].x<=x) l=mid+1,res=mid; else r=mid-1;} return res;}
-int lby(int y){ int l=1,r=n,res=n+1; while(l<=r){ int mid=l+r>>1; if(p[0][mid].y>=y) r=mid-1,res=mid; else l=mid+1;} return res;}
-int uby(int y){	int l=1,r=n,res=0; while(l<=r){ int mid=l+r>>1; if(p[0][mid].y<=y) l=mid+1,res=mid; else r=mid-1;} return res;}
-
-void build(int k,int &rt,int l,int r){
-	rt=++tot;
-	if(l==r){
-		id[k][l]=rt;
-		return;
-	}
-	int mid=l+r>>1;
-	build(k,st[rt].lc,l,mid);
-	build(k,st[rt].rc,mid+1,r);
-	e[rt].pb({st[rt].lc,0});
-	e[rt].pb({st[rt].rc,0});
-}
-
-void add(int u,int v,int l,int r,int x,int y){
-	if(x>y) return;
-	if(l==x&&r==y){
-		e[u].pb({v,1});
-		return;
-	}
-	int mid=l+r>>1;
-	if(y<=mid) add(u,st[v].lc,l,mid,x,y);
-	else if(x>mid) add(u,st[v].rc,mid+1,r,x,y);
-	else add(u,st[v].lc,l,mid,x,mid),add(u,st[v].rc,mid+1,r,mid+1,y);
-}
+const int N = 1e6+10;
+int cnt1,cnt2,flag[N],lazy[N],l[N];
+string str;
+vector<pair<pair<char,int>,int>> expr;
+stack<pair<char,int>> oper;
+stack<int> stk;
 
 void solve(int Case){
-	cin>>n>>d;
-	rep(k,0,1) rep(i,1,n){
-		cin>>p[k][i].x>>p[k][i].y;
-		p[k][i].pos=i;
+	cin>>str;
+	int cnt=0;
+	rep(i,0,str.size()-1){
+		char x=str[i];
+		if(x=='('){
+			stk.push(i);
+			cnt++;
+			flag[cnt]=0;
+			continue;
+		}
+		if(x==')'){
+			l[i]=stk.top();
+			stk.pop();
+			flag[cnt]=0;
+			cnt--;
+			continue;
+		}
+		l[i]=i;
+		if(x=='&'){
+			if(flag[cnt]!=1){
+				cnt++;
+				lazy[l[i-1]]++;
+				lazy[i]--;
+			}
+			flag[cnt]=1;
+		}
+		if(x=='|'){
+			if(flag[cnt]==1) cnt--;
+			flag[cnt]=2;
+		}
+		expr.pb({{x,i},cnt});
 	}
-	sort(p[0]+1,p[0]+n+1,[](pie a,pie b){return a.y<b.y;});
-	sort(p[1]+1,p[1]+n+1,[](pie a,pie b){return a.x<b.x;});
-	build(0,root[0],1,n);
-	build(1,root[1],1,n);
-	rep(i,1,n){
-		add(id[0][i],root[1],1,n,lbx(p[0][i].x-d),ubx(p[0][i].x));
-		add(id[1][i],root[0],1,n,lby(p[1][i].y-d),uby(p[1][i].y));
-		if(p[0][i].y==0) e[0].pb({id[0][i],1});
-		if(p[1][i].x==0) e[0].pb({id[1][i],1});
+	rep(i,0,str.size()-1) lazy[i]+=lazy[i-1];
+	for(auto &x:expr){
+		x.sec+=lazy[x.fir.sec];
+//		cout<<x.sec<<" ";
 	}
-	memset(dist,0x3f,sizeof(dist));
-	dist[0]=0;
-	q.pb({0,0});
-	while(!q.empty()){
-		int u=q.front().fir;
-		q.pop_front();
-		if(vis[u]) continue;
-		vis[u]=1;
-		for(auto r:e[u]){
-			int v=r.fir,w=r.sec;
-			if(dist[u]+w<dist[v]){
-				dist[v]=dist[u]+w;
-				if(w) q.pb({v,dist[v]});
-				else q.push_front({v,dist[v]});
+//	cout<<endl;
+//	return;
+	
+	int del=-1,fl=0;
+	for(auto v:expr){
+		char x=v.fir.fir;
+//		cout<<x<<" ";
+		if(del!=-1){
+			if(v.sec<del||(!fl&&v.sec==del)){
+				del=-1;
+			}
+			else{
+				if(v.sec>del) fl=0;
+				if(fl&&v.sec==del){
+					fl=0;
+					del=-1;
+				}
+				continue;
 			}
 		}
+		if(x=='&'&&oper.top().fir=='0'){
+			fl=1;
+			del=v.sec;
+			cnt1++;
+			continue;
+		}
+		if(x=='|'&&oper.top().fir=='1'){
+			fl=1;
+			del=v.sec;
+			cnt2++;
+			continue;
+		}
+		while(oper.size()>=3&&(x=='&'||x=='|')&&v.sec<oper.top().sec){
+			char b=oper.top().fir;
+			oper.pop();
+			char s=oper.top().fir;
+			oper.pop();
+			char a=oper.top().fir;
+			int c=oper.top().sec;
+			oper.pop();
+			if(s=='&'){
+				if(a=='1'&&b=='1') oper.push({'1',c});
+				else oper.push({'0',c});
+			}
+			else{
+				if(a=='0'&&b=='0') oper.push({'0',c});
+				else oper.push({'1',c});
+			}
+		}
+		while(oper.size()>=2&&(x=='0'||x=='1')&&v.sec==oper.top().sec){
+			char s=oper.top().fir;
+			oper.pop();
+			char a=oper.top().fir;
+			oper.pop();
+			if(s=='&'){
+				if(x=='1'&&a=='1') x='1';
+				else x='0';
+			}
+			else{
+				if(x=='0'&&a=='0') x='0';
+				else x='1';
+			}
+		}
+		oper.push({x,v.sec});
 	}
-	rep(i,1,n) ans[p[0][i].pos]=dist[id[0][i]];
-	rep(i,1,n) cout<<(ans[i]==INF?-1:ans[i])<<endl;
+	while(oper.size()>=3){
+		char b=oper.top().fir;
+		oper.pop();
+		char s=oper.top().fir;
+		oper.pop();
+		char a=oper.top().fir;
+		int c=oper.top().sec;
+		oper.pop();
+		if(s=='&'){
+			if(a=='1'&&b=='1') oper.push({'1',c});
+			else oper.push({'0',c});
+		}
+		else{
+			if(a=='0'&&b=='0') oper.push({'0',c});
+			else oper.push({'1',c});
+		}
+	}
+	cout<<oper.top().fir<<endl;
+	cout<<cnt1<<" "<<cnt2<<endl;
 }
 
 /* ======================================| Main Program End |====================================== */
@@ -154,9 +205,9 @@ signed main(){
 	srand(time(0));
     //int size(512<<20);  //512M
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
-	cin.tie(nullptr)->sync_with_stdio(false);
-	//freopen("in.txt","r",stdin);
-	//freopen("stdout.txt","w",stdout);
+	//cin.tie(nullptr)->sync_with_stdio(false);
+//	freopen("expr.in","r",stdin);
+//	freopen("expr.out","w",stdout);
 	int CASE=1;
 	//cin>>CASE;
 	rep(Case,1,CASE) solve(Case);
@@ -175,3 +226,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) duipai
 */
+

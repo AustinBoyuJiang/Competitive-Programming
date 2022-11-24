@@ -1,7 +1,7 @@
 /*
  * Author: Austin Jiang
- * Date: 11/6/2022 10:56:38 PM
- * Problem: ³Ë·½
+ * Date: 11/20/2022 4:55:11 PM
+ * Problem:
  * Description:
 */
 
@@ -37,7 +37,7 @@ namespace fast_io{
 /* Common constants, functions, and data structures */
 const int INF = 0x3f3f3f3f;
 const ll LLINF = 0x3f3f3f3f3f3f3f3f;
-const int MOD = 1e9;
+const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 
 namespace comfun{
@@ -68,28 +68,51 @@ struct fenwick_interval{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
-int a,b;
+const int N = 5e5+10;
+int n,m,q,tar,sum,val[N],cnt[N],rec[N];
+VI e[N],ee[N];
 
 void solve(int Case){
-	cin>>a>>b;
-	if(a==1){
-		cout<<1<<endl;
-		return;
+	cin>>n>>m;
+	rep(i,1,n){
+		val[i]=random(1,N);
+		tar+=val[i];
 	}
-	if(b==1){
-		cout<<a<<endl;
-		return;
+	rep(i,1,m){
+		int u,v;
+		cin>>u>>v;
+		e[u].pb(v);
+		e[v].pb(u);
+		cnt[v]+=val[u];
+		rec[v]+=val[u];
+		sum+=val[u];
 	}
-	int ans=1;
-	rep(i,1,b){
-		ans*=a;
-		if(ans>1000000000){
-			cout<<-1<<endl;
-			return;
+	cin>>q;
+	rep(i,1,q){
+		int t,u,v;
+		cin>>t;
+		if(t==1){
+			cin>>u>>v;
+			cnt[v]-=val[u];
+			sum-=val[u];
 		}
+		if(t==2){
+			cin>>u;
+			sum-=cnt[u];
+			cnt[u]=0;
+		}
+		if(t==3){
+			cin>>u>>v;
+			cnt[v]+=val[u];
+			sum+=val[u];
+		}
+		if(t==4){
+			cin>>u;
+			sum+=rec[u]-cnt[u];
+			cnt[u]=rec[u];
+		}
+		cout<<(sum==tar?"YES":"NO")<<endl;
 	}
-	cout<<ans<<endl;
 }
 
 /* ======================================| Main Program End |====================================== */
@@ -98,9 +121,9 @@ signed main(){
 	srand(time(0));
     //int size(512<<20);  //512M
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
-	//cin.tie(nullptr)->sync_with_stdio(false);
-	freopen("pow.in","r",stdin);
-	freopen("pow.out","w",stdout);
+	cin.tie(nullptr)->sync_with_stdio(false);
+	//freopen("in.txt","r",stdin);
+	//freopen("stdout.txt","w",stdout);
 	int CASE=1;
 	//cin>>CASE;
 	rep(Case,1,CASE) solve(Case);

@@ -1,14 +1,27 @@
 /*
  * Author: Austin Jiang
- * Date: 11/7/2022 1:13:12 PM
- * Problem: 
+ * Date: 11/23/2022 2:43:46 AM
+ * Problem: Bovine Genetics
  * Description:
+	做dp
+	dp[i][j]表示前i个，最后一段长度为j 的方案数
+	根据抽屉原理可以证明j<=4，因为任何一个字母在一段内不会出现两次 
+	rep(i,1,n){
+		rep(j,1,4){
+			if(区间[i-j+1,i]之间没有字母出现两次){
+				int pos=上一次a[i]出现的位置
+				dp[i][j]=dp[i-j][i-j-pos+1];
+			}
+		}
+	}
+	除此之外，当枚举到一段的时候，需要枚举出这一段开头的字母的所有可能性
+	时间复杂度最坏为O(n*64) 
 */
 
-#pragma GCC optimize(2)
-#pragma GCC optimize(3)
+//#pragma GCC optimize(2)
+//#pragma GCC optimize(3)
 #include<bits/stdc++.h>
-//#define int long long
+#define int long long
 #define pb push_back
 #define fir first
 #define sec second
@@ -69,83 +82,54 @@ struct fenwick_interval{
 /* ========================================| Main Program |======================================== */
 
 const int N = 1e5+10;
-int n,d,tot,ans[N],root[2],id[2][N<<2],dist[N<<3],vis[N<<3];
-VPI e[N<<3];
-deque<PI> q;
-
-struct pie{
-	int x,y,pos;
-} p[2][N];
-
-struct node{
-	int lc,rc;
-} st[N<<3];
-
-int lbx(int x){	int l=1,r=n,res=n+1; while(l<=r){ int mid=l+r>>1; if(p[1][mid].x>=x) r=mid-1,res=mid; else l=mid+1;} return res;}
-int ubx(int x){ int l=1,r=n,res=0; while(l<=r){ int mid=l+r>>1; if(p[1][mid].x<=x) l=mid+1,res=mid; else r=mid-1;} return res;}
-int lby(int y){ int l=1,r=n,res=n+1; while(l<=r){ int mid=l+r>>1; if(p[0][mid].y>=y) r=mid-1,res=mid; else l=mid+1;} return res;}
-int uby(int y){	int l=1,r=n,res=0; while(l<=r){ int mid=l+r>>1; if(p[0][mid].y<=y) l=mid+1,res=mid; else r=mid-1;} return res;}
-
-void build(int k,int &rt,int l,int r){
-	rt=++tot;
-	if(l==r){
-		id[k][l]=rt;
-		return;
-	}
-	int mid=l+r>>1;
-	build(k,st[rt].lc,l,mid);
-	build(k,st[rt].rc,mid+1,r);
-	e[rt].pb({st[rt].lc,0});
-	e[rt].pb({st[rt].rc,0});
-}
-
-void add(int u,int v,int l,int r,int x,int y){
-	if(x>y) return;
-	if(l==x&&r==y){
-		e[u].pb({v,1});
-		return;
-	}
-	int mid=l+r>>1;
-	if(y<=mid) add(u,st[v].lc,l,mid,x,y);
-	else if(x>mid) add(u,st[v].rc,mid+1,r,x,y);
-	else add(u,st[v].lc,l,mid,x,mid),add(u,st[v].rc,mid+1,r,mid+1,y);
-}
+int n,a[N],dp[N][5],flag1[5],flag2[5],f[5]={1,1,2,6,24};
+string str;
 
 void solve(int Case){
-	cin>>n>>d;
-	rep(k,0,1) rep(i,1,n){
-		cin>>p[k][i].x>>p[k][i].y;
-		p[k][i].pos=i;
-	}
-	sort(p[0]+1,p[0]+n+1,[](pie a,pie b){return a.y<b.y;});
-	sort(p[1]+1,p[1]+n+1,[](pie a,pie b){return a.x<b.x;});
-	build(0,root[0],1,n);
-	build(1,root[1],1,n);
+	cin>>str;
+	n=str.size();
 	rep(i,1,n){
-		add(id[0][i],root[1],1,n,lbx(p[0][i].x-d),ubx(p[0][i].x));
-		add(id[1][i],root[0],1,n,lby(p[1][i].y-d),uby(p[1][i].y));
-		if(p[0][i].y==0) e[0].pb({id[0][i],1});
-		if(p[1][i].x==0) e[0].pb({id[1][i],1});
+		if(str[i-1]=='?') a[i]=0;
+		if(str[i-1]=='A') a[i]=1;
+		if(str[i-1]=='C') a[i]=2;
+		if(str[i-1]=='G') a[i]=3;
+		if(str[i-1]=='T') a[i]=4;
 	}
-	memset(dist,0x3f,sizeof(dist));
-	dist[0]=0;
-	q.pb({0,0});
-	while(!q.empty()){
-		int u=q.front().fir;
-		q.pop_front();
-		if(vis[u]) continue;
-		vis[u]=1;
-		for(auto r:e[u]){
-			int v=r.fir,w=r.sec;
-			if(dist[u]+w<dist[v]){
-				dist[v]=dist[u]+w;
-				if(w) q.pb({v,dist[v]});
-				else q.push_front({v,dist[v]});
+	dp[0][1]=dp[0][2]=dp[0][3]=dp[0][4]=1;
+	rep(i,1,n){
+		rep(v,1,4){
+			if(a[i]!=v&&a[i]!=0) continue;
+			memset(flag1,0,sizeof(flag1));
+			int mx1=0,cnt1=0;
+			rep(j,1,4){
+				if(i-j+1<0) break;
+				if(a[i-j+1]){
+					flag1[a[i-j+1]]++;
+					chkmax(mx1,flag1[a[i-j+1]]);
+					if(mx1>=2) break;
+				}
+				else cnt1++;
+				memset(flag2,0,sizeof(flag2));
+				int mx2=0,cnt2=0;
+				rep(k,1,4){
+					if(i-j-k+1<0) break;
+					if(flag2[v]) break;
+					if(a[i-j-k+1]){
+						flag2[a[i-j-k+1]]++;
+						chkmax(mx2,flag2[a[i-j+1]]);
+						if(mx2>=2) break;
+					}
+					else cnt2++;
+					if(a[i-j-k+1]!=v&&a[i-j-k+1]!=0) continue;
+					if(a[i-j-k+1]==v) dp[i][j]+=dp[i-j][k]*f[cnt1]*f[cnt2];
+					else dp[i][j]+=dp[i-j][k]*f[cnt1]*f[cnt2-1];
+					dp[i][j]%=MOD;
+				}
 			}
 		}
 	}
-	rep(i,1,n) ans[p[0][i].pos]=dist[id[0][i]];
-	rep(i,1,n) cout<<(ans[i]==INF?-1:ans[i])<<endl;
+	cout<<(dp[n][1]+dp[n][2]+dp[n][3]+dp[n][4])%MOD<<endl;
+//	cout<<dp[5][1]<<endl;
 }
 
 /* ======================================| Main Program End |====================================== */
@@ -154,7 +138,7 @@ signed main(){
 	srand(time(0));
     //int size(512<<20);  //512M
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
-	cin.tie(nullptr)->sync_with_stdio(false);
+	//cin.tie(nullptr)->sync_with_stdio(false);
 	//freopen("in.txt","r",stdin);
 	//freopen("stdout.txt","w",stdout);
 	int CASE=1;
@@ -175,3 +159,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) duipai
 */
+

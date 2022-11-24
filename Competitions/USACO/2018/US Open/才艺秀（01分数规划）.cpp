@@ -1,8 +1,8 @@
 /*
  * Author: Austin Jiang
- * Date: 11/6/2022 11:05:03 PM
- * Problem: decode
- * Description:
+ * Date: 11/21/2022 10:26:57 PM
+ * Problem: 
+ * Description: 01分数规划
 */
 
 //#pragma GCC optimize(2)
@@ -68,28 +68,35 @@ struct fenwick_interval{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
-int n,e,d,p,q;
+const int N = 300;
+const int M = 1e3+10;
+int n,m,w[N],t[N],dp[M];
+
+bool check(int x){
+	memset(dp,-0x3f,sizeof(dp));
+	dp[0]=0;
+	rep(i,1,n) per(j,m,0){
+		chkmax(dp[min(m,j+w[i])],dp[j]+t[i]-x*w[i]);
+	}
+	return dp[m]>=0;
+}
 
 void solve(int Case){
-	cin>>n>>e>>d;
-	int m=n-e*d+2;	
-	if(m*m-4*n<0){
-		cout<<"NO"<<endl;
-		return;
+	cin>>n>>m;
+	rep(i,1,n){
+		cin>>w[i]>>t[i];
+		t[i]*=1000;
 	}
-	int k=sqrt(m*m-4*n);
-	if(k*k!=m*m-4*n){
-		cout<<"NO"<<endl;
-		return;
+	int l=1,r=1000000,ans;
+	while(l<=r){
+		int mid=l+r>>1;
+		if(check(mid)){
+			ans=mid;
+			l=mid+1;
+		}
+		else r=mid-1;
 	}
-	if((m+k)%2==1){
-		cout<<"NO"<<endl;
-		return;
-	}
-	q=(m+k)/2;
-	p=m-q;
-	cout<<min(q,p)<<" "<<max(q,p)<<endl;
+	cout<<ans<<endl;
 }
 
 /* ======================================| Main Program End |====================================== */
@@ -99,10 +106,10 @@ signed main(){
     //int size(512<<20);  //512M
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
 	//cin.tie(nullptr)->sync_with_stdio(false);
-	freopen("decode.in","r",stdin);
-	freopen("decode.out","w",stdout);
+	//freopen("in.txt","r",stdin);
+	//freopen("stdout.txt","w",stdout);
 	int CASE=1;
-	cin>>CASE;
+	//cin>>CASE;
 	rep(Case,1,CASE) solve(Case);
     //exit(0);
 	//system("fc stdout.txt out.txt");

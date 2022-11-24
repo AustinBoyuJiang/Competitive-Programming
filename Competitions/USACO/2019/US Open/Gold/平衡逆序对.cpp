@@ -8,7 +8,7 @@
 //#pragma GCC optimize(2)
 //#pragma GCC optimize(3)
 #include<bits/stdc++.h>
-//#define int long long
+#define int long long
 #define pb push_back
 #define fir first
 #define sec second
@@ -69,49 +69,42 @@ struct fenwick_interval{
 /* ========================================| Main Program |======================================== */
 
 const int N = 1e5+10;
-int n,ans,a[2][N],cnt[2][2],res[2];
+int n,ans,tot[2],tt[2],a[2][N],sum[2][N][2];
 
 void solve(int Case){
 	cin>>n;
 	rep(k,0,1) rep(i,1,n){
 		cin>>a[k][i];
-		cnt[k][a[k][i]]++;
-		if(!a[k][i]) res[k]+=cnt[k][1];
-		
 	}
-	if(res[0]>res[1]){
-		int sum=res[0]-res[1];
-		VI pos[2];
-		per(i,n,1) if(a[0][i]==1) pos[0].pb(i);
-		rep(i,1,n) if(a[1][i]==0) pos[1].pb(n+i);
-		rep(i,0,min(pos[0].size(),pos[1].size())-1){
-			if(cnt[0][1]-cnt[1][0]<pos[1][i]-pos[0][i]) break;
-			ans+=pos[1][i]-pos[0][i];
-			sum-=cnt[0][1]-cnt[1][0];
-			cnt[0][0]--,cnt[0][1]++;
-			cnt[1][0]++,cnt[1][1]--;
+	rep(k,0,1){
+		int cnt=0;
+		rep(i,1,n){
+			sum[k][i][0]=cnt;
+			cnt+=a[k][i];
 		}
-		ans+=sum;
+		cnt=0;
+		per(i,n,1){
+			sum[k][i][1]=cnt;
+			if(a[k][i]) tot[k]+=cnt;
+			cnt+=a[k][i]^1;
+		}
 	}
-	if(res[0]<res[1]){
-		int sum=res[1]-res[0];
-		VI pos[2];
-		per(i,n,1) if(a[0][i]==0) pos[0].pb(i);
-		rep(i,1,n) if(a[1][i]==1) pos[1].pb(n+i);
-		rep(i,0,min(pos[0].size(),pos[1].size())-1){
-			if(cnt[0][0]-cnt[1][1]<pos[1][i]-pos[0][i]) break;
-			ans+=pos[1][i]-pos[0][i];
-			sum-=cnt[0][0]-cnt[1][1];
-			cnt[0][0]++,cnt[0][1]--;
-			cnt[1][0]--,cnt[1][1]++;
+	ans=abs(tot[0]-tot[1]);
+	rep(k,0,1){
+		tt[0]=tot[0],tt[1]=tot[1];
+		int cnt=0,l=n,r=1;
+		rep(i,1,n){
+			while(l>=1&&a[0][l]^k) l--;
+			while(r<=n&&a[1][r]^(1-k)) r++;
+			if(l<1||r>n) break;
+			cnt+=r+n-l;
+			tt[0]+=sum[0][l][0]*(k?1:-1)-(k?n-l:0);
+			tt[1]+=sum[1][r][1]*(k?1:-1)-(k?r-1:0);
+			chkmin(ans,cnt+abs(tt[0]-tt[1]));
+			l--,r++;
 		}
-		ans+=sum;
 	}
 	cout<<ans<<endl;
-	/*
-	0 0 0 1 0: 1
-	1 0 0 0 1: 3
-	*/
 }
 
 /* ======================================| Main Program End |====================================== */
@@ -121,8 +114,8 @@ signed main(){
     //int size(512<<20);  //512M
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
 	//cin.tie(nullptr)->sync_with_stdio(false);
-	//freopen("in.txt","r",stdin);
-	//freopen("stdout.txt","w",stdout);
+//	freopen("in.txt","r",stdin);
+//	freopen("out.txt","w",stdout);
 	int CASE=1;
 	//cin>>CASE;
 	rep(Case,1,CASE) solve(Case);

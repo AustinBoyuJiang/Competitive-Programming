@@ -1,7 +1,7 @@
 /*
  * Author: Austin Jiang
- * Date: 11/6/2022 11:21:37 PM
- * Problem: expr
+ * Date: 11/21/2022 11:45:41 PM
+ * Problem:
  * Description:
 */
 
@@ -68,78 +68,41 @@ struct fenwick_interval{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
-int cnt1,cnt2,flag[1000];
-string str;
-vector<pair<char,int>> expr;
-stack<pair<char,int>> oper;
+const int N = 1010;
+int n,cnt,ans,x[N],y[N],f[N];
+
+struct edge{
+	int u,v,w;
+	bool operator < (const edge other){
+		return this->w<other.w;
+	}
+} e[N*N];
+
+int find(int x){
+	if(f[x]==x) return x;
+	return f[x]=find(f[x]);
+}
 
 void solve(int Case){
-	cin>>str;
-	int cnt=0;
-	for(auto x:str){
-		if(x=='('){
-			cnt++;
-			flag[cnt]=0;
-			continue;
-		}
-		if(x==')'){
-			cnt--;
-			continue;
-		}
-		if(x=='&'){
-			if(flag[cnt]==2){
-				cnt++;
-				expr[expr.size()-1].sec++;
-			}
-			flag[cnt]=1;
-		}
-		if(x=='|'){
-			if(flag[cnt]==1) cnt--;
-			flag[cnt]=2;
-		}
-		expr.pb({x,cnt});
+	cin>>n;
+	rep(i,1,n){
+		cin>>x[i]>>y[i];
+		f[i]=i;
 	}
-	int del=-1;
-	for(auto v:expr){
-		char x=v.fir;
-		if(del!=-1){
-			if(v.sec<del){
-				del=-1;
-			}
-			else{
-				if(v.sec==del) del=-1;
-				continue;
-			}
-		}
-		if(x=='&'&&oper.top().fir=='0'){
-			del=v.sec;
-			cnt1++;
-			continue;
-		}
-		if(x=='|'&&oper.top().fir=='1'){
-			del=v.sec;
-			cnt2++;
-			continue;
-		}
-		while(!oper.empty()&&(x=='0'||x=='1')&&v.sec<=oper.top().sec){
-			char s=oper.top().fir;
-			oper.pop();
-			char a=oper.top().fir;
-			oper.pop();
-			if(s=='&'){
-				if(x=='1'&&a=='1') x='1';
-				else x='0';
-			}
-			else{
-				if(x=='0'&&a=='0') x='0';
-				else x='1';
-			}
-		}
-		oper.push({x,oper.empty()?v.sec:oper.top().sec});
+	rep(i,1,n-1) rep(j,i+1,n){
+		e[++cnt]={i,j,(x[i]-x[j])*(x[i]-x[j])+(y[i]-y[j])*(y[i]-y[j])};
 	}
-	cout<<oper.top().fir<<endl;
-	cout<<cnt1<<" "<<cnt2<<endl;
+	sort(e+1,e+cnt+1);
+	rep(i,1,cnt){
+		int u=e[i].u;
+		int v=e[i].v;
+		int w=e[i].w;
+		if(find(u)!=find(v)){
+			ans=w;
+			f[find(u)]=find(v);
+		}
+	}
+	cout<<ans<<endl;
 }
 
 /* ======================================| Main Program End |====================================== */
@@ -149,8 +112,8 @@ signed main(){
     //int size(512<<20);  //512M
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
 	//cin.tie(nullptr)->sync_with_stdio(false);
-	freopen("expr.in","r",stdin);
-	freopen("expr.out","w",stdout);
+	//freopen("in.txt","r",stdin);
+	//freopen("stdout.txt","w",stdout);
 	int CASE=1;
 	//cin>>CASE;
 	rep(Case,1,CASE) solve(Case);

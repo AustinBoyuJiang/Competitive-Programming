@@ -1,14 +1,14 @@
 /*
  * Author: Austin Jiang
- * Date: 11/7/2022 1:29:06 AM
- * Problem: point
+ * Date: 11/14/2022 8:42:36 PM
+ * Problem: 
  * Description:
 */
 
 //#pragma GCC optimize(2)
 //#pragma GCC optimize(3)
 #include<bits/stdc++.h>
-//#define int long long
+#define int long long
 #define pb push_back
 #define fir first
 #define sec second
@@ -68,34 +68,62 @@ struct fenwick_interval{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1010;
-int n,K,ans,dp[N][N];
+const int N = 2510;
+int n,m,k,ans,val[N],dist[N][N],mx[N][2];
+VI e[N];
 
-struct node{
-	int x,y;
-} a[N];
-
-bool cmp(node a,node b){
-	if(a.x==b.x) return a.y<b.y;
-	return a.x<b.x;
+void check(int a,int b,int c,int d){
+	if(a!=b&&a!=c&&a!=d&&b!=c&&b!=d&&c!=d&&a&&b&&c&&d){
+		chkmax(ans,val[a]+val[b]+val[c]+val[d]);
+	}
 }
 
 void solve(int Case){
-	cin>>n>>K;
-	rep(i,1,n){
-		cin>>a[i].x>>a[i].y;
-		rep(j,0,K) dp[i][j]=j+1;
+	cin>>n>>m>>k;
+	k++;
+	rep(i,2,n) cin>>val[i];
+	rep(i,1,m){
+		int u,v;
+		cin>>u>>v;
+		e[u].pb(v);
+		e[v].pb(u);
 	}
-	sort(a+1,a+n+1,cmp);
-	rep(k,0,K){
-		rep(i,2,n) rep(j,1,i-1){
-			if(a[i].x>=a[j].x&&a[i].y>=a[j].y){
-				int dis=a[i].x-a[j].x+a[i].y-a[j].y-1;
-				if(k>=dis){
-					chkmax(dp[i][k],dp[j][k-dis]+dis+1);
-					chkmax(ans,dp[i][k]);
+	rep(i,1,n) rep(j,1,n) dist[i][j]=INF;
+	rep(st,1,n){
+		dist[st][st]=0;
+		queue<int> q;
+		q.push(st);
+		while(!q.empty()){
+			int u=q.front();
+			q.pop();
+			for(auto v:e[u]){
+				if(dist[st][v]==INF){
+					dist[st][v]=dist[st][u]+1;
+					q.push(v);
 				}
 			}
+		}
+	}
+	rep(i,2,n){
+		rep(j,2,n){
+			if(i==j) continue;
+			if(dist[1][j]>k||dist[j][i]>k) continue;
+			if(val[j]>val[mx[i][0]]){
+				mx[i][1]=mx[i][0];
+				mx[i][0]=j;
+			}
+			else if(val[j]>val[mx[i][1]]){
+				mx[i][1]=j;
+			}
+		}
+	}
+	rep(i,2,n){
+		rep(j,2,n){
+			if(dist[i][j]>k) continue;
+			check(i,j,mx[i][0],mx[j][0]);
+			check(i,j,mx[i][0],mx[j][1]);
+			check(i,j,mx[i][1],mx[j][0]);
+			check(i,j,mx[i][1],mx[j][1]);
 		}
 	}
 	cout<<ans<<endl;
@@ -108,8 +136,8 @@ signed main(){
     //int size(512<<20);  //512M
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
 	//cin.tie(nullptr)->sync_with_stdio(false);
-	freopen("point.in","r",stdin);
-	freopen("point.out","w",stdout);
+	//freopen("in.txt","r",stdin);
+	//freopen("stdout.txt","w",stdout);
 	int CASE=1;
 	//cin>>CASE;
 	rep(Case,1,CASE) solve(Case);
