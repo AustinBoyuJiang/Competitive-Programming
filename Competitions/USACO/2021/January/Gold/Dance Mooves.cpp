@@ -1,14 +1,14 @@
 /*
  * Author: Austin Jiang
- * Date: 11/24/2022 9:28:11 AM
- * Problem:
+ * Date: 11/24/2022 10:20:09 AM
+ * Problem: Dance Mooves
  * Description:
 */
 
 //#pragma GCC optimize(2)
 //#pragma GCC optimize(3)
 #include<bits/stdc++.h>
-//#define int long long
+#define int long long
 #define pb push_back
 #define fir first
 #define sec second
@@ -68,58 +68,38 @@ struct fenwick_interval{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 30;
-const int E = 1000;
-int n,ans,tot,Map[30][30],l[N],r[N],f[N],cnt[N];
-string str;
-
-struct edge{
-	int u,v,w;
-	bool operator < (const edge &other){
-		if(w==other.w) return cnt[v]>cnt[other.v];
-		return w>other.w;
-	}
-} e[E];
-
-int find(int x){
-	if(f[x]==x) return x;
-	return f[x]=find(f[x]);
-}
-
-void merge(int x,int y){
-	f[find(x)]=find(y);
-}
+const int N = 1e5+10;
+const int K = 2e5+10;
+int n,k,m,a[K],b[K],f[N],p[N];
+set<int> pos[N];
 
 void solve(int Case){
-	cin>>str;
-	n=str.size();
-	rep(i,0,n-2){
-		int u=str[i]-'a';
-		int v=str[i+1]-'a';
-		Map[u][v]++;
-		cnt[u]++;
-		ans++;
+	cin>>n>>k>>m;
+	m=min(m,n*k);
+	rep(i,1,n){
+		f[i]=i;
+		pos[i].insert(i);
 	}
-	rep(u,0,25) rep(v,0,25)
-		e[++tot]={u,v,Map[u][v]};		
-	sort(e+1,e+tot+1);
-	rep(i,0,25) f[i]=i;
-	rep(i,1,tot){
-		int u=e[i].u;
-		int v=e[i].v;
-		int w=e[i].w;
-		cout<<u<<" "<<v<<" "<<w<<endl;
-		if(find(u)!=find(v)){
-			if(!r[u]&&!l[v]){
-				l[v]=u;
-				r[u]=v;
-				merge(u,v);
-				ans-=w;
-			}
-		}
+	rep(i,1,k){
+		cin>>a[i]>>b[i];
 	}
-	cout<<ans+1<<endl;
-	cout<<cnt[0]<<" "<<cnt[2]<<endl;
+	rep(i,1,min(k,m)){
+		pos[f[a[i]]].insert(b[i]);
+		pos[f[b[i]]].insert(a[i]);
+		swap(f[a[i]],f[b[i]]);
+	}
+	if(m<=k) rep(i,1,n) cout<<pos[i].size()<<endl;
+	rep(i,1,n) p[f[i]]=i;
+	per(i,m/k-1,1){
+		pos[f[b[i]]].insert(pos[p[f[b[i]]]].begin(),pos[p[f[b[i]]]].end());
+		rep(i,1,k) swap(f[a[i]],f[b[i]]);
+	}
+	rep(i,1,m%k){
+		pos[f[a[i]]].insert(b[i]);
+		pos[f[b[i]]].insert(a[i]);
+		swap(f[a[i]],f[b[i]]);
+	}
+	rep(i,1,n) cout<<pos[i].size()<<endl;
 }
 
 /* ======================================| Main Program End |====================================== */
