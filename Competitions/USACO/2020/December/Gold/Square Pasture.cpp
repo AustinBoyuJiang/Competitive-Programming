@@ -69,7 +69,7 @@ struct fenwick_interval{
 /* ========================================| Main Program |======================================== */
 
 const int N = 210;
-int n,ans;
+int n,ans,cnt;
 
 struct node{
 	int x,y;
@@ -78,43 +78,43 @@ struct node{
 	}
 } st[N];
 
-void solve(int Case){
-	cin>>n;
-	rep(i,1,n){
-		cin>>st[i].x>>st[i].y;
-	}
+void count(){
+	cnt=0;
 	sort(st+1,st+n+1);
-	st[0].y=-INF; 
-	st[n+1].y=INF;
 	rep(i,1,n) rep(j,i,n){
-		int uby=st[j+1].y-1;
-		int lby=st[i-1].y+1;
 		int ubx=max(st[i].x,st[j].x);
 		int lbx=min(st[i].x,st[j].x);
+		int siz=st[j].y-st[i].y+1;
 		VI x;
 		rep(k,i,j) x.pb(st[k].x);
 		sort(x.begin(),x.end());
-//		cout<<i<<"-"<<j<<": ";
+		
+//		cout<<lbx<<" "<<ubx<<", "<<siz<<": "<<endl;
+//		cout<<"x-set: ";
 //		for(auto v:x) cout<<v<<" ";
-//		cout<<endl;
-//		int pos1=0,pos2=-1;
-//		rep(k,0,x.size()-1){
-//			if(x[k]>lbx) break;
-//			while(pos2<x.size()-1&&x[pos2+1]-x[k]<=uby-lby) pos2++;
-//			while(pos1<=x.size()-1&&(x[pos1]<ubx||x[pos1]-x[k]<st[i].y-st[j].y)) pos1++;
-//			if(pos2>=pos1) ans+=pos2-pos1+1;
-//		}
-		rep(k,0,x.size()-1) rep(l,k,x.size()-1){
-			if(x[l]-x[k]+1<=uby-lby+1){
-				if(x[k]<=lbx&&x[l]>=ubx){
-					if(k==0||l==x.size()-1||st[j].y-st[i].y+1<=x[l+1]-x[k-1]+1-2){
-						ans++;
-					}
-				}
+//		cout<<endl<<endl;
+		
+		int pos1=0,pos2=-1;
+		rep(k,0,x.size()-1){
+			if(x[k]>lbx) break;
+			while(pos2<(int)x.size()-1&&x[k]+siz-1>=x[pos2+1]) pos2++;
+			while(pos1<=(int)x.size()-1&&(x[pos1]<ubx||(k&&(x[k-1]+1+siz-1>=x[pos1+1]&&pos1+1<=x.size()-1)))) pos1++;
+			if(pos2>=pos1){
+				ans+=pos2-pos1+1;
+				if(x[pos2]>=ubx&&x[pos2]==x[k]+siz-1) cnt++;
 			}
 		}
 	}
-	cout<<ans+1<<endl;
+}
+
+void solve(int Case){
+	cin>>n;
+	rep(i,1,n) cin>>st[i].x>>st[i].y;
+	cout<<endl;
+	count();
+	rep(i,1,n) swap(st[i].x,st[i].y);
+	count();
+	cout<<ans+1-cnt<<endl;
 }
 
 /* ======================================| Main Program End |====================================== */

@@ -82,54 +82,35 @@ struct fenwick_interval{
 /* ========================================| Main Program |======================================== */
 
 const int N = 1e5+10;
-int n,a[N],dp[N][5],flag1[5],flag2[5],f[5]={1,1,2,6,24};
+int n,ans,p[N],dp[N][5][5][5];
 string str;
 
 void solve(int Case){
 	cin>>str;
 	n=str.size();
 	rep(i,1,n){
-		if(str[i-1]=='?') a[i]=0;
-		if(str[i-1]=='A') a[i]=1;
-		if(str[i-1]=='C') a[i]=2;
-		if(str[i-1]=='G') a[i]=3;
-		if(str[i-1]=='T') a[i]=4;
+		if(str[i-1]=='?') p[i]=0;
+		if(str[i-1]=='A') p[i]=1;
+		if(str[i-1]=='C') p[i]=2;
+		if(str[i-1]=='G') p[i]=3;
+		if(str[i-1]=='T') p[i]=4;
 	}
-	dp[0][1]=dp[0][2]=dp[0][3]=dp[0][4]=1;
-	rep(i,1,n){
-		rep(v,1,4){
-			if(a[i]!=v&&a[i]!=0) continue;
-			memset(flag1,0,sizeof(flag1));
-			int mx1=0,cnt1=0;
-			rep(j,1,4){
-				if(i-j+1<0) break;
-				if(a[i-j+1]){
-					flag1[a[i-j+1]]++;
-					chkmax(mx1,flag1[a[i-j+1]]);
-					if(mx1>=2) break;
-				}
-				else cnt1++;
-				memset(flag2,0,sizeof(flag2));
-				int mx2=0,cnt2=0;
-				rep(k,1,4){
-					if(i-j-k+1<0) break;
-					if(flag2[v]) break;
-					if(a[i-j-k+1]){
-						flag2[a[i-j-k+1]]++;
-						chkmax(mx2,flag2[a[i-j+1]]);
-						if(mx2>=2) break;
-					}
-					else cnt2++;
-					if(a[i-j-k+1]!=v&&a[i-j-k+1]!=0) continue;
-					if(a[i-j-k+1]==v) dp[i][j]+=dp[i-j][k]*f[cnt1]*f[cnt2];
-					else dp[i][j]+=dp[i-j][k]*f[cnt1]*f[cnt2-1];
-					dp[i][j]%=MOD;
-				}
+	rep(i,1,4) rep(j,1,4){
+		if(p[1]==j||!p[1])
+			dp[1][i][j][j]=1;
+	}
+	rep(i,2,n){
+		rep(j,1,4){
+			if(p[i]&&p[i]!=j) continue;
+			rep(a,1,4) rep(b,1,4) rep(c,1,4){
+				if(a==c) dp[i][b][j][j]=(dp[i][b][j][j]+dp[i-1][a][b][c])%MOD;
+				if(j!=c) dp[i][a][b][j]=(dp[i][a][b][j]+dp[i-1][a][b][c])%MOD;
 			}
 		}
 	}
-	cout<<(dp[n][1]+dp[n][2]+dp[n][3]+dp[n][4])%MOD<<endl;
-//	cout<<dp[5][1]<<endl;
+	rep(i,1,4) rep(j,1,4)
+		ans=(ans+dp[n][i][j][i])%MOD;
+	cout<<ans<<endl;
 }
 
 /* ======================================| Main Program End |====================================== */

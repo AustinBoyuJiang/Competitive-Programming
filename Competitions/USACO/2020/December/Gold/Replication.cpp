@@ -96,7 +96,7 @@ void solve(int Case){
 		rep(i,0,3){
 			int nx=u.fir+dir[i][0];
 			int ny=u.sec+dir[i][1];
-			if(ok(nx,ny)&&dist[nx][ny]==INF){
+			if(ok(nx,ny)&&Map[nx][ny]&&dist[nx][ny]==INF){
 				dist[nx][ny]=dist[u.fir][u.sec]+1;
 				q.push({nx,ny});
 			}
@@ -120,10 +120,10 @@ void solve(int Case){
 	}
 	PQ<pair<int,PI>,vector<pair<int,PI>>,less<pair<int,PI>>> qq;
 	for(auto u:st){
-		q.push(u);
-		cnt[u.fir][u.sec]=min(offset[u.fir][u.sec]/d+1,dist[u.fir][u.sec]);
-		qq.push({cnt[u.fir][u.sec],{u.fir,u.sec}});
+		cnt[u.fir][u.sec]=1;
 		flag[u.fir][u.sec]=1;
+		qq.push({1,u});
+		q.push(u);
 	}
 	while(!q.empty()){
 		PI u=q.front(); q.pop();
@@ -132,14 +132,16 @@ void solve(int Case){
 		rep(i,0,3){
 			int nx=u.fir+dir[i][0];
 			int ny=u.sec+dir[i][1];
-			if(ok(nx,ny)&&Map[nx][ny]){
-				if(offset[nx][ny]/d<dist[nx][ny]){
-					offset[nx][ny]=offset[u.fir][u.sec]+1;
+			if(ok(nx,ny)&&Map[nx][ny]{ 
+				if(vis[nx][ny]) continue;
+				if(offset[nx][ny]/d+1<=dist[nx][ny]){
+					cnt[nx][ny]=offset[nx][ny]/d+1;
 					q.push({nx,ny});
 				}
-				cnt[nx][ny]=min(offset[nx][ny]/d+1,dist[nx][ny]);
-				if(!flag[nx][ny]){
-					qq.push({cnt[nx][ny],{nx,ny}});
+				else if(offset[nx][ny]/d==dist[nx][ny])
+					cnt[nx][ny]=dist[nx][ny];
+				if(offset[nx][ny]/d<=dist[nx][ny]){
+					if(!flag[nx][ny]) qq.push({cnt[nx][ny],{nx,ny}});
 					flag[nx][ny]=1;
 				}
 			}
@@ -161,6 +163,13 @@ void solve(int Case){
 	}
 	rep(i,1,n) rep(j,1,n) ans+=cnt[i][j]>0;
 	cout<<ans<<endl;
+//	rep(i,1,n){
+//		rep(j,1,n){
+//			if(cnt[i][j]<10) cout<<cnt[i][j]<<" ";
+//			else cout<<cnt[i][j]<<"";
+//		}
+//		cout<<endl;
+//	}
 }
 
 /* ======================================| Main Program End |====================================== */
