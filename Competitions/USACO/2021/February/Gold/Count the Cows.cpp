@@ -1,7 +1,7 @@
 /*
  * Author: Austin Jiang
- * Date: 11/24/2022 10:20:09 AM
- * Problem: Dance Mooves
+ * Date: 11/27/2022 7:21:09 PM
+ * Problem:
  * Description:
 */
 
@@ -68,88 +68,75 @@ struct fenwick_interval{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e5+10;
-const int K = 2e5+10;
-int n,k,m,tot,a[K],b[K],l[N],r[N],vis[N],s[N],siz[N],dfn[N],rnk[N],cur[N];
-set<int> pos[N],st[N<<2];
+const int N = 1e6+10;
+int q;
+int i;
 
-set<int> merge(set<int> x,set<int> y){
-	set<int> res;
-	res.insert(x.begin(),x.end());
-	res.insert(y.begin(),y.end());
+struct interval{
+	int x,y,d;
+	pair<PI,int> toPair(){
+		return {{x,y},d};
+	}
+};
+
+map<pair<PI,int>,int> flag;
+
+int get(int x){
+	int res=0;
+	while(x>1){
+		x=(x+2)/3;
+		res++;
+	}
 	return res;
 }
 
-inline void build(int rt,int l,int r){
-	if(l==r){
-		st[rt]=pos[rnk[l]];
-		return;
+interval calc(interval t,int xd,int yd,int k){
+	int x=t.x,y=t.y,d=t.d;
+	int lbx=k/3*(xd-1);
+	int lby=k/3*(yd-1);	
+	int nx=x-lbx,ny=y-lby,nd;
+	if(nx<=0){
+		ny+=1-nx;
+		nx=1;
 	}
-	int mid=l+r>>1;
-	build(rt<<1,l,mid);
-	build(rt<<1|1,mid+1,r);
-	st[rt]=merge(st[rt<<1],st[rt<<1|1]);
+	if(ny<=0){
+		nx+=1-ny;
+		ny=1;
+	}
+	nd=min(min(k/3,x+d-lbx)-nx,min(k/3,y+d-lby)-ny);
+	if(nx>k/3||ny>k/3) return {0,0,-1};
+	return {nx,ny,nd};
 }
 
-inline set<int> query(int rt,int l,int r,int x,int y){
-	if(l==x&&r==y) return st[rt];
-	int mid=l+r>>1;
-	if(y<=mid) return query(rt<<1,l,mid,x,y);
-	else if(x>mid) return query(rt<<1|1,mid+1,r,x,y);
-	else return merge(query(rt<<1,l,mid,x,mid),query(rt<<1|1,mid+1,r,mid+1,y));
+int find(interval t,int k){
+//	if(i==16) cout<<t.x<<" "<<t.y<<" "<<t.d<<" "<<k<<endl;
+//  运算过程中k变成不是三的倍数了 当i>=16 
+	if(k==1) return 1;
+	if(flag[t.toPair()]) return flag[t.toPair()];
+	int ans=0;
+	rep(i,1,3) rep(j,1,3){
+		if((i+j)%2==1) continue;
+		interval nxt=calc(t,i,j,k);
+		if(nxt.d>=0) ans+=find(nxt,k/3);
+	}
+	flag[t.toPair()]=ans;
+	return ans;
 }
 
-inline void solve(int Case){
-	cin>>n>>k>>m;
-	m=min(m,n*k);
-	rep(i,1,n) pos[i].insert(i);
-	rep(i,1,k){
-		cin>>a[i]>>b[i];
+void solve(int Case){
+	int d=1;
+	for(i=0;i<=16;i++){
+		cout<<i<<": "<<d<<endl;
+		cout<<"res: "<<find({d+1,d+1,d},pow(3,get(max(d+d+1,d+d+1))))<<endl;
+		d*=10;
 	}
-	rep(i,1,min(k,m)){
-		pos[r[a[i]]].insert(b[i]);
-		pos[r[b[i]]].insert(a[i]);
-		swap(r[a[i]],r[b[i]]);
-	}
-	if(m<=k) rep(i,1,n) cout<<pos[i].size()<<endl;
-	rep(i,1,n) l[r[i]]=i;
-	rep(i,1,n){
-		if(vis[i]) continue;
-		int u=i,cnt=0;;
-		stack<int> stk;
-		while(!vis[u]){
-			cnt++;
-			s[u]=i;
-			vis[u]=1;
-			stk.push(u);
-			dfn[++tot]=u;
-			rnk[u]=tot;
-			u=l[u];
-		}
-		while(!stk.empty()){
-			siz[stk.top()]=cnt;
-			stk.pop();
-		}
-	}
-	build(1,1,n);
-	rep(i,1,n){
-		int dis=min(siz[s[i]],m/k);
-		int ppos=rnk[i]+dis;
-		if(ppos>rnk[s[i]]+siz[s[i]])
-			ppos-=siz[s[i]];
-		cur[dfn[ppos]]=i;
-		if(ppos>=rnk[i])
-			pos[i]=query(1,1,n,rnk[i],ppos);
-		else
-			pos[i]=query(1,1,n,rnk[i],rnk[s[i]]+siz[s[i]]);
-			pos[i]=merge(pos[i],query(1,1,n,rnk[s[i]],ppos));
-	}
-	rep(i,1,m%k){
-		pos[cur[a[i]]].insert(b[i]);
-		pos[cur[b[i]]].insert(a[i]);
-		swap(cur[a[i]],cur[b[i]]);
-	}
-	rep(i,1,n) cout<<pos[i].size()<<endl;
+//	cin>>q;
+//	rep(i,1,q){
+//		int d,x,y;
+//		cin>>d>>x>>y;
+//		x++,y++;
+//		cout<<find({x,y,d},pow(3,get(max(x+d,y+d))))<<endl;
+//	}
 }
 
 /* ======================================| Main Program End |====================================== */

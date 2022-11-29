@@ -1,7 +1,7 @@
 /*
  * Author: Austin Jiang
- * Date: 11/24/2022 10:20:09 AM
- * Problem: Dance Mooves
+ * Date: 11/26/2022 7:01:38 AM
+ * Problem:
  * Description:
 */
 
@@ -68,88 +68,32 @@ struct fenwick_interval{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e5+10;
-const int K = 2e5+10;
-int n,k,m,tot,a[K],b[K],l[N],r[N],vis[N],s[N],siz[N],dfn[N],rnk[N],cur[N];
-set<int> pos[N],st[N<<2];
+const int N = 5010;
+int n,mod,ans,c[N][N],fac[N];
 
-set<int> merge(set<int> x,set<int> y){
-	set<int> res;
-	res.insert(x.begin(),x.end());
-	res.insert(y.begin(),y.end());
-	return res;
-}
-
-inline void build(int rt,int l,int r){
-	if(l==r){
-		st[rt]=pos[rnk[l]];
-		return;
-	}
-	int mid=l+r>>1;
-	build(rt<<1,l,mid);
-	build(rt<<1|1,mid+1,r);
-	st[rt]=merge(st[rt<<1],st[rt<<1|1]);
-}
-
-inline set<int> query(int rt,int l,int r,int x,int y){
-	if(l==x&&r==y) return st[rt];
-	int mid=l+r>>1;
-	if(y<=mid) return query(rt<<1,l,mid,x,y);
-	else if(x>mid) return query(rt<<1|1,mid+1,r,x,y);
-	else return merge(query(rt<<1,l,mid,x,mid),query(rt<<1|1,mid+1,r,mid+1,y));
-}
-
-inline void solve(int Case){
-	cin>>n>>k>>m;
-	m=min(m,n*k);
-	rep(i,1,n) pos[i].insert(i);
-	rep(i,1,k){
-		cin>>a[i]>>b[i];
-	}
-	rep(i,1,min(k,m)){
-		pos[r[a[i]]].insert(b[i]);
-		pos[r[b[i]]].insert(a[i]);
-		swap(r[a[i]],r[b[i]]);
-	}
-	if(m<=k) rep(i,1,n) cout<<pos[i].size()<<endl;
-	rep(i,1,n) l[r[i]]=i;
+void solve(int Case){
+	cin>>n>>mod;
+	rep(i,0,n) c[i][0]=1;
 	rep(i,1,n){
-		if(vis[i]) continue;
-		int u=i,cnt=0;;
-		stack<int> stk;
-		while(!vis[u]){
-			cnt++;
-			s[u]=i;
-			vis[u]=1;
-			stk.push(u);
-			dfn[++tot]=u;
-			rnk[u]=tot;
-			u=l[u];
-		}
-		while(!stk.empty()){
-			siz[stk.top()]=cnt;
-			stk.pop();
+		rep(j,1,i){
+			c[i][j]=c[i-1][j]+c[i-1][j-1];
+			c[i][j]%=mod;
 		}
 	}
-	build(1,1,n);
+	fac[0]=1;
 	rep(i,1,n){
-		int dis=min(siz[s[i]],m/k);
-		int ppos=rnk[i]+dis;
-		if(ppos>rnk[s[i]]+siz[s[i]])
-			ppos-=siz[s[i]];
-		cur[dfn[ppos]]=i;
-		if(ppos>=rnk[i])
-			pos[i]=query(1,1,n,rnk[i],ppos);
-		else
-			pos[i]=query(1,1,n,rnk[i],rnk[s[i]]+siz[s[i]]);
-			pos[i]=merge(pos[i],query(1,1,n,rnk[s[i]],ppos));
+		fac[i]=fac[i-1]*i;
+		fac[i]%=mod;
 	}
-	rep(i,1,m%k){
-		pos[cur[a[i]]].insert(b[i]);
-		pos[cur[b[i]]].insert(a[i]);
-		swap(cur[a[i]],cur[b[i]]);
+	int x=(n+1)/2;
+	rep(i,1,x){
+		rep(j,0,max(i-2,0ll)){
+			ans+=(i-n%2)*c[max(i-2,0ll)][j]%mod*fac[n-i+j-1];
+			ans%=mod;
+//			cout<<(i-(n%2))<<" "<<c[max(i-2,0ll)][j]<<" "<<frac[n-i+j-1]<<endl;
+		}
 	}
-	rep(i,1,n) cout<<pos[i].size()<<endl;
+	cout<<ans*n%mod<<endl;
 }
 
 /* ======================================| Main Program End |====================================== */
@@ -158,7 +102,7 @@ signed main(){
 	srand(time(0));
     //int size(512<<20);  //512M
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
-	cin.tie(nullptr)->sync_with_stdio(false);
+	//cin.tie(nullptr)->sync_with_stdio(false);
 	//freopen("in.txt","r",stdin);
 	//freopen("stdout.txt","w",stdout);
 	int CASE=1;

@@ -5,10 +5,10 @@
  * Description:
 */
 
-//#pragma GCC optimize(2)
-//#pragma GCC optimize(3)
+#pragma GCC optimize(2)
+#pragma GCC optimize(3)
 #include<bits/stdc++.h>
-//#define int long long
+#define int long long
 #define pb push_back
 #define fir first
 #define sec second
@@ -68,58 +68,40 @@ struct fenwick_interval{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 30;
-const int E = 1000;
-int n,ans,tot,Map[30][30],l[N],r[N],f[N],cnt[N];
+const int N = 20;
+int n,cnt,Map[N][N],dp[1<<N];
+map<char,int> key;
 string str;
 
-struct edge{
-	int u,v,w;
-	bool operator < (const edge &other){
-		if(w==other.w) return cnt[v]>cnt[other.v];
-		return w>other.w;
+void init(){
+	for(char x='a';x<='z';x++){
+		key[x]=-1;
 	}
-} e[E];
-
-int find(int x){
-	if(f[x]==x) return x;
-	return f[x]=find(f[x]);
-}
-
-void merge(int x,int y){
-	f[find(x)]=find(y);
 }
 
 void solve(int Case){
+	init();
 	cin>>str;
 	n=str.size();
+	rep(i,0,n-1) if(key[str[i]]==-1) key[str[i]]=cnt++;
 	rep(i,0,n-2){
-		int u=str[i]-'a';
-		int v=str[i+1]-'a';
+		int u=key[str[i]];
+		int v=key[str[i+1]];
 		Map[u][v]++;
-		cnt[u]++;
-		ans++;
 	}
-	rep(u,0,25) rep(v,0,25)
-		e[++tot]={u,v,Map[u][v]};		
-	sort(e+1,e+tot+1);
-	rep(i,0,25) f[i]=i;
-	rep(i,1,tot){
-		int u=e[i].u;
-		int v=e[i].v;
-		int w=e[i].w;
-		cout<<u<<" "<<v<<" "<<w<<endl;
-		if(find(u)!=find(v)){
-			if(!r[u]&&!l[v]){
-				l[v]=u;
-				r[u]=v;
-				merge(u,v);
-				ans-=w;
+	memset(dp,-0x3f,sizeof(dp));
+	rep(i,0,cnt-1) dp[1<<i]=0;
+	rep(i,1,(1<<cnt)-1){
+		rep(j,0,cnt-1){//新来的一头牛 
+			if(!(1<<j)&i||1<<j==i) continue;
+			int res=0;
+			rep(k,0,cnt-1){
+				if((1<<k)&(i^(1<<j))) res+=Map[k][j];
 			}
+			chkmax(dp[i],dp[i^(1<<j)]+res);
 		}
 	}
-	cout<<ans+1<<endl;
-	cout<<cnt[0]<<" "<<cnt[2]<<endl;
+	cout<<n-dp[(1<<cnt)-1]<<endl;
 }
 
 /* ======================================| Main Program End |====================================== */
@@ -128,9 +110,9 @@ signed main(){
 	srand(time(0));
     //int size(512<<20);  //512M
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
-	//cin.tie(nullptr)->sync_with_stdio(false);
-	//freopen("in.txt","r",stdin);
-	//freopen("stdout.txt","w",stdout);
+	cin.tie(nullptr)->sync_with_stdio(false);
+//	freopen("in.txt","r",stdin);
+//	freopen("stdout.txt","w",stdout);
 	int CASE=1;
 	//cin>>CASE;
 	rep(Case,1,CASE) solve(Case);
