@@ -46,7 +46,7 @@ namespace comfun{
 	template<typename T> inline T lcm(T a,T b){return a/gcd(a,b)*b;}
 	template<typename T> inline T chkmax(T &a,T b){return a=max(a,b);}
 	template<typename T> inline T chkmin(T &a,T b){return a=min(a,b);}
-	template<typename T> inline T pow(T a,T b){T ans=1;while(b){if(b&1) ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
+	template<typename T> inline T qpow(T a,T b){T ans=1;while(b){if(b&1) ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
 	template<typename T> inline T inv(T x){return pow(x,MOD-2);}
 	template<typename T> inline bool is_prime(T x){if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false; return true;}
 } using namespace comfun;

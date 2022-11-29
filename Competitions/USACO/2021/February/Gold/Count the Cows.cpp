@@ -46,7 +46,6 @@ namespace comfun{
 	template<typename T> inline T lcm(T a,T b){return a/gcd(a,b)*b;}
 	template<typename T> inline T chkmax(T &a,T b){return a=max(a,b);}
 	template<typename T> inline T chkmin(T &a,T b){return a=min(a,b);}
-	template<typename T> inline T pow(T a,T b){T ans=1;while(b){if(b&1) ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
 	template<typename T> inline T inv(T x){return pow(x,MOD-2);}
 	template<typename T> inline bool is_prime(T x){if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false; return true;}
 } using namespace comfun;
@@ -90,6 +89,19 @@ int get(int x){
 	return res;
 }
 
+int qpow(int a,int b){
+	cout<<a<<" ^ "<<b<<endl;
+	int ans=1;
+	while(b){
+		if(b&1){
+			ans*=a;
+		}
+		a*=a;
+		b>>=1;
+	}
+	return ans;
+}
+
 interval calc(interval t,int xd,int yd,int k){
 	int x=t.x,y=t.y,d=t.d;
 	int lbx=k/3*(xd-1);
@@ -107,9 +119,13 @@ interval calc(interval t,int xd,int yd,int k){
 	if(nx>k/3||ny>k/3) return {0,0,-1};
 	return {nx,ny,nd};
 }
-
+int cnt=20;
 int find(interval t,int k){
-//	if(i==16) cout<<t.x<<" "<<t.y<<" "<<t.d<<" "<<k<<endl;
+	if(!cnt) return 0;
+	if(i==16){
+		cout<<k<<" "<<k%3<<endl;
+		cnt--;
+	}
 //  运算过程中k变成不是三的倍数了 当i>=16 
 	if(k==1) return 1;
 	if(flag[t.toPair()]) return flag[t.toPair()];
@@ -127,7 +143,7 @@ void solve(int Case){
 	int d=1;
 	for(i=0;i<=16;i++){
 		cout<<i<<": "<<d<<endl;
-		cout<<"res: "<<find({d+1,d+1,d},pow(3,get(max(d+d+1,d+d+1))))<<endl;
+		cout<<"res: "<<find({d+1,d+1,d},qpow(3,get(max(d+d+1,d+d+1))))<<endl;
 		d*=10;
 	}
 //	cin>>q;
@@ -145,7 +161,7 @@ signed main(){
 	srand(time(0));
     //int size(512<<20);  //512M
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
-	cin.tie(nullptr)->sync_with_stdio(false);
+//	cin.tie(nullptr)->sync_with_stdio(false);
 	//freopen("in.txt","r",stdin);
 	//freopen("stdout.txt","w",stdout);
 	int CASE=1;
