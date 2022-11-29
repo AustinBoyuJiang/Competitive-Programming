@@ -5,8 +5,8 @@
  * Description:
 */
 
-//#pragma GCC optimize(2)
-//#pragma GCC optimize(3)
+#pragma GCC optimize(2)
+#pragma GCC optimize(3)
 #include<bits/stdc++.h>
 //#define int long long
 #define pb push_back
@@ -132,7 +132,7 @@ void solve(int Case){
 		rep(i,0,3){
 			int nx=u.fir+dir[i][0];
 			int ny=u.sec+dir[i][1];
-			if(ok(nx,ny)&&Map[nx][ny]{ 
+			if(ok(nx,ny)&&Map[nx][ny]){ 
 				if(vis[nx][ny]) continue;
 				if(offset[nx][ny]/d+1<=dist[nx][ny]){
 					cnt[nx][ny]=offset[nx][ny]/d+1;
@@ -163,13 +163,13 @@ void solve(int Case){
 	}
 	rep(i,1,n) rep(j,1,n) ans+=cnt[i][j]>0;
 	cout<<ans<<endl;
-//	rep(i,1,n){
-//		rep(j,1,n){
-//			if(cnt[i][j]<10) cout<<cnt[i][j]<<" ";
-//			else cout<<cnt[i][j]<<"";
-//		}
-//		cout<<endl;
-//	}
+	rep(i,1,n){
+		rep(j,1,n){
+			if(cnt[i][j]) cout<<1<<" ";
+			else cout<<0<<" ";
+		}
+		cout<<endl;
+	}
 }
 
 /* ======================================| Main Program End |====================================== */
@@ -179,8 +179,8 @@ signed main(){
     //int size(512<<20);  //512M
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
 	cin.tie(nullptr)->sync_with_stdio(false);
-	//freopen("in.txt","r",stdin);
-	//freopen("stdout.txt","w",stdout);
+	freopen("in.txt","r",stdin);
+	freopen("stdout2.txt","w",stdout);
 	int CASE=1;
 	//cin>>CASE;
 	rep(Case,1,CASE) solve(Case);

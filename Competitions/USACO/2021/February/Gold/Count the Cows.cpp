@@ -5,8 +5,8 @@
  * Description:
 */
 
-//#pragma GCC optimize(2)
-//#pragma GCC optimize(3)
+#pragma GCC optimize(2)
+#pragma GCC optimize(3)
 #include<bits/stdc++.h>
 #define int long long
 #define pb push_back
@@ -90,7 +90,6 @@ int get(int x){
 }
 
 int qpow(int a,int b){
-	cout<<a<<" ^ "<<b<<endl;
 	int ans=1;
 	while(b){
 		if(b&1){
@@ -119,40 +118,32 @@ interval calc(interval t,int xd,int yd,int k){
 	if(nx>k/3||ny>k/3) return {0,0,-1};
 	return {nx,ny,nd};
 }
-int cnt=20;
+
 int find(interval t,int k){
-	if(!cnt) return 0;
-	if(i==16){
-		cout<<k<<" "<<k%3<<endl;
-		cnt--;
-	}
-//  运算过程中k变成不是三的倍数了 当i>=16 
 	if(k==1) return 1;
 	if(flag[t.toPair()]) return flag[t.toPair()];
 	int ans=0;
 	rep(i,1,3) rep(j,1,3){
-		if((i+j)%2==1) continue;
+		if((i+j)%2) continue;
 		interval nxt=calc(t,i,j,k);
 		if(nxt.d>=0) ans+=find(nxt,k/3);
 	}
 	flag[t.toPair()]=ans;
 	return ans;
 }
+/*
+1
+185553863947109 20337268147539 0
+*/
 
 void solve(int Case){
-	int d=1;
-	for(i=0;i<=16;i++){
-		cout<<i<<": "<<d<<endl;
-		cout<<"res: "<<find({d+1,d+1,d},qpow(3,get(max(d+d+1,d+d+1))))<<endl;
-		d*=10;
+	cin>>q;
+	rep(i,1,q){
+		int d,x,y;
+		cin>>d>>x>>y;
+		x++,y++;
+		cout<<find({x,y,d},qpow(3,get(max(x+d,y+d))))<<endl;
 	}
-//	cin>>q;
-//	rep(i,1,q){
-//		int d,x,y;
-//		cin>>d>>x>>y;
-//		x++,y++;
-//		cout<<find({x,y,d},pow(3,get(max(x+d,y+d))))<<endl;
-//	}
 }
 
 /* ======================================| Main Program End |====================================== */
@@ -162,8 +153,8 @@ signed main(){
     //int size(512<<20);  //512M
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
 //	cin.tie(nullptr)->sync_with_stdio(false);
-	//freopen("in.txt","r",stdin);
-	//freopen("stdout.txt","w",stdout);
+//	freopen("in.txt","r",stdin);
+//	freopen("stdout.txt","w",stdout);
 	int CASE=1;
 	//cin>>CASE;
 	rep(Case,1,CASE) solve(Case);
