@@ -69,7 +69,7 @@ struct fenwick_interval{
 /* ========================================| Main Program |======================================== */
 
 const int N = 1010;
-int n,d,ans,Map[N][N],dist[N][N],offset[N][N],vis[N][N],cnt[N][N],flag[N][N];
+int n,d,ans,Map[N][N],dist[N][N],offset[N][N],vis[N][N],cnt[N][N];
 VPI st,wl;
 
 bool ok(int x,int y){
@@ -109,42 +109,24 @@ void solve(int Case){
 	}
 	while(!q.empty()){
 		PI u=q.front(); q.pop();
+		cnt[u.fir][u.sec]=min(offset[u.fir][u.sec]/d+1,dist[u.fir][u.sec]);
 		rep(i,0,3){
 			int nx=u.fir+dir[i][0];
 			int ny=u.sec+dir[i][1];
 			if(ok(nx,ny)&&Map[nx][ny]&&offset[nx][ny]==INF){
 				offset[nx][ny]=offset[u.fir][u.sec]+1;
-				q.push({nx,ny});
+				if(offset[nx][ny]/d==dist[nx][ny])
+					cnt[nx][ny]=dist[nx][ny];
+				if(offset[nx][ny]/d<dist[nx][ny]){
+					q.push({nx,ny});
+				}
 			}
 		}
 	}
 	PQ<pair<int,PI>,vector<pair<int,PI>>,less<pair<int,PI>>> qq;
-	for(auto u:st){
-		cnt[u.fir][u.sec]=1;
-		flag[u.fir][u.sec]=1;
-		qq.push({1,u});
-		q.push(u);
-	}
-	while(!q.empty()){
-		PI u=q.front(); q.pop();
-		if(vis[u.fir][u.sec]) continue;
-		vis[u.fir][u.sec]=1;
-		rep(i,0,3){
-			int nx=u.fir+dir[i][0];
-			int ny=u.sec+dir[i][1];
-			if(ok(nx,ny)&&Map[nx][ny]){ 
-				if(vis[nx][ny]) continue;
-				if(offset[nx][ny]/d+1<=dist[nx][ny]){
-					cnt[nx][ny]=offset[nx][ny]/d+1;
-					q.push({nx,ny});
-				}
-				else if(offset[nx][ny]/d==dist[nx][ny])
-					cnt[nx][ny]=dist[nx][ny];
-				if(offset[nx][ny]/d<=dist[nx][ny]){
-					if(!flag[nx][ny]) qq.push({cnt[nx][ny],{nx,ny}});
-					flag[nx][ny]=1;
-				}
-			}
+	rep(i,1,n) rep(j,1,n){
+		if(cnt[i][j]){
+			qq.push({cnt[i][j],{i,j}});
 		}
 	}
 	memset(vis,0,sizeof(vis));
@@ -163,13 +145,6 @@ void solve(int Case){
 	}
 	rep(i,1,n) rep(j,1,n) ans+=cnt[i][j]>0;
 	cout<<ans<<endl;
-	rep(i,1,n){
-		rep(j,1,n){
-			if(cnt[i][j]) cout<<1<<" ";
-			else cout<<0<<" ";
-		}
-		cout<<endl;
-	}
 }
 
 /* ======================================| Main Program End |====================================== */
@@ -179,8 +154,8 @@ signed main(){
     //int size(512<<20);  //512M
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
 	cin.tie(nullptr)->sync_with_stdio(false);
-	freopen("in.txt","r",stdin);
-	freopen("stdout2.txt","w",stdout);
+//	freopen("in.txt","r",stdin);
+//	freopen("stdout2.txt","w",stdout);
 	int CASE=1;
 	//cin>>CASE;
 	rep(Case,1,CASE) solve(Case);

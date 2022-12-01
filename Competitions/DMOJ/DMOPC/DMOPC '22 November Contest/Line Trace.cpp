@@ -1,14 +1,14 @@
 /*
  * Author: Austin Jiang
- * Date: 11/27/2022 7:21:09 PM
- * Problem:
+ * Date: 11/29/2022 9:52:40 PM
+ * Problem: Line Trace
  * Description:
 */
 
-#pragma GCC optimize(2)
-#pragma GCC optimize(3)
+//#pragma GCC optimize(2)
+//#pragma GCC optimize(3)
 #include<bits/stdc++.h>
-#define int long long
+//#define int long long
 #define pb push_back
 #define fir first
 #define sec second
@@ -46,6 +46,7 @@ namespace comfun{
 	template<typename T> inline T lcm(T a,T b){return a/gcd(a,b)*b;}
 	template<typename T> inline T chkmax(T &a,T b){return a=max(a,b);}
 	template<typename T> inline T chkmin(T &a,T b){return a=min(a,b);}
+	template<typename T> inline T pow(T a,T b){T ans=1;while(b){if(b&1) ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
 	template<typename T> inline T inv(T x){return pow(x,MOD-2);}
 	template<typename T> inline bool is_prime(T x){if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false; return true;}
 } using namespace comfun;
@@ -67,77 +68,63 @@ struct fenwick_interval{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
-int q;
-int i;
+const int N = 3010;
+int n,flag,a[N],vis[N],cur[N],pos[N],tar[N],ord[N];
 
-struct interval{
-	int x,y,d;
-};
-
-map<PI,int> flag;
-
-int get(int x){
-	int res=0;
-	while(x>1){
-		x=(x+2)/3;
-		res++;
-	}
-	return res;
-}
-
-int qpow(int a,int b){
-	int ans=1;
-	while(b){
-		if(b&1){
-			ans*=a;
-		}
-		a*=a;
-		b>>=1;
-	}
-	return ans;
-}
-
-interval calc(interval t,int xd,int yd,int k){
-	int x=t.x,y=t.y,d=t.d;
-	int lbx=k/3*(xd-1);
-	int lby=k/3*(yd-1);	
-	int nx=x-lbx,ny=y-lby,nd;
-	if(nx<=0){
-		ny+=1-nx;
-		nx=1;
-	}
-	if(ny<=0){
-		nx+=1-ny;
-		ny=1;
-	}
-	nd=min(min(k/3,x+d-lbx)-nx,min(k/3,y+d-lby)-ny);
-	if(nx>k/3||ny>k/3) return {0,0,-1};
-	return {nx,ny,nd};
-}
-
-int find(interval t,int k){
-	if(k==1) return 1;
-	if(flag.count({t.d,k})) return flag[{t.d,k}];
+int work(){
 	int ans=0;
-	rep(i,1,3) rep(j,1,3){
-		if((i+j)%2) continue;
-		interval nxt=calc(t,i,j,k);
-		if(nxt.d>=0) ans+=find(nxt,k/3);
+	rep(i,1,n){
+		pos[i]=i;
+		cur[i]=i;
 	}
-	flag[{t.d,k}]=ans;
+	rep(j,1,n){
+		int i=ord[j];
+		if(pos[i]==tar[i]) continue;
+		if(pos[i]<tar[i]){
+			ans+=tar[i]-pos[i];
+			rep(j,pos[i],tar[i]-1){
+				cur[j]=cur[j+1];
+				pos[cur[j]]=j;
+			}
+			cur[tar[i]]=i;
+			pos[i]=tar[i];
+		}
+		else{
+			ans+=pos[i]-tar[i];
+			per(j,pos[i],tar[i]+1){
+				cur[j]=cur[j-1];
+				pos[cur[j]]=j;
+			}
+			cur[tar[i]]=i;
+			pos[i]=tar[i];
+		}
+	}
 	return ans;
+}
+
+bool cmp(int x,int y){
+	return abs(tar[x]-pos[x])<abs(tar[y]-pos[y]);
 }
 
 void solve(int Case){
-	cin>>q;
-	rep(i,1,q){
-		int d,x,y;
-		cin>>d>>x>>y;
-		x++,y++;
-		flag.clear();
-		cout<<find({x,y,d},qpow(3,get(max(x+d,y+d))))<<endl;
+	cin>>n;
+	rep(i,1,n){
+		ord[i]=i;
+		cin>>a[i];
+		tar[a[i]]=i;
+		if(vis[a[i]]) flag=-1;
+		vis[a[i]]=1;
 	}
+	if(flag==-1){
+		cout<<-1<<endl;
+		return;
+	}
+//	rep(i,1,10){
+//		random_shuffle(ord+1,ord+n+1);
+//		cout<<work()<<endl;
+//	}
+	sort(ord+1,ord+n+1,cmp);
+	cout<<work()<<endl;
 }
 
 /* ======================================| Main Program End |====================================== */
@@ -146,9 +133,9 @@ signed main(){
 	srand(time(0));
     //int size(512<<20);  //512M
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
-	cin.tie(nullptr)->sync_with_stdio(false);
-//	freopen("in.txt","r",stdin);
-//	freopen("stdout.txt","w",stdout);
+	//cin.tie(nullptr)->sync_with_stdio(false);
+	//freopen("in.txt","r",stdin);
+	//freopen("stdout.txt","w",stdout);
 	int CASE=1;
 	//cin>>CASE;
 	rep(Case,1,CASE) solve(Case);

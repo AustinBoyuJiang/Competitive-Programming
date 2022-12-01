@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 11/27/2022 7:21:09 PM
+ * Date: 11/29/2022 10:57:44 PM
  * Problem:
  * Description:
 */
@@ -8,7 +8,7 @@
 #pragma GCC optimize(2)
 #pragma GCC optimize(3)
 #include<bits/stdc++.h>
-#define int long long
+//#define int long long
 #define pb push_back
 #define fir first
 #define sec second
@@ -46,6 +46,7 @@ namespace comfun{
 	template<typename T> inline T lcm(T a,T b){return a/gcd(a,b)*b;}
 	template<typename T> inline T chkmax(T &a,T b){return a=max(a,b);}
 	template<typename T> inline T chkmin(T &a,T b){return a=min(a,b);}
+	template<typename T> inline T pow(T a,T b){T ans=1;while(b){if(b&1) ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
 	template<typename T> inline T inv(T x){return pow(x,MOD-2);}
 	template<typename T> inline bool is_prime(T x){if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false; return true;}
 } using namespace comfun;
@@ -61,83 +62,64 @@ struct fenwick_interval{
 	int d[(int)1e6+10][2];
 	void update(int x,int v){for(int i=x;i<=1e6;i+=lowbit(i))d[i][0]+=v,d[i][1]+=v*x;}
 	int query(int x,int k){int ans=0;for(int i=x;i>0;i-=lowbit(i)) ans+=d[i][k];return ans;}
-	int add(int x,int y,int v){update(x,v),update(y+1,-v);}
+	void add(int x,int y,int v){update(x,v),update(y+1,-v);}
 	int ask(int x,int y){return (y+1)*query(y,0)-query(y,1)-x*query(x-1,0)+query(x-1,1);}
 };
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
-int q;
-int i;
+const int N = 5e5+10;
+int n,a[N],in[N];
+int tot,prime[N],notPrime[N],low[N],pre[N];
+VI e[N];
 
-struct interval{
-	int x,y,d;
-};
-
-map<PI,int> flag;
-
-int get(int x){
-	int res=0;
-	while(x>1){
-		x=(x+2)/3;
-		res++;
-	}
-	return res;
-}
-
-int qpow(int a,int b){
-	int ans=1;
-	while(b){
-		if(b&1){
-			ans*=a;
+void init(){
+	notPrime[1]=1;
+	rep(i,2,n){
+		if(!notPrime[i]){
+			prime[tot++]=i;
+			low[i]=i;
 		}
-		a*=a;
-		b>>=1;
+		for(int j=0;j<tot&&i*prime[j]<=n;j++){
+			notPrime[i*prime[j]]=1;
+			low[i*prime[j]]=prime[j];
+			if(i%prime[j]==0) break;
+		}
 	}
-	return ans;
-}
-
-interval calc(interval t,int xd,int yd,int k){
-	int x=t.x,y=t.y,d=t.d;
-	int lbx=k/3*(xd-1);
-	int lby=k/3*(yd-1);	
-	int nx=x-lbx,ny=y-lby,nd;
-	if(nx<=0){
-		ny+=1-nx;
-		nx=1;
-	}
-	if(ny<=0){
-		nx+=1-ny;
-		ny=1;
-	}
-	nd=min(min(k/3,x+d-lbx)-nx,min(k/3,y+d-lby)-ny);
-	if(nx>k/3||ny>k/3) return {0,0,-1};
-	return {nx,ny,nd};
-}
-
-int find(interval t,int k){
-	if(k==1) return 1;
-	if(flag.count({t.d,k})) return flag[{t.d,k}];
-	int ans=0;
-	rep(i,1,3) rep(j,1,3){
-		if((i+j)%2) continue;
-		interval nxt=calc(t,i,j,k);
-		if(nxt.d>=0) ans+=find(nxt,k/3);
-	}
-	flag[{t.d,k}]=ans;
-	return ans;
 }
 
 void solve(int Case){
-	cin>>q;
-	rep(i,1,q){
-		int d,x,y;
-		cin>>d>>x>>y;
-		x++,y++;
-		flag.clear();
-		cout<<find({x,y,d},qpow(3,get(max(x+d,y+d))))<<endl;
+	cin>>n;	
+	rep(i,1,n){
+		cin>>a[i];
 	}
+	init();
+	rep(i,1,n){
+		int lst=0,x=a[i];
+		while(x!=1){
+			if(low[x]!=lst){
+				if(pre[low[x]]){
+					e[pre[low[x]]].pb(a[i]);
+					in[a[i]]++;
+				}
+				pre[low[x]]=a[i];
+			}
+			lst=low[x];
+			x/=low[x];
+		}
+	}
+	PQ<int,VI,less<int>> q;
+	rep(i,1,n) if(!in[i]) q.push(i);
+	while(!q.empty()){
+		int u=q.top(); q.pop();
+		cout<<u<<" ";
+		for(auto v:e[u]){
+			if(!--in[v]){
+				q.push(v);
+			}
+		}
+	}
+	cout<<endl;
 }
 
 /* ======================================| Main Program End |====================================== */
@@ -147,8 +129,8 @@ signed main(){
     //int size(512<<20);  //512M
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
 	cin.tie(nullptr)->sync_with_stdio(false);
-//	freopen("in.txt","r",stdin);
-//	freopen("stdout.txt","w",stdout);
+	//freopen("in.txt","r",stdin);
+	//freopen("stdout.txt","w",stdout);
 	int CASE=1;
 	//cin>>CASE;
 	rep(Case,1,CASE) solve(Case);

@@ -1,14 +1,14 @@
 /*
  * Author: Austin Jiang
- * Date: 11/27/2022 7:21:09 PM
+ * Date: 11/29/2022 8:44:49 PM
  * Problem:
  * Description:
 */
 
-#pragma GCC optimize(2)
-#pragma GCC optimize(3)
+//#pragma GCC optimize(2)
+//#pragma GCC optimize(3)
 #include<bits/stdc++.h>
-#define int long long
+//#define int long long
 #define pb push_back
 #define fir first
 #define sec second
@@ -46,6 +46,7 @@ namespace comfun{
 	template<typename T> inline T lcm(T a,T b){return a/gcd(a,b)*b;}
 	template<typename T> inline T chkmax(T &a,T b){return a=max(a,b);}
 	template<typename T> inline T chkmin(T &a,T b){return a=min(a,b);}
+	template<typename T> inline T pow(T a,T b){T ans=1;while(b){if(b&1) ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
 	template<typename T> inline T inv(T x){return pow(x,MOD-2);}
 	template<typename T> inline bool is_prime(T x){if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false; return true;}
 } using namespace comfun;
@@ -68,76 +69,25 @@ struct fenwick_interval{
 /* ========================================| Main Program |======================================== */
 
 const int N = 1e6+10;
-int q;
-int i;
-
-struct interval{
-	int x,y,d;
-};
-
-map<PI,int> flag;
-
-int get(int x){
-	int res=0;
-	while(x>1){
-		x=(x+2)/3;
-		res++;
-	}
-	return res;
-}
-
-int qpow(int a,int b){
-	int ans=1;
-	while(b){
-		if(b&1){
-			ans*=a;
-		}
-		a*=a;
-		b>>=1;
-	}
-	return ans;
-}
-
-interval calc(interval t,int xd,int yd,int k){
-	int x=t.x,y=t.y,d=t.d;
-	int lbx=k/3*(xd-1);
-	int lby=k/3*(yd-1);	
-	int nx=x-lbx,ny=y-lby,nd;
-	if(nx<=0){
-		ny+=1-nx;
-		nx=1;
-	}
-	if(ny<=0){
-		nx+=1-ny;
-		ny=1;
-	}
-	nd=min(min(k/3,x+d-lbx)-nx,min(k/3,y+d-lby)-ny);
-	if(nx>k/3||ny>k/3) return {0,0,-1};
-	return {nx,ny,nd};
-}
-
-int find(interval t,int k){
-	if(k==1) return 1;
-	if(flag.count({t.d,k})) return flag[{t.d,k}];
-	int ans=0;
-	rep(i,1,3) rep(j,1,3){
-		if((i+j)%2) continue;
-		interval nxt=calc(t,i,j,k);
-		if(nxt.d>=0) ans+=find(nxt,k/3);
-	}
-	flag[{t.d,k}]=ans;
-	return ans;
-}
+int n,ans[N];
 
 void solve(int Case){
-	cin>>q;
-	rep(i,1,q){
-		int d,x,y;
-		cin>>d>>x>>y;
-		x++,y++;
-		flag.clear();
-		cout<<find({x,y,d},qpow(3,get(max(x+d,y+d))))<<endl;
+	cin>>n;
+	int yn=0,cnt=0,res=0;
+	rep(i,1,n){
+		if(!yn) ans[i]=0;
+		else ans[i]=1,res++;
+		if(++cnt==2){
+			cnt=0;
+			yn^=1;
+		}
 	}
+	cout<<res<<endl;
+	rep(i,1,n){
+		if(ans[i]) cout<<"M";
+		else cout<<"_";
+	}
+	cout<<endl;
 }
 
 /* ======================================| Main Program End |====================================== */
@@ -146,9 +96,9 @@ signed main(){
 	srand(time(0));
     //int size(512<<20);  //512M
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
-	cin.tie(nullptr)->sync_with_stdio(false);
-//	freopen("in.txt","r",stdin);
-//	freopen("stdout.txt","w",stdout);
+	//cin.tie(nullptr)->sync_with_stdio(false);
+	//freopen("in.txt","r",stdin);
+	//freopen("stdout.txt","w",stdout);
 	int CASE=1;
 	//cin>>CASE;
 	rep(Case,1,CASE) solve(Case);
