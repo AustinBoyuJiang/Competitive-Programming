@@ -1,12 +1,12 @@
 /*
  * Author: Austin Jiang
- * Date: 12/3/2022 9:23:21 PM
+ * Date: 12/4/2022 9:16:08 AM
  * Problem:
  * Description:
 */
 
-#pragma GCC optimize(2)
-#pragma GCC optimize(3)
+//#pragma GCC optimize(2)
+//#pragma GCC optimize(3)
 #include<bits/stdc++.h>
 #define int long long
 #define pb push_back
@@ -68,99 +68,51 @@ struct fenwick_interval{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e5+10;
-int n,m,k,res,p[N],f[N],to[N],ans[N],siz[N],tmp[N],cnt[N];
-VPI pos[N];
+const int N = 510;
+const int Base = 1331;
+int n,m,ans=INF,Hash[2][N][N],power[N];
+char a[2][N][N];
+map<int,bool> flag;
 
-int find(int x){
-	if(x==f[x]) return x;
-	return f[x]=find(f[x]);
+int get(int k,int i,int l,int r){
+	return (Hash[k][i][r]+MOD-Hash[k][i][l-1]*power[r-l+1]%MOD)%MOD;
 }
 
-void merge(int x,int y){
-	if(find(x)==find(y)) return;
-	siz[find(y)]+=siz[find(x)];
-	f[find(x)]=find(y);
-}
-
-void add(int x){
-	if(!cnt[x]) res++;
-	cnt[x]++;
-}
-
-void remove(int x){
-	cnt[x]--;
-	if(!cnt[x]) res--;
-}
-
-void work(int u){
-	int tot=siz[find(u)];
-	int M=min(m,tot*k);
-	rep(i,0,tot-1){
-		tmp[i]=u;
-		u=to[u];
-	}
-	res=0;
-	deque<int> rec;	
-	rep(i,0,M/k-1){
-		for(auto x:pos[tmp[i]]){
-			add(x.fir);
-			rec.pb(x.fir);
+bool check(int l,int r){
+	flag.clear();
+	rep(i,1,n) flag[get(0,i,l,r)]=1;
+	rep(i,1,n){
+		if(flag[get(1,i,l,r)]){
+			return 0;
 		}
 	}
-	int cur=0,j=M/k-1;
-	rep(i,0,pos[tmp[(j+1)%tot]].size()-1){
-		if(pos[tmp[(j+1)%tot]][i].sec>M%k) break;
-		add(pos[tmp[(j+1)%tot]][i].fir);
-		rec.pb(pos[tmp[(j+1)%tot]][i].fir);
-		cur++;
-	}
-	ans[tmp[0]]=res;
-	rep(i,1,tot-1){
-		for(auto x:pos[tmp[i-1]]){
-			remove(x.fir);
-			rec.pop_front();
-		}
-		j=(j+1)%tot;
-		rep(i,cur,(int)pos[tmp[j]].size()-1){
-			add(pos[tmp[j]][i].fir);
-			rec.pb(pos[tmp[j]][i].fir);
-		}
-		cur=0;
-		rep(i,0,(int)pos[tmp[(j+1)%tot]].size()-1){
-			if(pos[tmp[(j+1)%tot]][i].sec>M%k) break;
-			add(pos[tmp[(j+1)%tot]][i].fir);
-			rec.pb(pos[tmp[(j+1)%tot]][i].fir);
-			cur++;
-		}
-		ans[tmp[i]]=res;
-	}
-	for(auto x:rec) remove(x);
+	return 1;
 }
 
 void solve(int Case){
-	cin>>n>>k>>m;
-	rep(i,1,n){
-		p[i]=i;
-		f[i]=i;
-		siz[i]=1;
-		pos[i].pb({i,0});
+	cin>>n>>m;
+	rep(k,0,1) rep(i,1,n){
+		rep(j,1,m){
+			cin>>a[k][i][j];
+			Hash[k][i][j]=(Hash[k][i][j-1]*Base+a[k][i][j])%MOD;
+		}
 	}
-	rep(i,1,k){
-		int a,b;
-		cin>>a>>b;
-		swap(p[a],p[b]);
-		pos[p[a]].pb({a,i});
-		pos[p[b]].pb({b,i});
+	power[0]=1;
+	rep(i,1,m){
+		power[i]=power[i-1]*Base%MOD;
 	}
-	rep(i,1,n){
-		to[p[i]]=i;
-		merge(i,p[i]);
+	rep(i,1,m){
+		int l=i,r=m;
+		while(l<=r){
+			int mid=l+r>>1;
+			if(check(i,mid)){
+				r=mid-1;
+				chkmin(ans,mid-i+1);
+			}
+			else l=mid+1;
+		}
 	}
-	rep(i,1,n){
-		if(!ans[i]) work(i);
-		cout<<ans[i]<<endl;
-	}
+	cout<<ans<<endl;
 }
 
 /* ======================================| Main Program End |====================================== */
@@ -169,7 +121,7 @@ signed main(){
 	srand(time(0));
     //int size(512<<20);  //512M
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
-	cin.tie(nullptr)->sync_with_stdio(false);
+	//cin.tie(nullptr)->sync_with_stdio(false);
 	//freopen("in.txt","r",stdin);
 	//freopen("stdout.txt","w",stdout);
 	int CASE=1;
