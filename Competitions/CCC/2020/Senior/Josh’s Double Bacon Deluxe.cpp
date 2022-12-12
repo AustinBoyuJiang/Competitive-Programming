@@ -1,7 +1,7 @@
 /*
  * Author: Austin Jiang
- * Date: 12/4/2022 9:51:54 PM
- * Problem:
+ * Date: 12/7/2022 12:25:09 AM
+ * Problem: 
  * Description:
 */
 
@@ -68,82 +68,27 @@ struct fenwick_interval{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 4;
-int cnt,a[N][N],Map[N][N];
-
-void work(){
-	rep(k,1,9){
-		rep(i,1,3) rep(j,1,3){
-			if(Map[i][j]) continue;
-			if(Map[i][1]+Map[i][2]+Map[i][3]==2){
-				cnt++;
-				Map[i][j]=1;
-				if(j==1) a[i][j]=a[i][2]*2-a[i][3];
-				if(j==2) a[i][j]=(a[i][1]+a[i][3])/2;
-				if(j==3) a[i][j]=a[i][2]*2-a[i][1];
-			}
-			else if(Map[1][j]+Map[2][j]+Map[3][j]==2){
-				cnt++;
-				Map[i][j]=1;
-				if(i==1) a[i][j]=a[2][j]*2-a[3][j];
-				if(i==2) a[i][j]=(a[1][j]+a[3][j])/2;
-				if(i==3) a[i][j]=a[2][j]*2-a[1][j];
-			}
-		}
-	}
-}
+const int N = 1e6+10;
+int n,a[N],vis[N];
+double ans,dp[N];
 
 void solve(int Case){
-	rep(i,1,3) rep(j,1,3){
-		string x;
-		cin>>x;
-		if(x=="X"){
-			Map[i][j]=0;
-		}
-		else{
-			cnt++;
-			Map[i][j]=1;
-			int dir=1;
-			for(char k:x){
-				if(k=='-') dir=-1;
-				else a[i][j]=a[i][j]*10+k-'0';
-			}
-			a[i][j]*=dir;
-		}
+	cin>>n;
+	rep(i,1,n) cin>>a[i];
+	if(a[1]==a[n]){
+		cout<<1<<endl;
+		return;
 	}
-	work();
-	rep(i,1,4){
-		if(!Map[2][2]){
-			a[2][2]=0;
-			Map[2][2]=1;
-			cnt++;
-		}
-		else if(!Map[1][2]){
-			a[1][2]=a[2][2];
-			Map[1][2]=1;
-			cnt++;
-		}
-		else if(!Map[2][1]){
-			a[2][1]=a[2][2];
-			Map[2][1]=1;
-			cnt++;
-		}
-		else if(!Map[1][1]){
-			a[1][1]=a[2][2];
-			Map[1][1]=1;
-			cnt++;
-		}
-		work();
-		if(cnt==9){
-			rep(i,1,3){
-				rep(j,1,3){
-					cout<<a[i][j]<<" ";
-				}
-				cout<<endl;
-			}
-			return;
-		}
+	//dp[i]表示第i种汉堡的最后一个人取汉堡时可以闭环的概率 
+	vis[a[1]]=1;
+	vis[a[n]]=1;
+	dp[a[1]]=1;
+	per(i,n-1,1){
+		if(!vis[a[i]]) dp[a[i]]=(ans+1)/(n-i+1);//这里的+1表示本轮闭环的概率，而ans表示之后闭环的概率 
+		ans+=dp[a[i]];
+		vis[a[i]]=1;
 	}
+	printf("%.9lf\n",ans/n);
 }
 
 /* ======================================| Main Program End |====================================== */

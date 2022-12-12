@@ -1,7 +1,7 @@
 /*
  * Author: Austin Jiang
- * Date: 12/4/2022 9:51:54 PM
- * Problem:
+ * Date: 12/7/2022 10:43:08 AM
+ * Problem: Triangle: The Data Structure
  * Description:
 */
 
@@ -68,82 +68,52 @@ struct fenwick_interval{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 4;
-int cnt,a[N][N],Map[N][N];
+const int N = 3e3+10;
+int n,K,a[N][N],st[N][N][13];
+ll ans;
 
-void work(){
-	rep(k,1,9){
-		rep(i,1,3) rep(j,1,3){
-			if(Map[i][j]) continue;
-			if(Map[i][1]+Map[i][2]+Map[i][3]==2){
-				cnt++;
-				Map[i][j]=1;
-				if(j==1) a[i][j]=a[i][2]*2-a[i][3];
-				if(j==2) a[i][j]=(a[i][1]+a[i][3])/2;
-				if(j==3) a[i][j]=a[i][2]*2-a[i][1];
-			}
-			else if(Map[1][j]+Map[2][j]+Map[3][j]==2){
-				cnt++;
-				Map[i][j]=1;
-				if(i==1) a[i][j]=a[2][j]*2-a[3][j];
-				if(i==2) a[i][j]=(a[1][j]+a[3][j])/2;
-				if(i==3) a[i][j]=a[2][j]*2-a[1][j];
-			}
-		}
+inline int query(int x,int y,int siz){
+	int k=log2(siz);
+	int res=st[x][y][k];
+	chkmax(res,st[x][y+siz-(1<<k)][k]);
+	chkmax(res,st[x+siz-(1<<k)][y+siz-(1<<k)][k]);
+	if(k>=1){
+		chkmax(res,st[x][y+(1<<k-1)-1][k]);
+		chkmax(res,st[x+(1<<k-1)-1][y+(1<<k-1)-1][k]);
+		chkmax(res,st[x+(1<<k-1)-1][y+siz-(1<<k)][k]);
 	}
+	return res;
 }
 
-void solve(int Case){
-	rep(i,1,3) rep(j,1,3){
-		string x;
-		cin>>x;
-		if(x=="X"){
-			Map[i][j]=0;
-		}
-		else{
-			cnt++;
-			Map[i][j]=1;
-			int dir=1;
-			for(char k:x){
-				if(k=='-') dir=-1;
-				else a[i][j]=a[i][j]*10+k-'0';
-			}
-			a[i][j]*=dir;
+inline void solve(int Case){
+	read(n),read(K);
+	rep(y,1,n){
+		rep(x,1,y){
+			read(a[x][y]);
 		}
 	}
-	work();
-	rep(i,1,4){
-		if(!Map[2][2]){
-			a[2][2]=0;
-			Map[2][2]=1;
-			cnt++;
-		}
-		else if(!Map[1][2]){
-			a[1][2]=a[2][2];
-			Map[1][2]=1;
-			cnt++;
-		}
-		else if(!Map[2][1]){
-			a[2][1]=a[2][2];
-			Map[2][1]=1;
-			cnt++;
-		}
-		else if(!Map[1][1]){
-			a[1][1]=a[2][2];
-			Map[1][1]=1;
-			cnt++;
-		}
-		work();
-		if(cnt==9){
-			rep(i,1,3){
-				rep(j,1,3){
-					cout<<a[i][j]<<" ";
+	rep(y,1,n) rep(x,1,y) st[x][y][0]=a[x][y];
+	for(int k=1;(1<<k)<=n;k++){
+		int siz=1<<k;
+		rep(y,1,n-siz+1){
+			rep(x,1,y){
+				st[x][y][k]=st[x][y][k-1];
+				chkmax(st[x][y][k],st[x][y+(1<<k-1)][k-1]);
+				chkmax(st[x][y][k],st[x+(1<<k-1)][y+(1<<k-1)][k-1]);
+				if(k>=2){
+					chkmax(st[x][y][k],st[x][y+(1<<k-2)][k-1]);
+					chkmax(st[x][y][k],st[x+(1<<k-2)][y+(1<<k-2)][k-1]);
+					chkmax(st[x][y][k],st[x+(1<<k-2)][y+(1<<k-1)][k-1]);
 				}
-				cout<<endl;
 			}
-			return;
 		}
 	}
+	rep(y,1,n-K+1){
+		rep(x,1,y){
+			ans+=query(x,y,K);
+		}
+	}
+	write(ans,endl);
 }
 
 /* ======================================| Main Program End |====================================== */
@@ -152,7 +122,7 @@ signed main(){
 	srand(time(0));
     //int size(512<<20);  //512M
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
-	cin.tie(nullptr)->sync_with_stdio(false);
+//	cin.tie(nullptr)->sync_with_stdio(false);
 	//freopen("in.txt","r",stdin);
 	//freopen("stdout.txt","w",stdout);
 	int CASE=1;

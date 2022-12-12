@@ -1,12 +1,12 @@
 /*
  * Author: Austin Jiang
- * Date: 12/4/2022 9:51:54 PM
+ * Date: 12/11/2022 10:42:02 PM
  * Problem:
  * Description:
 */
 
-#pragma GCC optimize(2)
-#pragma GCC optimize(3)
+//#pragma GCC optimize(2)
+//#pragma GCC optimize(3)
 #include<bits/stdc++.h>
 //#define int long long
 #define pb push_back
@@ -46,7 +46,7 @@ namespace comfun{
 	template<typename T> inline T lcm(T a,T b){return a/gcd(a,b)*b;}
 	template<typename T> inline T chkmax(T &a,T b){return a=max(a,b);}
 	template<typename T> inline T chkmin(T &a,T b){return a=min(a,b);}
-	template<typename T> inline T pow(T a,T b){T ans=1;while(b){if(b&1) ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
+	template<typename T> inline T qpow(T a,T b){T ans=1;while(b){if(b&1) ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
 	template<typename T> inline T inv(T x){return pow(x,MOD-2);}
 	template<typename T> inline bool is_prime(T x){if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false; return true;}
 } using namespace comfun;
@@ -62,88 +62,56 @@ struct fenwick_interval{
 	int d[(int)1e6+10][2];
 	void update(int x,int v){for(int i=x;i<=1e6;i+=lowbit(i))d[i][0]+=v,d[i][1]+=v*x;}
 	int query(int x,int k){int ans=0;for(int i=x;i>0;i-=lowbit(i)) ans+=d[i][k];return ans;}
-	int add(int x,int y,int v){update(x,v),update(y+1,-v);}
+	void add(int x,int y,int v){update(x,v),update(y+1,-v);}
 	int ask(int x,int y){return (y+1)*query(y,0)-query(y,1)-x*query(x-1,0)+query(x-1,1);}
 };
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 4;
-int cnt,a[N][N],Map[N][N];
+const int N = 1e5+10;
+int n,o,top,stk[N];
 
-void work(){
-	rep(k,1,9){
-		rep(i,1,3) rep(j,1,3){
-			if(Map[i][j]) continue;
-			if(Map[i][1]+Map[i][2]+Map[i][3]==2){
-				cnt++;
-				Map[i][j]=1;
-				if(j==1) a[i][j]=a[i][2]*2-a[i][3];
-				if(j==2) a[i][j]=(a[i][1]+a[i][3])/2;
-				if(j==3) a[i][j]=a[i][2]*2-a[i][1];
-			}
-			else if(Map[1][j]+Map[2][j]+Map[3][j]==2){
-				cnt++;
-				Map[i][j]=1;
-				if(i==1) a[i][j]=a[2][j]*2-a[3][j];
-				if(i==2) a[i][j]=(a[1][j]+a[3][j])/2;
-				if(i==3) a[i][j]=a[2][j]*2-a[1][j];
-			}
-		}
-	}
+struct node{
+	double x,y;
+} p[N];
+
+double len(node a,node b){
+	double x1=a.x;
+	double y1=a.y;
+	double x2=b.x;
+	double y2=b.y;
+	return sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1));
+}
+
+bool check(node k,node a,node b){
+	double x1=a.x-k.x;
+	double y1=a.y-k.y;
+	double x2=b.x-k.x;
+	double y2=b.y-k.y;
+	return x1*y2-x2*y1>=0;
+}
+
+bool cmp(node a,node b){
+	return check(p[1],a,b);
 }
 
 void solve(int Case){
-	rep(i,1,3) rep(j,1,3){
-		string x;
-		cin>>x;
-		if(x=="X"){
-			Map[i][j]=0;
-		}
-		else{
-			cnt++;
-			Map[i][j]=1;
-			int dir=1;
-			for(char k:x){
-				if(k=='-') dir=-1;
-				else a[i][j]=a[i][j]*10+k-'0';
-			}
-			a[i][j]*=dir;
-		}
+	scanf("%d",&n);
+	rep(i,1,n){
+		scanf("%lf %lf",&p[i].x,&p[i].y);
+		if(!o||p[i].y<p[o].y) o=i;
+		if(p[i].y==p[o].y&&p[i].x<p[o].x) o=i;
 	}
-	work();
-	rep(i,1,4){
-		if(!Map[2][2]){
-			a[2][2]=0;
-			Map[2][2]=1;
-			cnt++;
-		}
-		else if(!Map[1][2]){
-			a[1][2]=a[2][2];
-			Map[1][2]=1;
-			cnt++;
-		}
-		else if(!Map[2][1]){
-			a[2][1]=a[2][2];
-			Map[2][1]=1;
-			cnt++;
-		}
-		else if(!Map[1][1]){
-			a[1][1]=a[2][2];
-			Map[1][1]=1;
-			cnt++;
-		}
-		work();
-		if(cnt==9){
-			rep(i,1,3){
-				rep(j,1,3){
-					cout<<a[i][j]<<" ";
-				}
-				cout<<endl;
-			}
-			return;
-		}
+	swap(p[1],p[o]);
+	sort(p+2,p+n+1,cmp);
+	rep(i,1,n){
+		while(top>=2&&!check(p[stk[top-1]],p[stk[top]],p[i])) top--;
+		stk[++top]=i;
 	}
+	double ans=len(p[stk[1]],p[stk[top]]);
+	rep(i,1,top-1)
+		ans+=len(p[stk[i]],p[stk[i+1]]);
+	printf("%.2lf\n",ans);
 }
 
 /* ======================================| Main Program End |====================================== */
@@ -152,7 +120,7 @@ signed main(){
 	srand(time(0));
     //int size(512<<20);  //512M
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
-	cin.tie(nullptr)->sync_with_stdio(false);
+	//cin.tie(nullptr)->sync_with_stdio(false);
 	//freopen("in.txt","r",stdin);
 	//freopen("stdout.txt","w",stdout);
 	int CASE=1;

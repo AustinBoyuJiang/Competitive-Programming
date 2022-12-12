@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 12/4/2022 9:51:54 PM
+ * Date: 12/4/2022 5:41:42 PM
  * Problem:
  * Description:
 */
@@ -8,7 +8,7 @@
 #pragma GCC optimize(2)
 #pragma GCC optimize(3)
 #include<bits/stdc++.h>
-//#define int long long
+#define int long long
 #define pb push_back
 #define fir first
 #define sec second
@@ -68,82 +68,78 @@ struct fenwick_interval{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 4;
-int cnt,a[N][N],Map[N][N];
+const int N = 2e5+10;
+int n,ans=LLINF,sum[N],sumw[N],l[N],r[N];
 
-void work(){
-	rep(k,1,9){
-		rep(i,1,3) rep(j,1,3){
-			if(Map[i][j]) continue;
-			if(Map[i][1]+Map[i][2]+Map[i][3]==2){
-				cnt++;
-				Map[i][j]=1;
-				if(j==1) a[i][j]=a[i][2]*2-a[i][3];
-				if(j==2) a[i][j]=(a[i][1]+a[i][3])/2;
-				if(j==3) a[i][j]=a[i][2]*2-a[i][1];
-			}
-			else if(Map[1][j]+Map[2][j]+Map[3][j]==2){
-				cnt++;
-				Map[i][j]=1;
-				if(i==1) a[i][j]=a[2][j]*2-a[3][j];
-				if(i==2) a[i][j]=(a[1][j]+a[3][j])/2;
-				if(i==3) a[i][j]=a[2][j]*2-a[1][j];
-			}
+struct node{
+	int id,p,w,d,l,r;
+} a[N];
+
+bool cmp1(node a,node b){
+	return a.r<b.r;
+}
+
+bool cmp2(node a,node b){
+	return a.l<b.l;
+}
+
+int getr(int x){
+	int l=1,r=n,pos=0;
+	while(l<=r){
+		int mid=l+r>>1;
+		if(a[mid].r<x){
+			pos=mid;
+			l=mid+1;
 		}
+		else r=mid-1;
 	}
+	return x*sumw[pos]-sum[pos];
+}
+
+int getl(int x){
+	int l=1,r=n,pos=n+1;
+	while(l<=r){
+		int mid=l+r>>1;
+		if(a[mid].l>x){
+			pos=mid;
+			r=mid-1;
+		}
+		else l=mid+1;
+	}
+	return (sum[n]-sum[pos-1])-x*(sumw[n]-sumw[pos-1]);
 }
 
 void solve(int Case){
-	rep(i,1,3) rep(j,1,3){
-		string x;
-		cin>>x;
-		if(x=="X"){
-			Map[i][j]=0;
-		}
-		else{
-			cnt++;
-			Map[i][j]=1;
-			int dir=1;
-			for(char k:x){
-				if(k=='-') dir=-1;
-				else a[i][j]=a[i][j]*10+k-'0';
-			}
-			a[i][j]*=dir;
-		}
+	cin>>n;
+	rep(i,1,n){
+		cin>>a[i].p>>a[i].w>>a[i].d;
+		a[i].l=a[i].p-a[i].d;
+		a[i].r=a[i].p+a[i].d;
+		a[i].id=i;
 	}
-	work();
-	rep(i,1,4){
-		if(!Map[2][2]){
-			a[2][2]=0;
-			Map[2][2]=1;
-			cnt++;
-		}
-		else if(!Map[1][2]){
-			a[1][2]=a[2][2];
-			Map[1][2]=1;
-			cnt++;
-		}
-		else if(!Map[2][1]){
-			a[2][1]=a[2][2];
-			Map[2][1]=1;
-			cnt++;
-		}
-		else if(!Map[1][1]){
-			a[1][1]=a[2][2];
-			Map[1][1]=1;
-			cnt++;
-		}
-		work();
-		if(cnt==9){
-			rep(i,1,3){
-				rep(j,1,3){
-					cout<<a[i][j]<<" ";
-				}
-				cout<<endl;
-			}
-			return;
-		}
+	sort(a+1,a+n+1,cmp1);
+	rep(i,1,n){
+		sum[i]=sum[i-1]+a[i].r*a[i].w;
+		sumw[i]=sumw[i-1]+a[i].w;
 	}
+	rep(i,1,n){
+		l[a[i].id]=getr(a[i].p-a[i].d);
+		r[a[i].id]=getr(a[i].p+a[i].d);
+	}
+	sort(a+1,a+n+1,cmp2);
+	rep(i,1,n){
+		sum[i]=sum[i-1]+a[i].l*a[i].w;
+		sumw[i]=sumw[i-1]+a[i].w;
+	}
+	rep(i,1,n){
+		l[a[i].id]+=getl(a[i].p-a[i].d);
+		r[a[i].id]+=getl(a[i].p+a[i].d);
+	}
+	rep(i,1,n){
+		chkmin(ans,l[i]);
+		chkmin(ans,r[i]);
+	}
+	cout<<ans<<endl;
 }
 
 /* ======================================| Main Program End |====================================== */

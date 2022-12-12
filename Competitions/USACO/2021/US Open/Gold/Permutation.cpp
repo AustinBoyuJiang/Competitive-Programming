@@ -5,8 +5,8 @@
  * Description:
 */
 
-//#pragma GCC optimize(2)
-//#pragma GCC optimize(3)
+#pragma GCC optimize(2)
+#pragma GCC optimize(3)
 #include<bits/stdc++.h>
 //#define int long long
 #define pb push_back
@@ -69,7 +69,8 @@ struct fenwick_interval{
 /* ========================================| Main Program |======================================== */
 
 const int N = 50;
-int n,ans,dp[N][N][N][N];
+int n;
+long ans,dp[N][N][N][N];
 
 struct node{
 	int x,y;
@@ -95,8 +96,7 @@ void solve(int Case){
 		dp[3][i][j][k]=1;
 	}
 	rep(tot,4,n){
-		rep(i,1,n) rep(j,1,n) rep(k,1,n){
-			if(i==j||j==k||k==i) continue;
+		rep(i,1,n-2) rep(j,i+1,n-1) rep(k,j+1,n){
 			int cnt=0;
 			rep(l,1,n){
 				if(l==i||l==j||l==k) continue;
@@ -104,20 +104,22 @@ void solve(int Case){
 					dp[tot][i][j][k]=(dp[tot][i][j][k]+dp[tot-1][l][j][k])%MOD;
 					dp[tot][i][j][k]=(dp[tot][i][j][k]+dp[tot-1][i][l][k])%MOD;
 					dp[tot][i][j][k]=(dp[tot][i][j][k]+dp[tot-1][i][j][l])%MOD;
-					dp[tot][i][j][k]=(dp[tot][i][j][k]+dp[tot-1][i][j][k])%MOD;
 					cnt++;
 				}
-//				dp[tot][i][j][k]=(dp[tot][i][j][k]+dp[tot-1][i][j][k]*(tot-cnt-3))%MOD;
 			}
-			if(tot==n&&cnt==n-3){
-				cout<<i<<" "<<j<<" "<<k<<endl;
-				ans+=dp[n][i][j][k];
+			dp[tot][i][j][k]=(dp[tot][i][j][k]+dp[tot-1][i][j][k]*(cnt-tot+4))%MOD;
+			dp[tot][i][k][j]=dp[tot][i][j][k];
+			dp[tot][j][i][k]=dp[tot][i][j][k];
+			dp[tot][j][k][i]=dp[tot][i][j][k];
+			dp[tot][k][i][j]=dp[tot][i][j][k];
+			dp[tot][k][j][i]=dp[tot][i][j][k];
+			if(tot==n){
+				ans+=dp[n][i][j][k]*6;
 				ans%=MOD;
 			}
 		}
 	}
 	cout<<ans<<endl;
-	cout<<dp[5][1][2][3]<<endl;
 }
 
 /* ======================================| Main Program End |====================================== */
@@ -126,7 +128,7 @@ signed main(){
 	srand(time(0));
     //int size(512<<20);  //512M
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
-	//cin.tie(nullptr)->sync_with_stdio(false);
+	cin.tie(nullptr)->sync_with_stdio(false);
 	//freopen("in.txt","r",stdin);
 	//freopen("stdout.txt","w",stdout);
 	int CASE=1;

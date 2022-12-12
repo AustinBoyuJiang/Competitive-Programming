@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 12/4/2022 9:51:54 PM
+ * Date: 12/4/2022 8:21:09 PM
  * Problem:
  * Description:
 */
@@ -68,81 +68,55 @@ struct fenwick_interval{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 4;
-int cnt,a[N][N],Map[N][N];
+const int N = 2e5+10;
+int n,w,d,dist[N],p[N],f[N],st[N<<2];
+VI e[N];
 
-void work(){
-	rep(k,1,9){
-		rep(i,1,3) rep(j,1,3){
-			if(Map[i][j]) continue;
-			if(Map[i][1]+Map[i][2]+Map[i][3]==2){
-				cnt++;
-				Map[i][j]=1;
-				if(j==1) a[i][j]=a[i][2]*2-a[i][3];
-				if(j==2) a[i][j]=(a[i][1]+a[i][3])/2;
-				if(j==3) a[i][j]=a[i][2]*2-a[i][1];
-			}
-			else if(Map[1][j]+Map[2][j]+Map[3][j]==2){
-				cnt++;
-				Map[i][j]=1;
-				if(i==1) a[i][j]=a[2][j]*2-a[3][j];
-				if(i==2) a[i][j]=(a[1][j]+a[3][j])/2;
-				if(i==3) a[i][j]=a[2][j]*2-a[1][j];
-			}
-		}
+void update(int rt,int l,int r,int x,int y){
+	if(l==r){
+		st[rt]=y;
+		return;
 	}
+	int mid=l+r>>1;
+	if(x<=mid) update(rt<<1,l,mid,x,y);
+	else update(rt<<1|1,mid+1,r,x,y);
+	st[rt]=min(st[rt<<1],st[rt<<1|1]);
 }
 
 void solve(int Case){
-	rep(i,1,3) rep(j,1,3){
-		string x;
-		cin>>x;
-		if(x=="X"){
-			Map[i][j]=0;
-		}
-		else{
-			cnt++;
-			Map[i][j]=1;
-			int dir=1;
-			for(char k:x){
-				if(k=='-') dir=-1;
-				else a[i][j]=a[i][j]*10+k-'0';
+	cin>>n>>w>>d;
+	rep(i,1,w){
+		int u,v;
+		cin>>u>>v;
+		e[v].pb(u);
+	}
+	memset(dist,0x3f,sizeof(dist));
+	queue<int> q;
+	q.push(n);
+	dist[n]=0;
+	while(!q.empty()){
+		int u=q.front();
+		q.pop();
+		for(auto v:e[u]){
+			if(dist[v]==INF){
+				dist[v]=dist[u]+1;
+				q.push(v);
 			}
-			a[i][j]*=dir;
 		}
 	}
-	work();
-	rep(i,1,4){
-		if(!Map[2][2]){
-			a[2][2]=0;
-			Map[2][2]=1;
-			cnt++;
-		}
-		else if(!Map[1][2]){
-			a[1][2]=a[2][2];
-			Map[1][2]=1;
-			cnt++;
-		}
-		else if(!Map[2][1]){
-			a[2][1]=a[2][2];
-			Map[2][1]=1;
-			cnt++;
-		}
-		else if(!Map[1][1]){
-			a[1][1]=a[2][2];
-			Map[1][1]=1;
-			cnt++;
-		}
-		work();
-		if(cnt==9){
-			rep(i,1,3){
-				rep(j,1,3){
-					cout<<a[i][j]<<" ";
-				}
-				cout<<endl;
-			}
-			return;
-		}
+	rep(i,1,n){
+		cin>>p[i];
+		f[p[i]]=i-1;
+		update(1,1,n,p[i],dist[p[i]]+f[p[i]]);
+	}
+	rep(i,1,d){
+		int x,y;
+		cin>>x>>y;
+		swap(p[x],p[y]);
+		swap(f[p[x]],f[p[y]]);
+		update(1,1,n,p[x],dist[p[x]]+f[p[x]]);
+		update(1,1,n,p[y],dist[p[y]]+f[p[y]]);
+		cout<<st[1]<<endl;
 	}
 }
 
@@ -153,7 +127,7 @@ signed main(){
     //int size(512<<20);  //512M
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
 	cin.tie(nullptr)->sync_with_stdio(false);
-	//freopen("in.txt","r",stdin);
+//	freopen("in.txt","r",stdin);
 	//freopen("stdout.txt","w",stdout);
 	int CASE=1;
 	//cin>>CASE;

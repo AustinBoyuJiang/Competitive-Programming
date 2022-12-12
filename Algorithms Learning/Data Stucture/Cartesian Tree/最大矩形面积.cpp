@@ -1,7 +1,7 @@
 /*
  * Author: Austin Jiang
- * Date: 12/4/2022 9:51:54 PM
- * Problem:
+ * Date: 12/8/2022 12:25:57 AM
+ * Problem: 最大矩形面积
  * Description:
 */
 
@@ -68,82 +68,29 @@ struct fenwick_interval{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 4;
-int cnt,a[N][N],Map[N][N];
+const int N = 2e4+10;
+int n,ans,top,a[N],lc[N],rc[N],stk[N],siz[N];
 
-void work(){
-	rep(k,1,9){
-		rep(i,1,3) rep(j,1,3){
-			if(Map[i][j]) continue;
-			if(Map[i][1]+Map[i][2]+Map[i][3]==2){
-				cnt++;
-				Map[i][j]=1;
-				if(j==1) a[i][j]=a[i][2]*2-a[i][3];
-				if(j==2) a[i][j]=(a[i][1]+a[i][3])/2;
-				if(j==3) a[i][j]=a[i][2]*2-a[i][1];
-			}
-			else if(Map[1][j]+Map[2][j]+Map[3][j]==2){
-				cnt++;
-				Map[i][j]=1;
-				if(i==1) a[i][j]=a[2][j]*2-a[3][j];
-				if(i==2) a[i][j]=(a[1][j]+a[3][j])/2;
-				if(i==3) a[i][j]=a[2][j]*2-a[1][j];
-			}
-		}
-	}
+inline int dfs(int u){
+	int siz=1;
+	if(lc[u]) siz+=dfs(lc[u]);
+	if(rc[u]) siz+=dfs(rc[u]);
+	chkmax(ans,a[u]*siz);
+	return siz;
 }
 
 void solve(int Case){
-	rep(i,1,3) rep(j,1,3){
-		string x;
-		cin>>x;
-		if(x=="X"){
-			Map[i][j]=0;
-		}
-		else{
-			cnt++;
-			Map[i][j]=1;
-			int dir=1;
-			for(char k:x){
-				if(k=='-') dir=-1;
-				else a[i][j]=a[i][j]*10+k-'0';
-			}
-			a[i][j]*=dir;
-		}
+	cin>>n;
+	rep(i,1,n) cin>>a[i];
+	rep(i,1,n){
+		bool flag=0;
+		while(top&&a[i]<a[stk[top]]) top--,flag=1;
+		if(top) rc[stk[top]]=i;
+		if(flag) lc[i]=stk[top+1];
+		stk[++top]=i;
 	}
-	work();
-	rep(i,1,4){
-		if(!Map[2][2]){
-			a[2][2]=0;
-			Map[2][2]=1;
-			cnt++;
-		}
-		else if(!Map[1][2]){
-			a[1][2]=a[2][2];
-			Map[1][2]=1;
-			cnt++;
-		}
-		else if(!Map[2][1]){
-			a[2][1]=a[2][2];
-			Map[2][1]=1;
-			cnt++;
-		}
-		else if(!Map[1][1]){
-			a[1][1]=a[2][2];
-			Map[1][1]=1;
-			cnt++;
-		}
-		work();
-		if(cnt==9){
-			rep(i,1,3){
-				rep(j,1,3){
-					cout<<a[i][j]<<" ";
-				}
-				cout<<endl;
-			}
-			return;
-		}
-	}
+	dfs(stk[1]);
+	cout<<ans<<endl;
 }
 
 /* ======================================| Main Program End |====================================== */

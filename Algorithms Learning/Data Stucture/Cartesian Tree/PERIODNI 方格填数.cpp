@@ -1,14 +1,14 @@
 /*
  * Author: Austin Jiang
- * Date: 12/4/2022 9:51:54 PM
- * Problem:
+ * Date: 12/11/2022 5:40:03 PM
+ * Problem: PERIODNI ·½¸ñÌîÊý
  * Description:
 */
 
 #pragma GCC optimize(2)
 #pragma GCC optimize(3)
 #include<bits/stdc++.h>
-//#define int long long
+#define int long long
 #define pb push_back
 #define fir first
 #define sec second
@@ -46,7 +46,7 @@ namespace comfun{
 	template<typename T> inline T lcm(T a,T b){return a/gcd(a,b)*b;}
 	template<typename T> inline T chkmax(T &a,T b){return a=max(a,b);}
 	template<typename T> inline T chkmin(T &a,T b){return a=min(a,b);}
-	template<typename T> inline T pow(T a,T b){T ans=1;while(b){if(b&1) ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
+	template<typename T> inline T qpow(T a,T b){T ans=1;while(b){if(b&1) ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
 	template<typename T> inline T inv(T x){return pow(x,MOD-2);}
 	template<typename T> inline bool is_prime(T x){if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false; return true;}
 } using namespace comfun;
@@ -68,82 +68,53 @@ struct fenwick_interval{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 4;
-int cnt,a[N][N],Map[N][N];
+const int N = 510;
+const int K = 510;
+const int H = 1e6+10;
+int n,k,top,h[N],stk[N],lc[N],rc[N],siz[N],f[K],dp[N][K],fac[H],invfac[H];
 
-void work(){
-	rep(k,1,9){
-		rep(i,1,3) rep(j,1,3){
-			if(Map[i][j]) continue;
-			if(Map[i][1]+Map[i][2]+Map[i][3]==2){
-				cnt++;
-				Map[i][j]=1;
-				if(j==1) a[i][j]=a[i][2]*2-a[i][3];
-				if(j==2) a[i][j]=(a[i][1]+a[i][3])/2;
-				if(j==3) a[i][j]=a[i][2]*2-a[i][1];
-			}
-			else if(Map[1][j]+Map[2][j]+Map[3][j]==2){
-				cnt++;
-				Map[i][j]=1;
-				if(i==1) a[i][j]=a[2][j]*2-a[3][j];
-				if(i==2) a[i][j]=(a[1][j]+a[3][j])/2;
-				if(i==3) a[i][j]=a[2][j]*2-a[1][j];
-			}
-		}
+int inv(int x){
+	return qpow(x,MOD-2);
+}
+
+int C(int n,int m){
+	if(n-m<0) return 0;
+	return fac[n]*invfac[m]%MOD*invfac[n-m]%MOD;
+}
+
+void dfs(int u,int lb){
+	if(lc[u]) dfs(lc[u],h[u]);
+	if(rc[u]) dfs(rc[u],h[u]);
+	siz[u]=siz[lc[u]]+siz[rc[u]]+1;
+	memset(f,0,sizeof(f));
+	rep(i,0,k) rep(j,0,i){
+		f[i]+=dp[lc[u]][j]*dp[rc[u]][i-j]%MOD;
+		f[i]%=MOD;
+	}
+	rep(i,0,k) rep(j,0,i){
+		if(siz[u]-i<0) continue;
+		dp[u][i]+=C(h[u]-lb,j)*fac[siz[u]-i+j]%MOD*invfac[siz[u]-i]%MOD*f[i-j]%MOD;
+		dp[u][i]%=MOD;
 	}
 }
 
 void solve(int Case){
-	rep(i,1,3) rep(j,1,3){
-		string x;
-		cin>>x;
-		if(x=="X"){
-			Map[i][j]=0;
-		}
-		else{
-			cnt++;
-			Map[i][j]=1;
-			int dir=1;
-			for(char k:x){
-				if(k=='-') dir=-1;
-				else a[i][j]=a[i][j]*10+k-'0';
-			}
-			a[i][j]*=dir;
-		}
+	read(n),read(k);
+	rep(i,1,n){
+		read(h[i]);
+		bool flag=0;
+		while(top&&h[i]<h[stk[top]]) top--,flag=1;
+		if(top) rc[stk[top]]=i;
+		if(flag) lc[i]=stk[top+1];
+		stk[++top]=i;
 	}
-	work();
-	rep(i,1,4){
-		if(!Map[2][2]){
-			a[2][2]=0;
-			Map[2][2]=1;
-			cnt++;
-		}
-		else if(!Map[1][2]){
-			a[1][2]=a[2][2];
-			Map[1][2]=1;
-			cnt++;
-		}
-		else if(!Map[2][1]){
-			a[2][1]=a[2][2];
-			Map[2][1]=1;
-			cnt++;
-		}
-		else if(!Map[1][1]){
-			a[1][1]=a[2][2];
-			Map[1][1]=1;
-			cnt++;
-		}
-		work();
-		if(cnt==9){
-			rep(i,1,3){
-				rep(j,1,3){
-					cout<<a[i][j]<<" ";
-				}
-				cout<<endl;
-			}
-			return;
-		}
-	}
+	fac[0]=1;
+	rep(i,1,H-1) fac[i]=fac[i-1]*i%MOD;
+	invfac[H-1]=inv(fac[H-1]);
+	per(i,H-1,1) invfac[i-1]=invfac[i]*i%MOD;
+	dp[0][0]=1;
+	dfs(stk[1],0);
+	write(dp[stk[1]][k],endl);
 }
 
 /* ======================================| Main Program End |====================================== */
@@ -152,7 +123,7 @@ signed main(){
 	srand(time(0));
     //int size(512<<20);  //512M
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
-	cin.tie(nullptr)->sync_with_stdio(false);
+	//cin.tie(nullptr)->sync_with_stdio(false);
 	//freopen("in.txt","r",stdin);
 	//freopen("stdout.txt","w",stdout);
 	int CASE=1;

@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 12/4/2022 9:51:54 PM
+ * Date: 12/11/2022 11:24:48 PM
  * Problem:
  * Description:
 */
@@ -46,7 +46,7 @@ namespace comfun{
 	template<typename T> inline T lcm(T a,T b){return a/gcd(a,b)*b;}
 	template<typename T> inline T chkmax(T &a,T b){return a=max(a,b);}
 	template<typename T> inline T chkmin(T &a,T b){return a=min(a,b);}
-	template<typename T> inline T pow(T a,T b){T ans=1;while(b){if(b&1) ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
+	template<typename T> inline T qpow(T a,T b){T ans=1;while(b){if(b&1) ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
 	template<typename T> inline T inv(T x){return pow(x,MOD-2);}
 	template<typename T> inline bool is_prime(T x){if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false; return true;}
 } using namespace comfun;
@@ -62,88 +62,56 @@ struct fenwick_interval{
 	int d[(int)1e6+10][2];
 	void update(int x,int v){for(int i=x;i<=1e6;i+=lowbit(i))d[i][0]+=v,d[i][1]+=v*x;}
 	int query(int x,int k){int ans=0;for(int i=x;i>0;i-=lowbit(i)) ans+=d[i][k];return ans;}
-	int add(int x,int y,int v){update(x,v),update(y+1,-v);}
+	void add(int x,int y,int v){update(x,v),update(y+1,-v);}
 	int ask(int x,int y){return (y+1)*query(y,0)-query(y,1)-x*query(x-1,0)+query(x-1,1);}
 };
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 4;
-int cnt,a[N][N],Map[N][N];
+const int N = 5e4+10;
+int n,o,ans,top,stk[N];
 
-void work(){
-	rep(k,1,9){
-		rep(i,1,3) rep(j,1,3){
-			if(Map[i][j]) continue;
-			if(Map[i][1]+Map[i][2]+Map[i][3]==2){
-				cnt++;
-				Map[i][j]=1;
-				if(j==1) a[i][j]=a[i][2]*2-a[i][3];
-				if(j==2) a[i][j]=(a[i][1]+a[i][3])/2;
-				if(j==3) a[i][j]=a[i][2]*2-a[i][1];
-			}
-			else if(Map[1][j]+Map[2][j]+Map[3][j]==2){
-				cnt++;
-				Map[i][j]=1;
-				if(i==1) a[i][j]=a[2][j]*2-a[3][j];
-				if(i==2) a[i][j]=(a[1][j]+a[3][j])/2;
-				if(i==3) a[i][j]=a[2][j]*2-a[1][j];
-			}
-		}
-	}
+struct node{
+	int x,y;
+} p[N];
+
+int dis(node a,node b){
+	int x=a.x-b.x;
+	int y=a.y-b.y;
+	return x*x+y*y;
+}
+
+bool cross(node x,node a,node b){
+	int x1=a.x-x.x;
+	int y1=a.y-x.y;
+	int x2=b.x-x.x;
+	int y2=b.y-x.y;
+	return x1*y2>=x2*y1;
+}
+
+bool cmp(node a,node b){
+	return cross(p[1],a,b);
 }
 
 void solve(int Case){
-	rep(i,1,3) rep(j,1,3){
-		string x;
-		cin>>x;
-		if(x=="X"){
-			Map[i][j]=0;
-		}
-		else{
-			cnt++;
-			Map[i][j]=1;
-			int dir=1;
-			for(char k:x){
-				if(k=='-') dir=-1;
-				else a[i][j]=a[i][j]*10+k-'0';
-			}
-			a[i][j]*=dir;
-		}
+	cin>>n;
+	rep(i,0,n-1){
+		cin>>p[i].x>>p[i].y;
+		if(p[i].y<p[o].y) o=i;
+		if(p[i].y==p[o].y&&p[i].x<p[o].x) o=i;
 	}
-	work();
-	rep(i,1,4){
-		if(!Map[2][2]){
-			a[2][2]=0;
-			Map[2][2]=1;
-			cnt++;
-		}
-		else if(!Map[1][2]){
-			a[1][2]=a[2][2];
-			Map[1][2]=1;
-			cnt++;
-		}
-		else if(!Map[2][1]){
-			a[2][1]=a[2][2];
-			Map[2][1]=1;
-			cnt++;
-		}
-		else if(!Map[1][1]){
-			a[1][1]=a[2][2];
-			Map[1][1]=1;
-			cnt++;
-		}
-		work();
-		if(cnt==9){
-			rep(i,1,3){
-				rep(j,1,3){
-					cout<<a[i][j]<<" ";
-				}
-				cout<<endl;
-			}
-			return;
-		}
+	swap(p[0],p[o]);
+	sort(p+1,p+n,cmp);
+	rep(i,0,n-1){
+		while(top>=2&&!cross(p[stk[top-2]],p[stk[top-1]],p[i])) top--;
+		stk[top++]=i;
 	}
+	int j=1;
+	rep(i,0,top-1){
+		while(dis(p[stk[i]],p[stk[(j+1)%MOD]])>dis(p[stk[i]],p[stk[j]])) j=(j+1)%MOD;
+		chkmax(ans,dis(p[stk[i]],p[stk[j]]));
+	}
+	cout<<ans<<endl;
 }
 
 /* ======================================| Main Program End |====================================== */

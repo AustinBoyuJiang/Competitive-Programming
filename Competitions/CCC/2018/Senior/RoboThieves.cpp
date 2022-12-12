@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 12/4/2022 9:51:54 PM
+ * Date: 12/12/2022 1:09:55 AM
  * Problem:
  * Description:
 */
@@ -46,7 +46,7 @@ namespace comfun{
 	template<typename T> inline T lcm(T a,T b){return a/gcd(a,b)*b;}
 	template<typename T> inline T chkmax(T &a,T b){return a=max(a,b);}
 	template<typename T> inline T chkmin(T &a,T b){return a=min(a,b);}
-	template<typename T> inline T pow(T a,T b){T ans=1;while(b){if(b&1) ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
+	template<typename T> inline T qpow(T a,T b){T ans=1;while(b){if(b&1) ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
 	template<typename T> inline T inv(T x){return pow(x,MOD-2);}
 	template<typename T> inline bool is_prime(T x){if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false; return true;}
 } using namespace comfun;
@@ -62,86 +62,100 @@ struct fenwick_interval{
 	int d[(int)1e6+10][2];
 	void update(int x,int v){for(int i=x;i<=1e6;i+=lowbit(i))d[i][0]+=v,d[i][1]+=v*x;}
 	int query(int x,int k){int ans=0;for(int i=x;i>0;i-=lowbit(i)) ans+=d[i][k];return ans;}
-	int add(int x,int y,int v){update(x,v),update(y+1,-v);}
+	void add(int x,int y,int v){update(x,v),update(y+1,-v);}
 	int ask(int x,int y){return (y+1)*query(y,0)-query(y,1)-x*query(x-1,0)+query(x-1,1);}
 };
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 4;
-int cnt,a[N][N],Map[N][N];
+const int N = 1e4+10;
+int n,m,st,Map[N],dist[N],vis[N];
+char a[N];
+VPI e[N];
 
-void work(){
-	rep(k,1,9){
-		rep(i,1,3) rep(j,1,3){
-			if(Map[i][j]) continue;
-			if(Map[i][1]+Map[i][2]+Map[i][3]==2){
-				cnt++;
-				Map[i][j]=1;
-				if(j==1) a[i][j]=a[i][2]*2-a[i][3];
-				if(j==2) a[i][j]=(a[i][1]+a[i][3])/2;
-				if(j==3) a[i][j]=a[i][2]*2-a[i][1];
-			}
-			else if(Map[1][j]+Map[2][j]+Map[3][j]==2){
-				cnt++;
-				Map[i][j]=1;
-				if(i==1) a[i][j]=a[2][j]*2-a[3][j];
-				if(i==2) a[i][j]=(a[1][j]+a[3][j])/2;
-				if(i==3) a[i][j]=a[2][j]*2-a[1][j];
-			}
-		}
-	}
+int id(int x,int y){
+	return (y-1)*m+x;
+}
+
+bool check(int x,int y){
+	if(x<1||x>m) return 0;
+	if(y<1||y>n) return 0;
+	return Map[id(x,y)];
+}
+
+void add(int ux,int uy,int vx,int vy,int w=1){
+	if(!check(ux,uy)) return;
+	if(!check(vx,vy)) return;
+	e[id(ux,uy)].pb({id(vx,vy),w});
 }
 
 void solve(int Case){
-	rep(i,1,3) rep(j,1,3){
-		string x;
-		cin>>x;
-		if(x=="X"){
-			Map[i][j]=0;
+	cin>>n>>m;
+	rep(y,1,n) rep(x,1,m){
+		cin>>a[id(x,y)];
+		if(a[id(x,y)]!='W'&&a[id(x,y)]!='C') Map[id(x,y)]=1;
+		if(a[id(x,y)]=='S') st=id(x,y);
+	}
+	rep(y,1,n) rep(x,1,m){
+		if(a[id(x,y)]!='C') continue;
+		rep(i,x+1,m){
+			if(a[id(i,y)]=='W') break;
+			else if(a[id(i,y)]=='.'||a[id(i,y)]=='S') Map[id(i,y)]=0;
 		}
-		else{
-			cnt++;
-			Map[i][j]=1;
-			int dir=1;
-			for(char k:x){
-				if(k=='-') dir=-1;
-				else a[i][j]=a[i][j]*10+k-'0';
-			}
-			a[i][j]*=dir;
+		per(i,x-1,1){
+			if(a[id(i,y)]=='W') break;
+			else if(a[id(i,y)]=='.'||a[id(i,y)]=='S') Map[id(i,y)]=0;
+		}
+		rep(i,y+1,n){
+			if(a[id(x,i)]=='W') break;
+			else if(a[id(x,i)]=='.'||a[id(x,i)]=='S') Map[id(x,i)]=0;
+		}
+		per(i,y-1,1){
+			if(a[id(x,i)]=='W') break;
+			else if(a[id(x,i)]=='.'||a[id(x,i)]=='S') Map[id(x,i)]=0;
 		}
 	}
-	work();
-	rep(i,1,4){
-		if(!Map[2][2]){
-			a[2][2]=0;
-			Map[2][2]=1;
-			cnt++;
+	rep(y,1,n) rep(x,1,m){
+		if(Map[id(x,y)]&&(a[id(x,y)]=='.'||a[id(x,y)]=='S')){
+			add(x,y,x+1,y);
+			add(x,y,x-1,y);
+			add(x,y,x,y+1);
+			add(x,y,x,y-1);
 		}
-		else if(!Map[1][2]){
-			a[1][2]=a[2][2];
-			Map[1][2]=1;
-			cnt++;
+		if(a[id(x,y)]=='L'){
+			add(x,y,x-1,y,0);
 		}
-		else if(!Map[2][1]){
-			a[2][1]=a[2][2];
-			Map[2][1]=1;
-			cnt++;
+		if(a[id(x,y)]=='R'){
+			add(x,y,x+1,y,0);
 		}
-		else if(!Map[1][1]){
-			a[1][1]=a[2][2];
-			Map[1][1]=1;
-			cnt++;
+		if(a[id(x,y)]=='U'){
+			add(x,y,x,y-1,0);
 		}
-		work();
-		if(cnt==9){
-			rep(i,1,3){
-				rep(j,1,3){
-					cout<<a[i][j]<<" ";
-				}
-				cout<<endl;
+		if(a[id(x,y)]=='D'){
+			add(x,y,x,y+1,0);
+		}
+	}
+	memset(dist,-1,sizeof(dist));
+	dist[st]=0;
+	PQ<PI,VPI,greater<PI>> q;
+	q.push({0,st});
+	while(!q.empty()){
+		int u=q.top().sec;
+		q.pop();
+		if(vis[u]) continue;
+		vis[u]=1;
+		for(auto i:e[u]){
+			int v=i.fir;
+			int w=i.sec;
+			if(dist[v]==-1||dist[u]+w<dist[v]){
+				dist[v]=dist[u]+w;
+				q.push({dist[v],v});
 			}
-			return;
+		}
+	}
+	rep(i,1,n*m){
+		if(a[i]=='.'){
+			cout<<dist[i]<<endl;
 		}
 	}
 }
@@ -153,13 +167,13 @@ signed main(){
     //int size(512<<20);  //512M
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
 	cin.tie(nullptr)->sync_with_stdio(false);
-	//freopen("in.txt","r",stdin);
-	//freopen("stdout.txt","w",stdout);
+//	freopen("in.txt","r",stdin);
+//	freopen("stdout.txt","w",stdout);
 	int CASE=1;
-	//cin>>CASE;
+//	cin>>CASE;
 	rep(Case,1,CASE) solve(Case);
-    //exit(0);
-	//system("fc stdout.txt out.txt");
+//  exit(0);
+//	system("fc stdout.txt out.txt");
 	return 0;
 }
 
