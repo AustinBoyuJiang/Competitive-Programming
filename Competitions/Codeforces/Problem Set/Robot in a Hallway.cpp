@@ -1,19 +1,19 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
- * Problem:
- * Source:
+ * Date: 12/29/2022 12:53:33 AM
+ * Problem: Robot in a Hallway
+ * Source: Educational Codeforces Round 133 (Rated for Div. 2)
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
 #define FASTIO
-//#define OPTIMIZE
+#define OPTIMIZE
 //#define INTTOLL
 
 #ifdef OPTIMIZE
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL Data Structures */
 #define lb lower_bound
 #define ub upper_bound
@@ -64,7 +64,7 @@ template <typename T> using VEC = vector<T>;
 template <typename T> using US = unordered_set<T>;
 template <typename T> using MS = multiset<T>;
 template <typename T1, typename T2> using UM = unordered_map<T1,T2>;
-template <typename T> using PQ = priority_queue<T>; 
+template <typename T> using PQ = priority_queue<T>;
 template <typename T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 namespace fastIO{
@@ -128,11 +128,39 @@ struct interval_fenwick{
 /* ========================================| Main Program |======================================== */
 
 const int N = 1e6+10;
-int n;
+int n,ans,mx[2],a[2][N],l[2][N],ru[2][N],rd[2][N];
 
 void SOLVE(int Case){
 	cin>>n;
-	
+	ans=INF;
+	rep(j,0,1) rep(i,1,n) cin>>a[j][i];
+	int j=0;
+	l[0][0]=a[0][1]=-1;
+	rep(i,1,n){
+		l[j][i]=max(l[j][i-1],a[j][i])+1,j^=1;
+		l[j][i]=max(l[j^1][i],a[j][i])+1;
+	}
+	mx[0]=mx[1]=0;
+	per(i,n,1){
+		mx[0]=max(mx[0]-1,a[0][i]+1);
+		mx[1]=max(mx[1],a[1][i])+1;
+		if(i&1){
+			ru[0][i]=max(mx[0],l[0][i])+n-i;
+			rd[0][i]=max(mx[1],ru[0][i]+n-i+1);
+			chkmin(ans,rd[0][i]);
+		}
+	}
+	mx[0]=mx[1]=0;
+	per(i,n,1){
+		mx[1]=max(mx[1]-1,a[1][i]+1);
+		mx[0]=max(mx[0],a[0][i])+1;
+		if((i&1)==0){
+			rd[1][i]=max(mx[1],l[1][i])+n-i;
+			ru[1][i]=max(mx[0],rd[1][i]+n-i+1);
+			chkmin(ans,ru[1][i]);
+		}
+	}
+	cout<<ans<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -173,3 +201,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) duipai
 */
+

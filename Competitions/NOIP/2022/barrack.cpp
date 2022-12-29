@@ -1,15 +1,14 @@
 /*
  * Author: Austin Jiang
- * Date: 12/22/2022 8:21:00 PM
- * Problem:
- * Source:
+ * Date: 12/20/2022 9:21:59 PM
+ * Problem: barrack
  * Description:
 */
 
-//#pragma GCC optimize(2)
-//#pragma GCC optimize(3)
+#pragma GCC optimize(2)
+#pragma GCC optimize(3)
 #include<bits/stdc++.h>
-//#define int long long
+#define int long long
 #define pb push_back
 #define fir first
 #define sec second
@@ -69,47 +68,91 @@ struct fenwick_interval{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
-int root,tot,ans;
-string str;
+const int N = 5e5+10;
+const int M = 1e6+10;
+int n,m,cnt,tot,dfn[N],low[N],instk[N],vis[M],col[N],sz[N],eg[N],power[N+M],dp[N][2];
+//dp[i][0/1]表示以i为根节点的子树，有无点的不同方案数量 
+stack<int> stk;
+VPI e[N];
+VI ee[N];
 
-struct node{
-	int rt,lc,rc,dep;
-	char s;
-} st[N];
-
-void insert(int &rt,char s,int dep){
-	if(!rt){
-		rt=++tot;
-		st[rt].s=s;
-		st[rt].dep=dep;
-		ans+=dep;
-		return;
+void DFS(int u){
+	dfn[u]=low[u]=++tot;
+	instk[u]=1,stk.push(u);
+	for(PI edge:e[u]){
+		int v=edge.fir;
+		if(vis[edge.sec]) continue;
+		vis[edge.sec]=1; 
+		if(!dfn[v]) DFS(v);
+		chkmin(low[u],low[v]);
 	}
-	if(s<=st[rt].s) insert(st[rt].lc,s,dep+1);
-	else insert(st[rt].rc,s,dep+1);
+	if(low[u]<dfn[u]) return;
+	col[u]=++cnt,instk[u]=0;
+	while(stk.top()!=u){
+		col[stk.top()]=cnt;
+		instk[stk.top()]=0;
+		stk.pop();
+	}
+	stk.pop();
+}
+
+void DP(int u,int fa){
+	int sum=0;
+	dp[u][0]=power[eg[u]];
+	dp[u][1]=(power[sz[u]+eg[u]]-power[eg[u]]+MOD)%MOD;
+	for(auto v:ee[u]){
+		if(v==fa) continue;
+		DP(v,u);
+		dp[u][0]=dp[u][0]*dp[v][0]*2%MOD;
+		dp[u][1]=dp[u][1]*(dp[v][0]*2+dp[v][1])%MOD;
+		sum=(sum+dp[v][1]*2)%MOD;
+	}
+	dp[u][1]=(dp[u][1]+sum)%MOD;
 }
 
 void solve(int Case){
-	cin>>str;
-	for(int i=0;i<str.size();i++)
-		insert(root,str[i],0);
-	cout<<"Answer: "<<ans<<endl;
+	read(n),read(m);
+	rep(i,1,m){
+		int u=read(),v=read();
+		e[u].pb({v,i});
+		e[v].pb({u,i});
+	}
+	DFS(1);
+	power[0]=1;
+	rep(i,1,n+m) power[i]=power[i-1]*2%MOD;
+	rep(u,1,n){
+		sz[col[u]]++;
+		for(PI edge:e[u]){
+			int v=edge.fir;
+			if(col[u]==col[v]) eg[col[u]]++;
+			else ee[col[u]].pb(col[v]);
+		}
+	}
+	rep(i,1,cnt) eg[i]/=2;
+	DP(1,0);
+	write(dp[1][1],endl);
 }
+/*
+Graph Editor Data
+1 2
+2 5
+5 3
+5 4
+5 6 3
+*/
 
 /* ======================================| Main Program End |====================================== */
 
 signed main(){
+	//srand(time(0));
     //int size(512<<20);  //512M
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
-	//cin.tie(nullptr)->sync_with_stdio(false);
-	//freopen("in.txt","r",stdin);
-	//freopen("stdout.txt","w",stdout);
-	//srand(time(0));
+	cin.tie(nullptr)->sync_with_stdio(false);
+	freopen("in.txt","r",stdin);
+//	freopen("stdout.txt","w",stdout);
 	int CASE=1;
 	//cin>>CASE;
 	rep(Case,1,CASE) solve(Case);
-	read();
 	//system("fc stdout.txt out.txt");
     //exit(0);
 	return 0;

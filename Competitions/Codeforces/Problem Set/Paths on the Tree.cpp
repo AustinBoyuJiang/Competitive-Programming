@@ -1,15 +1,15 @@
 /*
  * Author: Austin Jiang
- * Date: 12/22/2022 8:21:00 PM
- * Problem:
- * Source:
+ * Date: 12/24/2022 6:05:21 PM
+ * Problem: Paths on the Tree
+ * Source: Codeforces Global Round 23
  * Description:
 */
 
-//#pragma GCC optimize(2)
-//#pragma GCC optimize(3)
+#pragma GCC optimize(2)
+#pragma GCC optimize(3)
 #include<bits/stdc++.h>
-//#define int long long
+#define int long long
 #define pb push_back
 #define fir first
 #define sec second
@@ -48,7 +48,7 @@ namespace comfun{
 	template<typename T> inline T chkmax(T &a,T b){return a=max(a,b);}
 	template<typename T> inline T chkmin(T &a,T b){return a=min(a,b);}
 	template<typename T> inline T qpow(T a,T b){T ans=1;while(b){if(b&1) ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
-	template<typename T> inline T inv(T x){return pow(x,MOD-2);}
+	template<typename T> inline T inv(T x){return qpow(x,MOD-2);}
 	template<typename T> inline bool is_prime(T x){if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false; return true;}
 } using namespace comfun;
 
@@ -69,32 +69,49 @@ struct fenwick_interval{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
-int root,tot,ans;
-string str;
+const int N = 2e5+10;
+int n,k,ans,a[N];
+map<int,int> vis[N];
+VI e[N];
 
-struct node{
-	int rt,lc,rc,dep;
-	char s;
-} st[N];
-
-void insert(int &rt,char s,int dep){
-	if(!rt){
-		rt=++tot;
-		st[rt].s=s;
-		st[rt].dep=dep;
-		ans+=dep;
-		return;
+int dfs(int u,int k){
+	if(vis[u].count(k)) return vis[u][k];
+	int ans=a[u]*k,cnt=e[u].size();
+	if(cnt==0) return ans;
+	if(k%cnt==0){
+		for(auto v:e[u])
+			ans+=dfs(v,k/cnt);
+		vis[u][k]=ans;
+		return ans;
 	}
-	if(s<=st[rt].s) insert(st[rt].lc,s,dep+1);
-	else insert(st[rt].rc,s,dep+1);
+	PQ<int,VI,less<int>> q;
+	for(auto v:e[u]){
+		int res1=dfs(v,k/cnt);
+		int res2=dfs(v,(k+cnt-1)/cnt);
+		q.push(res2-res1);
+		ans+=res1;
+	}
+	rep(i,1,k%cnt){
+		ans+=q.top();
+		q.pop();
+	}
+	vis[u][k]=ans;
+	return ans;
 }
 
 void solve(int Case){
-	cin>>str;
-	for(int i=0;i<str.size();i++)
-		insert(root,str[i],0);
-	cout<<"Answer: "<<ans<<endl;
+	cin>>n>>k;
+	rep(i,1,n){
+		e[i].clear();
+		vis[i].clear();
+	}
+	rep(i,2,n){
+		int fa;
+		cin>>fa;
+		e[fa].pb(i);
+	}
+	rep(i,1,n) cin>>a[i];
+	cout<<dfs(1,k)<<endl;
 }
 
 /* ======================================| Main Program End |====================================== */
@@ -107,9 +124,8 @@ signed main(){
 	//freopen("stdout.txt","w",stdout);
 	//srand(time(0));
 	int CASE=1;
-	//cin>>CASE;
+	cin>>CASE;
 	rep(Case,1,CASE) solve(Case);
-	read();
 	//system("fc stdout.txt out.txt");
     //exit(0);
 	return 0;

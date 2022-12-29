@@ -1,15 +1,15 @@
 /*
  * Author: Austin Jiang
- * Date: 12/22/2022 8:21:00 PM
- * Problem:
- * Source:
+ * Date: 12/25/2022 12:10:57 AM
+ * Problem: Divisible Numbers (easy version)
+ * Source: Codeforces Round #828 (Div. 3)
  * Description:
 */
 
-//#pragma GCC optimize(2)
-//#pragma GCC optimize(3)
+#pragma GCC optimize(2)
+#pragma GCC optimize(3)
 #include<bits/stdc++.h>
-//#define int long long
+#define int long long
 #define pb push_back
 #define fir first
 #define sec second
@@ -48,7 +48,7 @@ namespace comfun{
 	template<typename T> inline T chkmax(T &a,T b){return a=max(a,b);}
 	template<typename T> inline T chkmin(T &a,T b){return a=min(a,b);}
 	template<typename T> inline T qpow(T a,T b){T ans=1;while(b){if(b&1) ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
-	template<typename T> inline T inv(T x){return pow(x,MOD-2);}
+	template<typename T> inline T inv(T x){return qpow(x,MOD-2);}
 	template<typename T> inline bool is_prime(T x){if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false; return true;}
 } using namespace comfun;
 
@@ -70,31 +70,19 @@ struct fenwick_interval{
 /* ========================================| Main Program |======================================== */
 
 const int N = 1e6+10;
-int root,tot,ans;
-string str;
-
-struct node{
-	int rt,lc,rc,dep;
-	char s;
-} st[N];
-
-void insert(int &rt,char s,int dep){
-	if(!rt){
-		rt=++tot;
-		st[rt].s=s;
-		st[rt].dep=dep;
-		ans+=dep;
-		return;
-	}
-	if(s<=st[rt].s) insert(st[rt].lc,s,dep+1);
-	else insert(st[rt].rc,s,dep+1);
-}
+int a,b,c,d;
 
 void solve(int Case){
-	cin>>str;
-	for(int i=0;i<str.size();i++)
-		insert(root,str[i],0);
-	cout<<"Answer: "<<ans<<endl;
+	cin>>a>>b>>c>>d;
+	rep(x,a+1,c){
+		int s=a*b/gcd(a*b,x);
+		int y=d/s*s;
+		if(y>b){
+			cout<<x<<" "<<y<<endl;
+			return;
+		}
+	}
+	cout<<-1<<" "<<-1<<endl;
 }
 
 /* ======================================| Main Program End |====================================== */
@@ -102,14 +90,13 @@ void solve(int Case){
 signed main(){
     //int size(512<<20);  //512M
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
-	//cin.tie(nullptr)->sync_with_stdio(false);
+	cin.tie(nullptr)->sync_with_stdio(false);
 	//freopen("in.txt","r",stdin);
 	//freopen("stdout.txt","w",stdout);
 	//srand(time(0));
 	int CASE=1;
-	//cin>>CASE;
+	cin>>CASE;
 	rep(Case,1,CASE) solve(Case);
-	read();
 	//system("fc stdout.txt out.txt");
     //exit(0);
 	return 0;

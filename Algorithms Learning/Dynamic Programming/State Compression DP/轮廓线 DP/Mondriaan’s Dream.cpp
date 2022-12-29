@@ -1,8 +1,7 @@
 /*
  * Author: Austin Jiang
- * Date: 12/22/2022 8:21:00 PM
- * Problem:
- * Source:
+ * Date: 12/21/2022 4:23:00 PM
+ * Problem: Mondriaan's Dream
  * Description:
 */
 
@@ -70,46 +69,25 @@ struct fenwick_interval{
 /* ========================================| Main Program |======================================== */
 
 const int N = 1e6+10;
-int root,tot,ans;
-string str;
-
-struct node{
-	int rt,lc,rc,dep;
-	char s;
-} st[N];
-
-void insert(int &rt,char s,int dep){
-	if(!rt){
-		rt=++tot;
-		st[rt].s=s;
-		st[rt].dep=dep;
-		ans+=dep;
-		return;
-	}
-	if(s<=st[rt].s) insert(st[rt].lc,s,dep+1);
-	else insert(st[rt].rc,s,dep+1);
-}
+int n;
 
 void solve(int Case){
-	cin>>str;
-	for(int i=0;i<str.size();i++)
-		insert(root,str[i],0);
-	cout<<"Answer: "<<ans<<endl;
+	cin>>n;
+
 }
 
 /* ======================================| Main Program End |====================================== */
 
 signed main(){
+	srand(time(0));
     //int size(512<<20);  //512M
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
 	//cin.tie(nullptr)->sync_with_stdio(false);
 	//freopen("in.txt","r",stdin);
 	//freopen("stdout.txt","w",stdout);
-	//srand(time(0));
 	int CASE=1;
 	//cin>>CASE;
 	rep(Case,1,CASE) solve(Case);
-	read();
 	//system("fc stdout.txt out.txt");
     //exit(0);
 	return 0;

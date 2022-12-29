@@ -1,7 +1,7 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
- * Problem:
+ * Date: 12/28/2022 5:16:20 PM
+ * Problem: Mountains
  * Source:
  * Description:
 */
@@ -11,8 +11,8 @@
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
+//#define SETIO
 //#define SETMEM
-#define FASTIO
 //#define OPTIMIZE
 //#define INTTOLL
 
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL Data Structures */
 #define lb lower_bound
 #define ub upper_bound
@@ -64,19 +64,19 @@ template <typename T> using VEC = vector<T>;
 template <typename T> using US = unordered_set<T>;
 template <typename T> using MS = multiset<T>;
 template <typename T1, typename T2> using UM = unordered_map<T1,T2>;
-template <typename T> using PQ = priority_queue<T>; 
+template <typename T> using PQ = priority_queue<T>;
 template <typename T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
-namespace fastIO{
+namespace fast_io{
 	inline int read() {int x=0; bool f=0; char ch=0; while(!isdigit(ch)) f=ch=='-',ch=getchar(); while(isdigit(ch)) x=x*10+ch-'0',ch=getchar(); return f?-x:x;}
 	inline ll readLL() {ll x=0; bool f=0; char ch=0; while(!isdigit(ch)) f=ch=='-',ch=getchar(); while(isdigit(ch)) x=x*10+ch-'0',ch=getchar(); return f?-x:x;}
 	inline int read(int &x) {return x=read();}
     template<typename T> inline void write(T x) {if(x<0) x=-x,putchar('-'); if(x>9) write(x/10); putchar(x%10+'0');}
 	template<typename T> inline void write(T x,char let) {write(x),putchar(let);}
-} using namespace fastIO;
+} using namespace fast_io;
 
 void SETUP(){
-	#ifdef FASTIO
+	#ifdef SETIO
 	cin.tie(nullptr)->sync_with_stdio(false);
 	#endif
 	#ifdef READLOCAL
@@ -127,12 +127,29 @@ struct interval_fenwick{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
-int n;
+const int N = 2010;
+int n,q,h[N],sl[N][N];
+
+struct fraction{
+	int a=0,b=1;
+	
+	
+};
 
 void SOLVE(int Case){
 	cin>>n;
-	
+	rep(i,1,n) cin>>h[i];
+	rep(i,1,n){
+		sl[i][i]={-INF,1};
+		rep(j,i+1,n){
+			sl[i][j]={h[j]-h[i],j-i};
+		}
+	}
+	rep(i,1,n)
+	cin>>q;
+	while(q--){
+		
+	}
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -173,3 +190,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) duipai
 */
+

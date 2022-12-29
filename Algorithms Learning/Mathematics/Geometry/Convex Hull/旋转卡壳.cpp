@@ -69,49 +69,53 @@ struct fenwick_interval{
 /* ========================================| Main Program |======================================== */
 
 const int N = 5e4+10;
-int n,o,ans,top,stk[N];
+int n,o,ans,top;
 
 struct node{
 	int x,y;
-} p[N];
+} p[N],stk[N];
 
-int dis(node a,node b){
+inline int dis(node a,node b){
 	int x=a.x-b.x;
 	int y=a.y-b.y;
 	return x*x+y*y;
 }
 
-bool cross(node x,node a,node b){
+inline bool cross(node x,node a,node b){
 	int x1=a.x-x.x;
 	int y1=a.y-x.y;
 	int x2=b.x-x.x;
 	int y2=b.y-x.y;
-	return x1*y2>=x2*y1;
+	if(x1*y2-x2*y1==0){
+		if(x1==x2) return y2>y1;
+		else return x1>x2;
+	}
+	return x1*y2>x2*y1;
 }
 
-bool cmp(node a,node b){
+inline bool cmp(node a,node b){
 	return cross(p[1],a,b);
 }
 
-void solve(int Case){
-	cin>>n;
-	rep(i,0,n-1){
-		cin>>p[i].x>>p[i].y;
-		if(p[i].y<p[o].y) o=i;
+inline void solve(int Case){
+	read(n);
+	rep(i,1,n){
+		read(p[i].x),read(p[i].y);
+		if(!o||p[i].y<p[o].y) o=i;
 		if(p[i].y==p[o].y&&p[i].x<p[o].x) o=i;
 	}
-	swap(p[0],p[o]);
-	sort(p+1,p+n,cmp);
-	rep(i,0,n-1){
-		while(top>=2&&!cross(p[stk[top-2]],p[stk[top-1]],p[i])) top--;
-		stk[top++]=i;
+	swap(p[1],p[o]);
+	sort(p+2,p+n+1,cmp);
+	rep(i,1,n){
+		while(top>=2&&!cross(stk[top-1],stk[top],p[i])) top--;
+		stk[++top]=p[i];
 	}
 	int j=1;
-	rep(i,0,top-1){
-		while(dis(p[stk[i]],p[stk[(j+1)%MOD]])>dis(p[stk[i]],p[stk[j]])) j=(j+1)%MOD;
-		chkmax(ans,dis(p[stk[i]],p[stk[j]]));
+	rep(i,1,top){
+		while(dis(stk[i],stk[j%top+1])>=dis(stk[i],stk[j])) j=j%top+1;
+		chkmax(ans,dis(stk[i],stk[j]));
 	}
-	cout<<ans<<endl;
+	write(ans,endl);
 }
 
 /* ======================================| Main Program End |====================================== */
@@ -120,7 +124,7 @@ signed main(){
 	srand(time(0));
     //int size(512<<20);  //512M
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
-	cin.tie(nullptr)->sync_with_stdio(false);
+	//cin.tie(nullptr)->sync_with_stdio(false);
 	//freopen("in.txt","r",stdin);
 	//freopen("stdout.txt","w",stdout);
 	int CASE=1;

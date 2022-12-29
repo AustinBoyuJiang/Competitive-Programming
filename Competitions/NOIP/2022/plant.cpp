@@ -1,15 +1,14 @@
 /*
  * Author: Austin Jiang
- * Date: 12/22/2022 8:21:00 PM
- * Problem:
- * Source:
+ * Date: 12/19/2022 8:18:17 PM
+ * Problem: plant
  * Description:
 */
 
-//#pragma GCC optimize(2)
-//#pragma GCC optimize(3)
+#pragma GCC optimize(2)
+#pragma GCC optimize(3)
 #include<bits/stdc++.h>
-//#define int long long
+#define int long long
 #define pb push_back
 #define fir first
 #define sec second
@@ -38,7 +37,7 @@ namespace fast_io{
 /* Common constants, functions, and data structures */
 const int INF = 0x3f3f3f3f;
 const ll LLINF = 0x3f3f3f3f3f3f3f3f;
-const int MOD = 1e9+7;
+const int MOD = 998244353;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 
 namespace comfun{
@@ -69,47 +68,75 @@ struct fenwick_interval{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
-int root,tot,ans;
-string str;
-
-struct node{
-	int rt,lc,rc,dep;
-	char s;
-} st[N];
-
-void insert(int &rt,char s,int dep){
-	if(!rt){
-		rt=++tot;
-		st[rt].s=s;
-		st[rt].dep=dep;
-		ans+=dep;
-		return;
-	}
-	if(s<=st[rt].s) insert(st[rt].lc,s,dep+1);
-	else insert(st[rt].rc,s,dep+1);
-}
+const int N = 1010;
+int n,m,c,f,ansc,ansf,a[N][N],rs[N][N],ds[N][N];
 
 void solve(int Case){
-	cin>>str;
-	for(int i=0;i<str.size();i++)
-		insert(root,str[i],0);
-	cout<<"Answer: "<<ans<<endl;
+	ansc=ansf=0;
+	read(n),read(m),read(c),read(f);
+	rep(i,1,n){
+		string line;
+		getline(cin,line);
+		rep(j,1,m){
+			a[i][j]=line[j-1]-'0';
+		}	
+	}
+	rep(i,1,n){
+		int lst=m+1;
+		per(j,m,1){
+			if(a[i][j]) lst=j;
+			rs[i][j]=lst-j;
+		}
+	}
+	rep(j,1,m){
+		int lst=n+1;
+		per(i,n,1){
+			if(a[i][j]) lst=i;
+			ds[i][j]=lst-i;
+		}
+	}
+	rep(j,1,m){
+		int sum=0;
+		per(i,n,1){
+			if(a[i][j]) sum=0;
+			else{
+				if(ds[i][j]>=3){
+					sum+=max(0ll,rs[i+2][j]-1);
+				}
+				ansc+=max(0ll,rs[i][j]-1)*sum%MOD;
+				ansc%=MOD;
+			}
+		}
+	}
+	rep(j,1,m){
+		int sum=0;
+		per(i,n,1){
+			if(a[i][j]) sum=0;
+			else{
+				if(ds[i][j]>=3){
+					sum+=max(0ll,rs[i+2][j]-1)*max(0ll,ds[i+2][j]-1);
+				}
+				ansf+=max(0ll,rs[i][j]-1)*sum%MOD;
+				ansf%=MOD;
+			}
+		}
+	}
+	write(c*ansc,' ');
+	write(f*ansf,endl);
 }
 
 /* ======================================| Main Program End |====================================== */
 
 signed main(){
+	srand(time(0));
     //int size(512<<20);  //512M
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
 	//cin.tie(nullptr)->sync_with_stdio(false);
 	//freopen("in.txt","r",stdin);
 	//freopen("stdout.txt","w",stdout);
-	//srand(time(0));
-	int CASE=1;
-	//cin>>CASE;
+	int CASE=1,ID;
+	read(CASE),read(ID);
 	rep(Case,1,CASE) solve(Case);
-	read();
 	//system("fc stdout.txt out.txt");
     //exit(0);
 	return 0;

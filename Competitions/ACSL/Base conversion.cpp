@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 12/22/2022 8:21:00 PM
+ * Date: 12/22/2022 8:19:05 PM
  * Problem:
  * Source:
  * Description:
@@ -70,31 +70,45 @@ struct fenwick_interval{
 /* ========================================| Main Program |======================================== */
 
 const int N = 1e6+10;
-int root,tot,ans;
+int cur,tar;
+map<char,int> key;
+map<int,char> Map;
 string str;
 
-struct node{
-	int rt,lc,rc,dep;
-	char s;
-} st[N];
-
-void insert(int &rt,char s,int dep){
-	if(!rt){
-		rt=++tot;
-		st[rt].s=s;
-		st[rt].dep=dep;
-		ans+=dep;
-		return;
+void init(){
+	rep(i,0,9){
+		key['0'+i]=i;
+		Map[i]='0'+i;
 	}
-	if(s<=st[rt].s) insert(st[rt].lc,s,dep+1);
-	else insert(st[rt].rc,s,dep+1);
+	rep(i,0,25){
+		key['a'+i]=key['A'+i]=10+i;
+		Map[10+i]='a'+i;
+	}
+}
+
+int cur_to_ten(string str){
+	int res=0,power=1;
+	per(i,str.size()-1,0){
+		res+=key[str[i]]*power;
+		power*=cur;
+	}
+	return res;
+}
+
+string ten_to_tar(int num){
+	string res;
+	while(num){
+		res=Map[num%tar]+res;
+		num/=tar;
+	}
+	return res;
 }
 
 void solve(int Case){
-	cin>>str;
-	for(int i=0;i<str.size();i++)
-		insert(root,str[i],0);
-	cout<<"Answer: "<<ans<<endl;
+	init();
+	cin>>cur>>tar>>str;
+	cout<<endl<<"Answer:"<<endl;
+	cout<<ten_to_tar(cur_to_ten(str))<<endl;
 }
 
 /* ======================================| Main Program End |====================================== */

@@ -1,8 +1,7 @@
 /*
  * Author: Austin Jiang
- * Date: 12/22/2022 8:21:00 PM
- * Problem:
- * Source:
+ * Date: 12/14/2022 10:31:09 PM
+ * Problem: ÊÔÌâI£ºÍ¬×ÀµÄÄã 25'
  * Description:
 */
 
@@ -54,10 +53,10 @@ namespace comfun{
 
 struct fenwick{
 	int sum[(int)1e6+10];
-	void add(int x,int y){ for(int i=x;i<=1e6;i+=lowbit(i)) sum[i]+=y;}
-	int ask(int x,int y){ int res=0; for(int i=y;i>0;i-=lowbit(i)) res+=sum[i];
+	void add(int x,int y){ x++;for(int i=x;i<=1e6;i+=lowbit(i)) sum[i]+=y;}
+	int ask(int x,int y){ x++,y++;int res=0; for(int i=y;i>0;i-=lowbit(i)) res+=sum[i];
 	for(int i=x-1;i>0;i-=lowbit(i)) res-=sum[i]; return res;}
-};
+} fw;
 
 struct fenwick_interval{
 	int d[(int)1e6+10][2];
@@ -69,47 +68,64 @@ struct fenwick_interval{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
-int root,tot,ans;
-string str;
+const int N = 2e5+10;
+int n,tot,ans,a[N],f[N],id[N],tar[N],num[N];
+PI b[N],ord[N];
 
-struct node{
-	int rt,lc,rc,dep;
-	char s;
-} st[N];
-
-void insert(int &rt,char s,int dep){
-	if(!rt){
-		rt=++tot;
-		st[rt].s=s;
-		st[rt].dep=dep;
-		ans+=dep;
-		return;
-	}
-	if(s<=st[rt].s) insert(st[rt].lc,s,dep+1);
-	else insert(st[rt].rc,s,dep+1);
+bool cmp(PI a,PI b){
+	return a.fir>b.fir;
 }
 
 void solve(int Case){
-	cin>>str;
-	for(int i=0;i<str.size();i++)
-		insert(root,str[i],0);
-	cout<<"Answer: "<<ans<<endl;
+	cin>>n;
+	rep(i,0,n*2-1){
+		cin>>a[i];
+		b[i]={a[i],i};
+	}
+	sort(b,b+n*2);
+	rep(i,0,n-1){
+		f[b[i].sec]=b[n*2-1-i].sec;
+		f[b[n*2-1-i].sec]=b[i].sec;
+	}
+	rep(i,0,n-1){
+		tar[b[i].sec]=i;
+		tar[f[b[i].sec]]=i;
+	}
+	int cnt=0;
+	num[0]=-1;
+	rep(i,0,n*2-1){
+		cout<<tar[i]<<" ";
+		if(tar[i]>=num[cnt]){
+			num[++cnt]=tar[i];
+		}
+		else{
+			int l=1,r=cnt,pos;
+			while(l<=r){
+				int mid=l+r>>1;
+				if(num[mid]>tar[i]){
+					pos=mid;
+					r=mid-1;
+				}
+				else l=mid+1;
+			}
+			num[pos]=tar[i];
+		}
+	}
+	cout<<n*2-cnt<<endl;
 }
 
 /* ======================================| Main Program End |====================================== */
 
 signed main(){
+	srand(time(0));
     //int size(512<<20);  //512M
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
 	//cin.tie(nullptr)->sync_with_stdio(false);
 	//freopen("in.txt","r",stdin);
 	//freopen("stdout.txt","w",stdout);
-	//srand(time(0));
 	int CASE=1;
 	//cin>>CASE;
 	rep(Case,1,CASE) solve(Case);
-	read();
 	//system("fc stdout.txt out.txt");
     //exit(0);
 	return 0;

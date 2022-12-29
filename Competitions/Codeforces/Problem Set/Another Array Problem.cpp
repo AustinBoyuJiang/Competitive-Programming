@@ -1,20 +1,20 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
- * Problem:
- * Source:
+ * Date: 12/28/2022 7:30:43 PM
+ * Problem: Another Array Problem
+ * Source: Codeforces Round #840 (Div. 2) and Enigma 2022 - Cybros LNMIIT
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
+//#define FASTIO
 //#define SETMEM
-#define FASTIO
 //#define OPTIMIZE
-//#define INTTOLL
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL Data Structures */
 #define lb lower_bound
 #define ub upper_bound
@@ -64,7 +64,7 @@ template <typename T> using VEC = vector<T>;
 template <typename T> using US = unordered_set<T>;
 template <typename T> using MS = multiset<T>;
 template <typename T1, typename T2> using UM = unordered_map<T1,T2>;
-template <typename T> using PQ = priority_queue<T>; 
+template <typename T> using PQ = priority_queue<T>;
 template <typename T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 namespace fastIO{
@@ -128,11 +128,36 @@ struct interval_fenwick{
 /* ========================================| Main Program |======================================== */
 
 const int N = 1e6+10;
-int n;
+int n,a[N];
 
 void SOLVE(int Case){
 	cin>>n;
-	
+	int mx=0;
+	rep(i,1,n){
+		cin>>a[i];
+		if(a[i]>a[mx]) mx=i;
+	}
+	if(n==2){
+		cout<<max(a[1]+a[2],abs(a[1]-a[2])*2)<<endl;
+		return;
+	}
+	if(n==3){
+		if(a[1]==a[mx]||a[n]==a[mx]){
+			cout<<a[mx]*n<<endl;
+			return;
+		}
+		else{
+			int ans=a[1]+a[2]+a[3];
+			chkmax(ans,a[1]*3);
+			chkmax(ans,a[3]*3);
+			chkmax(ans,abs(a[1]-a[2])*3);
+			chkmax(ans,abs(a[2]-a[3])*3);
+			chkmax(ans,abs(a[1]-a[3])*3);
+			cout<<ans<<endl;
+			return;
+		}
+	}
+	cout<<a[mx]*n<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -173,3 +198,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) duipai
 */
+

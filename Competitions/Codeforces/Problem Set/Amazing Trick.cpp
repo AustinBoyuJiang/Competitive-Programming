@@ -1,8 +1,8 @@
 /*
  * Author: Austin Jiang
- * Date: 12/22/2022 8:21:00 PM
- * Problem:
- * Source:
+ * Date: 12/21/2022 8:54:58 PM
+ * Problem: Amazing Trick
+ * Source: 2022-2023 ICPC, NERC, Northern Eurasia Onsite (Unrated, Online Mirror, ICPC Rules, Teams Preferred)
  * Description:
 */
 
@@ -69,32 +69,77 @@ struct fenwick_interval{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
-int root,tot,ans;
-string str;
+const int N = 1e5+10;
+int n,tot,a[N],f[N],ord[N],to[N],p[N],q[N],vis[N],tmp[N],sz[N];
 
-struct node{
-	int rt,lc,rc,dep;
-	char s;
-} st[N];
-
-void insert(int &rt,char s,int dep){
-	if(!rt){
-		rt=++tot;
-		st[rt].s=s;
-		st[rt].dep=dep;
-		ans+=dep;
-		return;
+void dfs(int u){
+	if(!vis[u]){
+		tmp[tot++]=u;
+		vis[u]=1;
+		dfs(to[u]);
 	}
-	if(s<=st[rt].s) insert(st[rt].lc,s,dep+1);
-	else insert(st[rt].rc,s,dep+1);
+}
+
+int find(int x){
+	if(f[x]==x) return x;
+	return f[x]=find(f[x]);
+}
+
+void merge(int x,int y){
+	int fx=find(x),fy=find(y);
+	if(fx==fy) return;
+	sz[fy]+=sz[fx];
+	f[fx]=fy;
 }
 
 void solve(int Case){
-	cin>>str;
-	for(int i=0;i<str.size();i++)
-		insert(root,str[i],0);
-	cout<<"Answer: "<<ans<<endl;
+	cin>>n;
+	rep(i,1,n){
+		f[i]=i;
+		ord[i]=i;
+		sz[i]=1;
+		vis[i]=0;
+	}
+	rep(i,1,n){
+		cin>>a[i];
+		to[a[i]]=i;
+		merge(i,a[i]);
+	}
+	if(n==2&&a[1]==1){
+		cout<<"Possible"<<endl;
+		cout<<"2 1 "<<endl;
+		cout<<"2 1 "<<endl;
+		return;
+	}
+	if(n<=2){
+		cout<<"Impossible"<<endl;
+		return;
+	}
+	tot=0;
+	rep(i,1,n) if(sz[find(ord[i])]==1) swap(ord[1],ord[i]);
+	rep(i,1,n) dfs(ord[i]);
+	if(sz[find(ord[n])]==n-1){
+		if(n==3){
+			cout<<"Impossible"<<endl;
+			return;
+		}
+		q[tmp[0]]=tmp[1];
+		q[tmp[1]]=tmp[n-1];
+		q[tmp[2]]=tmp[0];
+		rep(i,3,n-1) q[tmp[i]]=tmp[i-1];
+		rep(i,0,n-1){
+			p[q[tmp[i]]]=to[tmp[i]];
+		}
+	}
+	else rep(i,0,n-1){
+		q[tmp[i]]=tmp[(i+2)%n];
+		p[tmp[(i+2)%n]]=to[tmp[i]];
+	}
+	cout<<"Possible"<<endl;
+	rep(i,1,n) cout<<p[i]<<" ";
+	cout<<endl;
+	rep(i,1,n) cout<<q[i]<<" ";
+	cout<<endl;
 }
 
 /* ======================================| Main Program End |====================================== */
@@ -107,9 +152,8 @@ signed main(){
 	//freopen("stdout.txt","w",stdout);
 	//srand(time(0));
 	int CASE=1;
-	//cin>>CASE;
+	cin>>CASE;
 	rep(Case,1,CASE) solve(Case);
-	read();
 	//system("fc stdout.txt out.txt");
     //exit(0);
 	return 0;

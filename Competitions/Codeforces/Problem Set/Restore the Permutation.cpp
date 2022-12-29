@@ -1,13 +1,13 @@
 /*
  * Author: Austin Jiang
- * Date: 12/22/2022 8:21:00 PM
- * Problem:
- * Source:
+ * Date: 12/22/2022 3:07:14 PM
+ * Problem: Restore the Permutation
+ * Source: Codeforces Round #834 (Div. 3)
  * Description:
 */
 
-//#pragma GCC optimize(2)
-//#pragma GCC optimize(3)
+#pragma GCC optimize(2)
+#pragma GCC optimize(3)
 #include<bits/stdc++.h>
 //#define int long long
 #define pb push_back
@@ -69,32 +69,39 @@ struct fenwick_interval{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
-int root,tot,ans;
-string str;
-
-struct node{
-	int rt,lc,rc,dep;
-	char s;
-} st[N];
-
-void insert(int &rt,char s,int dep){
-	if(!rt){
-		rt=++tot;
-		st[rt].s=s;
-		st[rt].dep=dep;
-		ans+=dep;
-		return;
-	}
-	if(s<=st[rt].s) insert(st[rt].lc,s,dep+1);
-	else insert(st[rt].rc,s,dep+1);
-}
+const int N = 2e5+10;
+int n,a[N],ans[N],vis[N];
+VI num;
 
 void solve(int Case){
-	cin>>str;
-	for(int i=0;i<str.size();i++)
-		insert(root,str[i],0);
-	cout<<"Answer: "<<ans<<endl;
+	cin>>n;
+	num.clear();
+	rep(i,1,n) vis[i]=0;
+	rep(i,1,n/2){
+		cin>>a[i];
+		ans[i*2]=a[i];
+		vis[a[i]]++;
+	}
+	rep(i,1,n){
+		if(vis[i]>1){
+			cout<<-1<<endl;
+			return;
+		}
+		if(!vis[i]) num.pb(i);
+	}
+	per(i,n/2,1){
+		int pos=ub(all(num),a[i])-num.begin()-1;
+		if(pos<0){
+			cout<<-1<<endl;
+			return;
+		}
+		ans[i*2-1]=num[pos];
+		num.erase(num.begin()+pos);
+	}
+	rep(i,1,n){
+		cout<<ans[i]<<" ";
+	}
+	cout<<endl;
 }
 
 /* ======================================| Main Program End |====================================== */
@@ -102,14 +109,13 @@ void solve(int Case){
 signed main(){
     //int size(512<<20);  //512M
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
-	//cin.tie(nullptr)->sync_with_stdio(false);
+//	cin.tie(nullptr)->sync_with_stdio(false);
 	//freopen("in.txt","r",stdin);
 	//freopen("stdout.txt","w",stdout);
 	//srand(time(0));
 	int CASE=1;
-	//cin>>CASE;
+	cin>>CASE;
 	rep(Case,1,CASE) solve(Case);
-	read();
 	//system("fc stdout.txt out.txt");
     //exit(0);
 	return 0;

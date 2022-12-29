@@ -1,15 +1,15 @@
 /*
  * Author: Austin Jiang
- * Date: 12/22/2022 8:21:00 PM
- * Problem:
- * Source:
+ * Date: 12/24/2022 9:27:36 PM
+ * Problem: MEX vs MED
+ * Source: Codeforces Round #828 (Div. 3)
  * Description:
 */
 
-//#pragma GCC optimize(2)
-//#pragma GCC optimize(3)
+#pragma GCC optimize(2)
+#pragma GCC optimize(3)
 #include<bits/stdc++.h>
-//#define int long long
+#define int long long
 #define pb push_back
 #define fir first
 #define sec second
@@ -48,7 +48,7 @@ namespace comfun{
 	template<typename T> inline T chkmax(T &a,T b){return a=max(a,b);}
 	template<typename T> inline T chkmin(T &a,T b){return a=min(a,b);}
 	template<typename T> inline T qpow(T a,T b){T ans=1;while(b){if(b&1) ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
-	template<typename T> inline T inv(T x){return pow(x,MOD-2);}
+	template<typename T> inline T inv(T x){return qpow(x,MOD-2);}
 	template<typename T> inline bool is_prime(T x){if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false; return true;}
 } using namespace comfun;
 
@@ -69,32 +69,27 @@ struct fenwick_interval{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
-int root,tot,ans;
-string str;
-
-struct node{
-	int rt,lc,rc,dep;
-	char s;
-} st[N];
-
-void insert(int &rt,char s,int dep){
-	if(!rt){
-		rt=++tot;
-		st[rt].s=s;
-		st[rt].dep=dep;
-		ans+=dep;
-		return;
-	}
-	if(s<=st[rt].s) insert(st[rt].lc,s,dep+1);
-	else insert(st[rt].rc,s,dep+1);
-}
+const int N = 2e5+10;
+int n,l,r,ans,pos[N];
 
 void solve(int Case){
-	cin>>str;
-	for(int i=0;i<str.size();i++)
-		insert(root,str[i],0);
-	cout<<"Answer: "<<ans<<endl;
+	pos[n]=read(n)+1;
+	rep(i,1,n) pos[read()]=i;
+	ans=0,l=r=pos[0];
+	rep(x,1,n){
+		if(l>pos[x]||r<pos[x]){
+			int lo=l<pos[x]?1:pos[x]+1;
+			int hi=l<pos[x]?pos[x]-1:n;
+			int di=max(l-r+x*2,0ll);
+			int st=max(lo-l+di-1,0ll);
+			int ed=max(r+di-1-hi,0ll);
+			ans+=(st+1+di-ed)*max(di-st-ed,0ll)/2;
+			ans+=min(di-st,ed)*(di-ed);
+		}
+		chkmin(l,pos[x]);
+		chkmax(r,pos[x]);
+	}
+	write(ans,endl);
 }
 
 /* ======================================| Main Program End |====================================== */
@@ -106,10 +101,8 @@ signed main(){
 	//freopen("in.txt","r",stdin);
 	//freopen("stdout.txt","w",stdout);
 	//srand(time(0));
-	int CASE=1;
-	//cin>>CASE;
+	int CASE=read();
 	rep(Case,1,CASE) solve(Case);
-	read();
 	//system("fc stdout.txt out.txt");
     //exit(0);
 	return 0;

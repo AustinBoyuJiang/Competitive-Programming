@@ -1,15 +1,14 @@
 /*
  * Author: Austin Jiang
- * Date: 12/22/2022 8:21:00 PM
- * Problem:
- * Source:
+ * Date: 12/21/2022 2:35:30 PM
+ * Problem: Mondriaan's Dream
  * Description:
 */
 
-//#pragma GCC optimize(2)
-//#pragma GCC optimize(3)
+#pragma GCC optimize(2)
+#pragma GCC optimize(3)
 #include<bits/stdc++.h>
-//#define int long long
+#define int long long
 #define pb push_back
 #define fir first
 #define sec second
@@ -69,47 +68,39 @@ struct fenwick_interval{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
-int root,tot,ans;
-string str;
-
-struct node{
-	int rt,lc,rc,dep;
-	char s;
-} st[N];
-
-void insert(int &rt,char s,int dep){
-	if(!rt){
-		rt=++tot;
-		st[rt].s=s;
-		st[rt].dep=dep;
-		ans+=dep;
-		return;
-	}
-	if(s<=st[rt].s) insert(st[rt].lc,s,dep+1);
-	else insert(st[rt].rc,s,dep+1);
-}
+const int N = 12;
+int n,m,S,dp[N][1<<N];
+bool ok[1<<N];
 
 void solve(int Case){
-	cin>>str;
-	for(int i=0;i<str.size();i++)
-		insert(root,str[i],0);
-	cout<<"Answer: "<<ans<<endl;
+	while(cin>>n>>m&&n){
+		memset(dp,0,sizeof(dp));
+		memset(ok,1,sizeof(ok));
+		dp[0][S=(1<<m)-1]=1;
+		rep(i,0,S){
+			bool cnt=0;
+			rep(j,0,m)
+				if(i>>j&1) cnt^=1;
+				else ok[i]&=!cnt,cnt=0;
+		}
+		rep(i,1,n) rep(j,0,S) rep(k,0,S)
+			if((j|k)==S&&ok[j&k]) dp[i][j]+=dp[i-1][k];
+		cout<<dp[n][S]<<endl;
+	}
 }
 
 /* ======================================| Main Program End |====================================== */
 
 signed main(){
+	srand(time(0));
     //int size(512<<20);  //512M
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
 	//cin.tie(nullptr)->sync_with_stdio(false);
 	//freopen("in.txt","r",stdin);
 	//freopen("stdout.txt","w",stdout);
-	//srand(time(0));
 	int CASE=1;
 	//cin>>CASE;
 	rep(Case,1,CASE) solve(Case);
-	read();
 	//system("fc stdout.txt out.txt");
     //exit(0);
 	return 0;

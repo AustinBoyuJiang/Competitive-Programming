@@ -1,13 +1,12 @@
 /*
  * Author: Austin Jiang
- * Date: 12/22/2022 8:21:00 PM
- * Problem:
- * Source:
+ * Date: 12/15/2022 1:19:05 AM
+ * Problem: 最长公共子序列(加强版)
  * Description:
 */
 
-//#pragma GCC optimize(2)
-//#pragma GCC optimize(3)
+#pragma GCC optimize(2)
+#pragma GCC optimize(3)
 #include<bits/stdc++.h>
 //#define int long long
 #define pb push_back
@@ -69,47 +68,97 @@ struct fenwick_interval{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
-int root,tot,ans;
-string str;
+const int N = 5e4+10;
+int n,m,cnt,a[N],b[N];
 
-struct node{
-	int rt,lc,rc,dep;
-	char s;
-} st[N];
-
-void insert(int &rt,char s,int dep){
-	if(!rt){
-		rt=++tot;
-		st[rt].s=s;
-		st[rt].dep=dep;
-		ans+=dep;
-		return;
+const int W = 62;
+const int SZ = N/W+10;
+const ll MX = 1ll<<W;
+struct Bitset{
+	ll a[SZ];
+	Bitset(){
+		memset(a,0,sizeof(a));
 	}
-	if(s<=st[rt].s) insert(st[rt].lc,s,dep+1);
-	else insert(st[rt].rc,s,dep+1);
-}
+	Bitset operator | (const Bitset other){
+		Bitset res;
+		rep(i,0,SZ-1) res.a[i]=a[i]|other.a[i];
+		return res;
+	}
+	Bitset operator & (const Bitset other){
+		Bitset res;
+		rep(i,0,SZ-1) res.a[i]=a[i]&other.a[i];
+		return res;
+	}
+	Bitset operator ^ (const Bitset other){
+		Bitset res;
+		rep(i,0,SZ-1) res.a[i]=a[i]^other.a[i];
+		return res;
+	}
+	Bitset operator - (const Bitset other){
+		Bitset res;
+		rep(i,0,SZ-1) res.a[i]=a[i]-other.a[i];
+		rep(i,0,SZ-1){
+			if(res.a[i]<0){
+				res.a[i]+=MX;
+				res.a[i+1]--;
+			}
+		}
+		return res;
+	}
+	Bitset shl(){
+		Bitset res;
+		rep(i,0,SZ-1) res.a[i]=a[i]<<1;
+		rep(i,0,SZ-1){
+			if(res.a[i]&MX){
+				res.a[i]^=MX;
+				res.a[i+1]|=1;
+			}
+		}
+		res.a[0]|=1;
+		return res;
+	}
+	void set(int x){
+		a[x/W]|=1ll<<(x%W);
+	}
+	int count(){
+		int cnt=0;
+		rep(i,0,SZ-1) rep(j,0,W-1){
+			cnt+=(a[i]>>j)&1;
+		}
+		return cnt;
+	}
+} num,pos[N];
 
 void solve(int Case){
-	cin>>str;
-	for(int i=0;i<str.size();i++)
-		insert(root,str[i],0);
-	cout<<"Answer: "<<ans<<endl;
+	cin>>n>>m;
+	rep(i,1,n){
+		char x;
+		cin>>x;
+		a[i]=x-'a';
+		pos[a[i]].set(i);
+	}
+	rep(i,1,m){
+		char x;
+		cin>>x;
+		b[i]=x-'a';
+		Bitset tmp=num|pos[b[i]];
+		num=((tmp-num.shl())^tmp)&tmp;//lowbit
+	}
+	cout<<num.count()<<endl;
 }
 
 /* ======================================| Main Program End |====================================== */
 
 signed main(){
+	//srand(time(0));
     //int size(512<<20);  //512M
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
-	//cin.tie(nullptr)->sync_with_stdio(false);
+	cin.tie(nullptr)->sync_with_stdio(false);
 	//freopen("in.txt","r",stdin);
 	//freopen("stdout.txt","w",stdout);
-	//srand(time(0));
 	int CASE=1;
 	//cin>>CASE;
 	rep(Case,1,CASE) solve(Case);
-	read();
 	//system("fc stdout.txt out.txt");
     //exit(0);
 	return 0;

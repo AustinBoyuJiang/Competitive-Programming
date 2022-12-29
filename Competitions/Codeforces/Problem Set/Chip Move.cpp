@@ -1,8 +1,8 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
- * Problem:
- * Source:
+ * Date: 12/28/2022 10:19:09 PM
+ * Problem: Chip Move
+ * Source: Educational Codeforces Round 133 (Rated for Div. 2)
  * Description:
 */
 
@@ -11,10 +11,10 @@
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
-//#define SETMEM
 #define FASTIO
-//#define OPTIMIZE
-//#define INTTOLL
+//#define SETMEM
+#define OPTIMIZE 
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL Data Structures */
 #define lb lower_bound
 #define ub upper_bound
@@ -64,7 +64,7 @@ template <typename T> using VEC = vector<T>;
 template <typename T> using US = unordered_set<T>;
 template <typename T> using MS = multiset<T>;
 template <typename T1, typename T2> using UM = unordered_map<T1,T2>;
-template <typename T> using PQ = priority_queue<T>; 
+template <typename T> using PQ = priority_queue<T>;
 template <typename T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 namespace fastIO{
@@ -93,7 +93,7 @@ const int INF = 0x3f3f3f3f;
 #else
 const ll INF = LLINF;
 #endif
-const int MOD = 1e9+7;
+const int MOD = 998244353;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 const US<char> vowel = {'a','e','i','o','u'};
 
@@ -127,12 +127,24 @@ struct interval_fenwick{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
-int n;
+const int N = 2e5+10;
+int n,k,dis,dp[N],ans[N];
 
 void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>n>>k;
+	dp[0]=1;
+	while(dis+k<=n){
+		VI cnt(k);
+		rep(i,dis,n){
+			int pre=dp[i];
+			dp[i]=cnt[i%k];
+			(cnt[i%k]+=pre)%=MOD;
+			(ans[i]+=dp[i])%=MOD;
+		}
+		dis+=k++;
+	}
+	rep(i,1,n) cout<<ans[i]<<" ";
+	cout<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -173,3 +185,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) duipai
 */
+

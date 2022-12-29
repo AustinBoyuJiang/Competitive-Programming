@@ -1,15 +1,15 @@
 /*
  * Author: Austin Jiang
- * Date: 12/22/2022 8:21:00 PM
- * Problem:
- * Source:
+ * Date: 12/27/2022 4:25:36 PM
+ * Problem: Circular Mirror
+ * Source: COMPFEST 14 - Preliminary Online Mirror (Unrated, ICPC Rules, Teams Preferred)
  * Description:
 */
 
-//#pragma GCC optimize(2)
-//#pragma GCC optimize(3)
+#pragma GCC optimize(2)
+#pragma GCC optimize(3)
 #include<bits/stdc++.h>
-//#define int long long
+#define int long long
 #define pb push_back
 #define fir first
 #define sec second
@@ -38,7 +38,7 @@ namespace fast_io{
 /* Common constants, functions, and data structures */
 const int INF = 0x3f3f3f3f;
 const ll LLINF = 0x3f3f3f3f3f3f3f3f;
-const int MOD = 1e9+7;
+const int MOD = 998244353;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 
 namespace comfun{
@@ -48,7 +48,7 @@ namespace comfun{
 	template<typename T> inline T chkmax(T &a,T b){return a=max(a,b);}
 	template<typename T> inline T chkmin(T &a,T b){return a=min(a,b);}
 	template<typename T> inline T qpow(T a,T b){T ans=1;while(b){if(b&1) ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
-	template<typename T> inline T inv(T x){return pow(x,MOD-2);}
+	template<typename T> inline T inv(T x){return qpow(x,MOD-2);}
 	template<typename T> inline bool is_prime(T x){if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false; return true;}
 } using namespace comfun;
 
@@ -59,7 +59,7 @@ struct fenwick{
 	for(int i=x-1;i>0;i-=lowbit(i)) res-=sum[i]; return res;}
 };
 
-struct fenwick_interval{
+struct interval_fenwick{
 	int d[(int)1e6+10][2];
 	void update(int x,int v){for(int i=x;i<=1e6;i+=lowbit(i))d[i][0]+=v,d[i][1]+=v*x;}
 	int query(int x,int k){int ans=0;for(int i=x;i>0;i-=lowbit(i)) ans+=d[i][k];return ans;}
@@ -69,32 +69,43 @@ struct fenwick_interval{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
-int root,tot,ans;
-string str;
+const int N = 3e5+10;
+int n,m,cnt,sum,ans,d[N],pos[N],fac[N],invfac[N];
+map<int,bool> flag;
 
-struct node{
-	int rt,lc,rc,dep;
-	char s;
-} st[N];
-
-void insert(int &rt,char s,int dep){
-	if(!rt){
-		rt=++tot;
-		st[rt].s=s;
-		st[rt].dep=dep;
-		ans+=dep;
-		return;
-	}
-	if(s<=st[rt].s) insert(st[rt].lc,s,dep+1);
-	else insert(st[rt].rc,s,dep+1);
+int C(int n,int m){
+	return fac[n]*invfac[m]%MOD*invfac[n-m]%MOD;
 }
 
 void solve(int Case){
-	cin>>str;
-	for(int i=0;i<str.size();i++)
-		insert(root,str[i],0);
-	cout<<"Answer: "<<ans<<endl;
+	cin>>n>>m;
+	rep(i,1,n){
+		cin>>d[i];
+		sum+=d[i];
+		pos[i+1]=sum;
+		flag[pos[i]]=1;
+	}
+	if(n<=2||sum&1){
+		cout<<qpow(m,n)<<endl;
+		return;
+	}
+	rep(i,1,n) if(flag[(pos[i]+sum/2)%sum]) cnt++;
+	cnt/=2;
+	fac[0]=1;
+	rep(i,1,max(n,m)) fac[i]=fac[i-1]*i%MOD;
+	invfac[max(n,m)]=inv(fac[max(n,m)]);
+	per(i,max(n,m),1) invfac[i-1]=invfac[i]*i%MOD;
+	rep(i,0,cnt){
+		/*
+		对于每个对角线有两种情况 
+		情况1：对角线颜色相同,其他点颜色不能和对角线颜色一样 
+		情况2：对角线颜色不同，其他点颜色任意 
+		枚举情况2的数量 
+		*/
+		if(m-cnt+i<0) continue;
+		ans=(ans+C(cnt,i)*fac[m]%MOD*invfac[m-cnt+i]%MOD*qpow(m-cnt+i,n-cnt*2+i)%MOD*qpow(m-cnt+i-1,i)%MOD)%MOD;
+	}
+	cout<<ans<<endl;
 }
 
 /* ======================================| Main Program End |====================================== */
@@ -109,7 +120,6 @@ signed main(){
 	int CASE=1;
 	//cin>>CASE;
 	rep(Case,1,CASE) solve(Case);
-	read();
 	//system("fc stdout.txt out.txt");
     //exit(0);
 	return 0;

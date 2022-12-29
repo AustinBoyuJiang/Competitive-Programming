@@ -1,7 +1,7 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
- * Problem:
+ * Date: 12/28/2022 6:47:30 PM
+ * Problem: Bribing Friends
  * Source:
  * Description:
 */
@@ -13,8 +13,8 @@
 //#define FILESCOMP
 //#define SETMEM
 #define FASTIO
-//#define OPTIMIZE
-//#define INTTOLL
+#define OPTIMIZE
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL Data Structures */
 #define lb lower_bound
 #define ub upper_bound
@@ -64,7 +64,7 @@ template <typename T> using VEC = vector<T>;
 template <typename T> using US = unordered_set<T>;
 template <typename T> using MS = multiset<T>;
 template <typename T1, typename T2> using UM = unordered_map<T1,T2>;
-template <typename T> using PQ = priority_queue<T>; 
+template <typename T> using PQ = priority_queue<T>;
 template <typename T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 namespace fastIO{
@@ -127,12 +127,37 @@ struct interval_fenwick{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
-int n;
+const int N = 2010;
+int n,A,B,dp[N][N<<1];
+
+struct cow{
+	int p,c,x;
+	bool operator <(const cow other){
+		return x<other.x;
+	} 
+} a[N];
 
 void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>n>>A>>B;
+	memset(dp,0,sizeof(dp));
+	rep(i,1,n){
+		cin>>a[i].p>>a[i].c>>a[i].x;
+	}
+	sort(a+1,a+n+1);
+	rep(i,1,n){
+		rep(j,0,A+B){
+			dp[i][j]=dp[i-1][j];
+			if(j-a[i].x*a[i].c>=A){
+				chkmax(dp[i][j-a[i].x*a[i].c],dp[i-1][j]+a[i].p);
+			}
+			else if(j>=A){
+				int cost=a[i].c-(j-A)/a[i].x;
+				if(A>=cost) chkmax(dp[i][A-cost],dp[i-1][j]+a[i].p);
+			}
+			else if(j>=a[i].c) chkmax(dp[i][j-a[i].c],dp[i-1][j]+a[i].p);
+		}
+	}
+	cout<<*max_element(dp[n],dp[n]+A+B+1)<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -173,3 +198,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) duipai
 */
+

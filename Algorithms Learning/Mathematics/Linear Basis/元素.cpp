@@ -1,13 +1,12 @@
 /*
  * Author: Austin Jiang
- * Date: 12/22/2022 8:21:00 PM
+ * Date: 12/15/2022 3:29:23 PM
  * Problem:
- * Source:
  * Description:
 */
 
-//#pragma GCC optimize(2)
-//#pragma GCC optimize(3)
+#pragma GCC optimize(2)
+#pragma GCC optimize(3)
 #include<bits/stdc++.h>
 //#define int long long
 #define pb push_back
@@ -69,47 +68,52 @@ struct fenwick_interval{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
-int root,tot,ans;
-string str;
+const int N = 1e3+10;
+int n,ans;
+ll p[64];
 
-struct node{
-	int rt,lc,rc,dep;
-	char s;
-} st[N];
+struct rock{
+	int val;
+	ll id;
+} a[N];
 
-void insert(int &rt,char s,int dep){
-	if(!rt){
-		rt=++tot;
-		st[rt].s=s;
-		st[rt].dep=dep;
-		ans+=dep;
-		return;
-	}
-	if(s<=st[rt].s) insert(st[rt].lc,s,dep+1);
-	else insert(st[rt].rc,s,dep+1);
+bool cmp(rock a,rock b){
+	return a.val>b.val;
 }
 
 void solve(int Case){
-	cin>>str;
-	for(int i=0;i<str.size();i++)
-		insert(root,str[i],0);
-	cout<<"Answer: "<<ans<<endl;
+	cin>>n;
+	rep(i,1,n){
+		cin>>a[i].id>>a[i].val;
+	}
+	sort(a+1,a+n+1,cmp);
+	rep(i,1,n){
+		per(j,62,0){
+			if(a[i].id&(1ll<<j)){
+				if(p[j]) a[i].id^=p[j];
+				else{
+					p[j]=a[i].id;
+					ans+=a[i].val;
+					break;
+				}
+			}
+		}
+	}
+	cout<<ans<<endl;
 }
 
 /* ======================================| Main Program End |====================================== */
 
 signed main(){
+	srand(time(0));
     //int size(512<<20);  //512M
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
-	//cin.tie(nullptr)->sync_with_stdio(false);
+	cin.tie(nullptr)->sync_with_stdio(false);
 	//freopen("in.txt","r",stdin);
 	//freopen("stdout.txt","w",stdout);
-	//srand(time(0));
 	int CASE=1;
 	//cin>>CASE;
 	rep(Case,1,CASE) solve(Case);
-	read();
 	//system("fc stdout.txt out.txt");
     //exit(0);
 	return 0;

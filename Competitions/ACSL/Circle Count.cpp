@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 12/22/2022 8:21:00 PM
+ * Date: 12/22/2022 8:20:23 PM
  * Problem:
  * Source:
  * Description:
@@ -70,31 +70,46 @@ struct fenwick_interval{
 /* ========================================| Main Program |======================================== */
 
 const int N = 1e6+10;
-int root,tot,ans;
-string str;
+int n,m,ans,top,vis[N],cnt[N],stk[N];
+map<string,bool> circle;
+VI e[N];
 
-struct node{
-	int rt,lc,rc,dep;
-	char s;
-} st[N];
+void put(){
+	int st=1;
+	string str;
+	rep(i,2,top) if(stk[i]<stk[st]) st=i;
+	rep(i,st,top) str+=to_string(stk[i]);
+	rep(i,1,st-1) str+=to_string(stk[i]);
+	circle[str]=true;
+}
 
-void insert(int &rt,char s,int dep){
-	if(!rt){
-		rt=++tot;
-		st[rt].s=s;
-		st[rt].dep=dep;
-		ans+=dep;
+void dfs(int u,int st){
+	if(vis[u]){
+		if(u==st){
+			cnt[st]++;
+			put();
+		}
 		return;
 	}
-	if(s<=st[rt].s) insert(st[rt].lc,s,dep+1);
-	else insert(st[rt].rc,s,dep+1);
+	vis[u]=1;
+	stk[++top]=u;
+	for(auto v:e[u]){
+		dfs(v,st);
+	}
+	vis[u]=0;
+	top--;
 }
 
 void solve(int Case){
-	cin>>str;
-	for(int i=0;i<str.size();i++)
-		insert(root,str[i],0);
-	cout<<"Answer: "<<ans<<endl;
+	cin>>n>>m;
+	rep(i,1,m){
+		int u,v;
+		cin>>u>>v;
+		e[u].pb(v);
+	}
+	rep(i,1,n) dfs(i,i);
+	rep(i,1,n) cout<<"Circles on "<<i<<": "<<cnt[i]<<endl;
+	cout<<"Total circle: "<<circle.size()<<endl;
 }
 
 /* ======================================| Main Program End |====================================== */

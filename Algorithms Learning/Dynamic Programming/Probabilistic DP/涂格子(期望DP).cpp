@@ -32,8 +32,7 @@ signed main(){
 	cin>>n>>m;
 	dp[1]=1;
 	for(int i=2;i<=m;i++)
-		dp[i]=dp[i-1]*dp[i-1]/n+(dp[i-1]+1)*(n-dp[i-1])/n;
+		dp[i]=dp[i-1]+(n-dp[i-1])/n;
 	printf("%.6lf",dp[m]);
 	return 0;
 }
-

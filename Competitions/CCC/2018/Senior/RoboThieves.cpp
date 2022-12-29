@@ -137,19 +137,18 @@ void solve(int Case){
 	}
 	memset(dist,-1,sizeof(dist));
 	dist[st]=0;
-	PQ<PI,VPI,greater<PI>> q;
-	q.push({0,st});
+	deque<int> q;
+	q.pb(st);
 	while(!q.empty()){
-		int u=q.top().sec;
-		q.pop();
-		if(vis[u]) continue;
-		vis[u]=1;
+		int u=q.front();
+		q.pop_front();
 		for(auto i:e[u]){
 			int v=i.fir;
 			int w=i.sec;
 			if(dist[v]==-1||dist[u]+w<dist[v]){
 				dist[v]=dist[u]+w;
-				q.push({dist[v],v});
+				if(w) q.pb(v);
+				else q.push_front(v);
 			}
 		}
 	}
@@ -187,4 +186,3 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) duipai
 */
-

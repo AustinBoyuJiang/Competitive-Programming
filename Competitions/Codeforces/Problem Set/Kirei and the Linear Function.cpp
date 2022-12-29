@@ -1,13 +1,13 @@
 /*
  * Author: Austin Jiang
- * Date: 12/22/2022 8:21:00 PM
- * Problem:
+ * Date: 12/26/2022 10:21:59 PM
+ * Problem: Kirei and the Linear Function
  * Source:
  * Description:
 */
 
-//#pragma GCC optimize(2)
-//#pragma GCC optimize(3)
+#pragma GCC optimize(2)
+#pragma GCC optimize(3)
 #include<bits/stdc++.h>
 //#define int long long
 #define pb push_back
@@ -48,7 +48,7 @@ namespace comfun{
 	template<typename T> inline T chkmax(T &a,T b){return a=max(a,b);}
 	template<typename T> inline T chkmin(T &a,T b){return a=min(a,b);}
 	template<typename T> inline T qpow(T a,T b){T ans=1;while(b){if(b&1) ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
-	template<typename T> inline T inv(T x){return pow(x,MOD-2);}
+	template<typename T> inline T inv(T x){return qpow(x,MOD-2);}
 	template<typename T> inline bool is_prime(T x){if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false; return true;}
 } using namespace comfun;
 
@@ -59,7 +59,7 @@ struct fenwick{
 	for(int i=x-1;i>0;i-=lowbit(i)) res-=sum[i]; return res;}
 };
 
-struct fenwick_interval{
+struct interval_fenwick{
 	int d[(int)1e6+10][2];
 	void update(int x,int v){for(int i=x;i<=1e6;i+=lowbit(i))d[i][0]+=v,d[i][1]+=v*x;}
 	int query(int x,int k){int ans=0;for(int i=x;i>0;i-=lowbit(i)) ans+=d[i][k];return ans;}
@@ -69,32 +69,44 @@ struct fenwick_interval{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
-int root,tot,ans;
-string str;
+const int N = 2e5+10;
+int n,m,q,a[N],sum[N],nxt[N][10];
+char c[N];
 
-struct node{
-	int rt,lc,rc,dep;
-	char s;
-} st[N];
-
-void insert(int &rt,char s,int dep){
-	if(!rt){
-		rt=++tot;
-		st[rt].s=s;
-		st[rt].dep=dep;
-		ans+=dep;
-		return;
+void check(int &ansl,int &ansr,int x,int y){
+	int posl=nxt[0][x],posr=nxt[posl][y];
+	if(posl<=n&&posr<=n){
+		if(posl<ansl) ansl=posl,ansr=posr;
+		else if(posl==ansl&&posr<ansr) ansr=posr;
 	}
-	if(s<=st[rt].s) insert(st[rt].lc,s,dep+1);
-	else insert(st[rt].rc,s,dep+1);
+	posr=nxt[0][y],posl=nxt[posr][x];
+	if(posl<=n&&posr<=n){
+		if(posl<ansl) ansl=posl,ansr=posr;
+		else if(posl==ansl&&posr<ansr) ansr=posr;
+	}
 }
 
 void solve(int Case){
-	cin>>str;
-	for(int i=0;i<str.size();i++)
-		insert(root,str[i],0);
-	cout<<"Answer: "<<ans<<endl;
+	cin>>c+1>>m>>q;
+	n=strlen(c+1);
+	rep(i,1,n){
+		a[i]=c[i]-'0';
+		sum[i]=sum[i-1]+a[i];
+	}
+	rep(i,0,8) nxt[n-m+1][i]=n+1;
+	per(i,n-m,0){
+		rep(j,0,8) nxt[i][j]=nxt[i+1][j];
+		nxt[i][(sum[i+m]-sum[i])%9]=i+1;
+	}
+	while(q--){
+		int l,r,k,x,ansl=n+1,ansr=n+1;
+		cin>>l>>r>>k;
+		x=sum[r]-sum[l-1];
+		rep(i,0,8) rep(j,0,8)
+			if((i*x+j)%9==k) check(ansl,ansr,i,j);
+		if(ansl>n||ansr>n) cout<<-1<<" "<<-1<<endl;
+		else cout<<ansl<<" "<<ansr<<endl;
+	}
 }
 
 /* ======================================| Main Program End |====================================== */
@@ -102,14 +114,13 @@ void solve(int Case){
 signed main(){
     //int size(512<<20);  //512M
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
-	//cin.tie(nullptr)->sync_with_stdio(false);
+	cin.tie(nullptr)->sync_with_stdio(false);
 	//freopen("in.txt","r",stdin);
 	//freopen("stdout.txt","w",stdout);
 	//srand(time(0));
 	int CASE=1;
-	//cin>>CASE;
+	cin>>CASE;
 	rep(Case,1,CASE) solve(Case);
-	read();
 	//system("fc stdout.txt out.txt");
     //exit(0);
 	return 0;

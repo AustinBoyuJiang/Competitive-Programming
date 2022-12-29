@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 12/22/2022 8:21:00 PM
+ * Date: 12/25/2022 7:53:31 PM
  * Problem:
  * Source:
  * Description:
@@ -9,7 +9,7 @@
 //#pragma GCC optimize(2)
 //#pragma GCC optimize(3)
 #include<bits/stdc++.h>
-//#define int long long
+#define int long long
 #define pb push_back
 #define fir first
 #define sec second
@@ -48,7 +48,7 @@ namespace comfun{
 	template<typename T> inline T chkmax(T &a,T b){return a=max(a,b);}
 	template<typename T> inline T chkmin(T &a,T b){return a=min(a,b);}
 	template<typename T> inline T qpow(T a,T b){T ans=1;while(b){if(b&1) ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
-	template<typename T> inline T inv(T x){return pow(x,MOD-2);}
+	template<typename T> inline T inv(T x){return qpow(x,MOD-2);}
 	template<typename T> inline bool is_prime(T x){if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false; return true;}
 } using namespace comfun;
 
@@ -69,32 +69,87 @@ struct fenwick_interval{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
-int root,tot,ans;
-string str;
+const int N = 2e5+10;
+int n,ans[N];
 
-struct node{
-	int rt,lc,rc,dep;
-	char s;
-} st[N];
+struct segment{
+	int l,r,c,id;
+} seg[N];
 
-void insert(int &rt,char s,int dep){
-	if(!rt){
-		rt=++tot;
-		st[rt].s=s;
-		st[rt].dep=dep;
-		ans+=dep;
-		return;
+struct segment_tree{
+	int st[N<<2],mode;
+	
+	int mnx(int a,int b){
+		if(mode==LLINF) return min(a,b);
+		return max(a,b);
 	}
-	if(s<=st[rt].s) insert(st[rt].lc,s,dep+1);
-	else insert(st[rt].rc,s,dep+1);
-}
+	
+	void build(int rt,int l,int r){
+		if(l==r){
+			st[rt]=mode;
+			return;
+		}
+		int mid=l+r>>1;
+		build(rt<<1,l,mid);
+		build(rt<<1|1,mid+1,r);
+		st[rt]=mnx(st[rt<<1],st[rt<<1|1]);
+	}
+	
+	void update(int rt,int l,int r,int x,int y){
+		if(l==r){
+			st[rt]=mnx(st[rt],y);
+			return;
+		}
+		int mid=l+r>>1;
+		if(x<=mid) update(rt<<1,l,mid,x,y);
+		else update(rt<<1|1,mid+1,r,x,y);
+		st[rt]=mnx(st[rt<<1],st[rt<<1|1]);
+	}
+	
+	int query(int rt,int l,int r,int x,int y){
+		if(x>y) return mode;
+		if(l==x&&r==y) return st[rt];
+		int mid=l+r>>1;
+		if(y<=mid) return query(rt<<1,l,mid,x,y);
+		else if(x>mid) return query(rt<<1|1,mid+1,r,x,y);
+		return mnx(query(rt<<1,l,mid,x,mid),query(rt<<1|1,mid+1,r,mid+1,y));
+	}
+} st;
 
 void solve(int Case){
-	cin>>str;
-	for(int i=0;i<str.size();i++)
-		insert(root,str[i],0);
-	cout<<"Answer: "<<ans<<endl;
+	read(n);
+	rep(i,1,n){
+		ans[i]=INF;
+		seg[i].id=i;
+		read(seg[i].l);
+		read(seg[i].r);
+		read(seg[i].c);
+	}
+	sort(seg+1,seg+n+1,[](segment a,segment b){return a.r<b.r;});
+	st.mode=-LLINF;
+	st.build(1,1,n);
+	int j=0;
+	rep(i,1,n){
+		while(j<n&&seg[j+1].r<=seg[i].r) j++,st.update(1,1,n,seg[j].c,seg[j].r);
+		chkmin(ans[seg[i].id],max(seg[i].l-max(st.query(1,1,n,1,seg[i].c-1),st.query(1,1,n,seg[i].c+1,n)),0ll));
+	}
+	sort(seg+1,seg+n+1,[](segment a,segment b){return a.l<b.l;});
+	st.mode=LLINF;
+	st.build(1,1,n);
+	j=n+1;
+	per(i,n,1){
+		while(j>1&&seg[j-1].l>=seg[i].l) j--,st.update(1,1,n,seg[j].c,seg[j].l);
+		chkmin(ans[seg[i].id],max(min(st.query(1,1,n,1,seg[i].c-1),st.query(1,1,n,seg[i].c+1,n))-seg[i].r,0ll));
+	}
+	st.mode=-LLINF;
+	st.build(1,1,n);
+	j=0;
+	rep(i,1,n){
+		while(j<n&&seg[j+1].l<=seg[i].l) j++,st.update(1,1,n,seg[j].c,seg[j].r);
+		if(max(st.query(1,1,n,1,seg[i].c-1),st.query(1,1,n,seg[i].c+1,n))>=seg[i].r) ans[seg[i].id]=0;
+	}
+	rep(i,1,n) cout<<ans[i]<<" ";
+	cout<<endl;
 }
 
 /* ======================================| Main Program End |====================================== */
@@ -106,10 +161,8 @@ signed main(){
 	//freopen("in.txt","r",stdin);
 	//freopen("stdout.txt","w",stdout);
 	//srand(time(0));
-	int CASE=1;
-	//cin>>CASE;
+	int CASE=read();
 	rep(Case,1,CASE) solve(Case);
-	read();
 	//system("fc stdout.txt out.txt");
     //exit(0);
 	return 0;

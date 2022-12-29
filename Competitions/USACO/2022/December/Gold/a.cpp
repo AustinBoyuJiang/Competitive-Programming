@@ -1,13 +1,12 @@
 /*
  * Author: Austin Jiang
- * Date: 12/22/2022 8:21:00 PM
+ * Date: 12/18/2022 2:59:46 PM
  * Problem:
- * Source:
  * Description:
 */
 
-//#pragma GCC optimize(2)
-//#pragma GCC optimize(3)
+#pragma GCC optimize(2)
+#pragma GCC optimize(3)
 #include<bits/stdc++.h>
 //#define int long long
 #define pb push_back
@@ -69,47 +68,63 @@ struct fenwick_interval{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
-int root,tot,ans;
-string str;
+const int N = 2010;
+int n,A,B,ans,p[N],c[N],x[N],dp[N][N],f[N][N];
+//dp[i][j]表示花费为ij的最大知名度 
 
-struct node{
-	int rt,lc,rc,dep;
-	char s;
-} st[N];
+struct cow{
+	int p,c,x;
+} a[N];
 
-void insert(int &rt,char s,int dep){
-	if(!rt){
-		rt=++tot;
-		st[rt].s=s;
-		st[rt].dep=dep;
-		ans+=dep;
-		return;
-	}
-	if(s<=st[rt].s) insert(st[rt].lc,s,dep+1);
-	else insert(st[rt].rc,s,dep+1);
+bool cmp(cow a,cow b){
+	return a.x>b.x;
 }
 
 void solve(int Case){
-	cin>>str;
-	for(int i=0;i<str.size();i++)
-		insert(root,str[i],0);
-	cout<<"Answer: "<<ans<<endl;
+	read(n),read(A),read(B);
+	rep(i,1,n){
+		read(a[i].p);
+		read(a[i].c);
+		read(a[i].x);
+	}
+	sort(a+1,a+n+1,cmp);
+	if(B==0){
+		rep(i,1,n){
+			per(j,A,a[i].c){
+				chkmax(dp[j][0],dp[j-a[i].c][0]+a[i].p);
+				chkmax(ans,dp[j][0]);
+			}
+		}
+		cout<<dp[A][0]<<endl;
+		return;
+	}
+	rep(i,1,n){
+		per(k,B,0){
+			per(j,A,0){
+				rep(cnt,min(a[i].c,B/a[i].x),a[i].c){
+					if(j-a[i].c+cnt>=0&&k-cnt*a[i].x>=0){
+						chkmax(dp[j][k],dp[j-a[i].c+cnt][k-cnt*a[i].x]+a[i].p);
+						chkmax(ans,dp[j][k]);
+					}
+				}
+			}
+		}
+	}
+	write(ans,endl);
 }
 
 /* ======================================| Main Program End |====================================== */
 
 signed main(){
+	srand(time(0));
     //int size(512<<20);  //512M
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
 	//cin.tie(nullptr)->sync_with_stdio(false);
 	//freopen("in.txt","r",stdin);
 	//freopen("stdout.txt","w",stdout);
-	//srand(time(0));
 	int CASE=1;
 	//cin>>CASE;
 	rep(Case,1,CASE) solve(Case);
-	read();
 	//system("fc stdout.txt out.txt");
     //exit(0);
 	return 0;

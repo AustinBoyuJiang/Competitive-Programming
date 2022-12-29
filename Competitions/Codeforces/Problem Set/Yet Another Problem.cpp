@@ -1,13 +1,13 @@
 /*
  * Author: Austin Jiang
- * Date: 12/22/2022 8:21:00 PM
- * Problem:
- * Source:
+ * Date: 12/23/2022 11:16:01 PM
+ * Problem: Yet Another Problem
+ * Source: Codeforces Round #832 (Div. 2)
  * Description:
 */
 
-//#pragma GCC optimize(2)
-//#pragma GCC optimize(3)
+#pragma GCC optimize(2)
+#pragma GCC optimize(3)
 #include<bits/stdc++.h>
 //#define int long long
 #define pb push_back
@@ -48,7 +48,7 @@ namespace comfun{
 	template<typename T> inline T chkmax(T &a,T b){return a=max(a,b);}
 	template<typename T> inline T chkmin(T &a,T b){return a=min(a,b);}
 	template<typename T> inline T qpow(T a,T b){T ans=1;while(b){if(b&1) ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
-	template<typename T> inline T inv(T x){return pow(x,MOD-2);}
+	template<typename T> inline T inv(T x){return qpow(x,MOD-2);}
 	template<typename T> inline bool is_prime(T x){if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false; return true;}
 } using namespace comfun;
 
@@ -69,32 +69,30 @@ struct fenwick_interval{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
-int root,tot,ans;
-string str;
-
-struct node{
-	int rt,lc,rc,dep;
-	char s;
-} st[N];
-
-void insert(int &rt,char s,int dep){
-	if(!rt){
-		rt=++tot;
-		st[rt].s=s;
-		st[rt].dep=dep;
-		ans+=dep;
-		return;
-	}
-	if(s<=st[rt].s) insert(st[rt].lc,s,dep+1);
-	else insert(st[rt].rc,s,dep+1);
-}
+const int N = 2e5+10;
+int n,q,a[N],cnt[N],sum[N],lst[N];
+map<int,int> pos[2];
 
 void solve(int Case){
-	cin>>str;
-	for(int i=0;i<str.size();i++)
-		insert(root,str[i],0);
-	cout<<"Answer: "<<ans<<endl;
+	cin>>n>>q;
+	pos[1][0]=-1;
+	rep(i,1,n){
+		cin>>a[i];
+		sum[i]=sum[i-1]^a[i];
+		cnt[i]=cnt[i-1]+(bool)a[i];
+		lst[i]=pos[i&1^1][sum[i]]-1;
+		pos[i&1][sum[i]]=i+1;
+	}
+	while(q--){
+		int l,r,ans=-1;
+		cin>>l>>r;
+		if((sum[r]^sum[l-1])==0){
+			if(cnt[r]-cnt[l-1]==0) ans=0;
+			else if((r-l+1)&1||!a[l]||!a[r]) ans=1;
+			else if(lst[r]>=l-1) ans=2;
+		}
+		cout<<ans<<endl;
+	}
 }
 
 /* ======================================| Main Program End |====================================== */
@@ -102,14 +100,13 @@ void solve(int Case){
 signed main(){
     //int size(512<<20);  //512M
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
-	//cin.tie(nullptr)->sync_with_stdio(false);
+	cin.tie(nullptr)->sync_with_stdio(false);
 	//freopen("in.txt","r",stdin);
 	//freopen("stdout.txt","w",stdout);
 	//srand(time(0));
 	int CASE=1;
 	//cin>>CASE;
 	rep(Case,1,CASE) solve(Case);
-	read();
 	//system("fc stdout.txt out.txt");
     //exit(0);
 	return 0;

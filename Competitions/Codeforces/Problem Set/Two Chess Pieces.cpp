@@ -1,8 +1,8 @@
 /*
  * Author: Austin Jiang
- * Date: 12/22/2022 8:21:00 PM
- * Problem:
- * Source:
+ * Date: 12/21/2022 7:18:54 PM
+ * Problem: Two Chess Pieces
+ * Source: Polynomial Round 2022 (Div. 1 + Div. 2, Rated, Prizes!)
  * Description:
 */
 
@@ -69,47 +69,73 @@ struct fenwick_interval{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
-int root,tot,ans;
-string str;
+const int N = 2e5+10;
+int n,d,ma,mb,ans,a[N],b[N],dep[N],stk[N];
+VI e[N];
 
-struct node{
-	int rt,lc,rc,dep;
-	char s;
-} st[N];
-
-void insert(int &rt,char s,int dep){
-	if(!rt){
-		rt=++tot;
-		st[rt].s=s;
-		st[rt].dep=dep;
-		ans+=dep;
-		return;
+void dfs1(int u,int fa){
+	dep[u]=dep[fa]+1;
+	stk[dep[u]]=u;
+	if(a[u]) b[stk[max(0,dep[u]-d)]]=1;
+	if(b[u]) a[stk[max(0,dep[u]-d)]]=1;
+	for(auto v:e[u]){
+		if(v==fa) continue;
+		dfs1(v,u);
 	}
-	if(s<=st[rt].s) insert(st[rt].lc,s,dep+1);
-	else insert(st[rt].rc,s,dep+1);
+}
+
+int dfs2(int u,int fa){
+	int cnt=0;
+	for(auto v:e[u]){
+		if(v==fa) continue;
+		cnt+=dfs2(v,u);
+	}
+	if(a[u]&&!cnt) ans+=dep[u]*2,cnt++;
+	if(cnt) ans-=dep[u]*2*(cnt-1),cnt=1;
+	return cnt;
+}
+
+int dfs3(int u,int fa){
+	int cnt=0;
+	for(auto v:e[u]){
+		if(v==fa) continue;
+		cnt+=dfs3(v,u);
+	}
+	if(b[u]&&!cnt) ans+=dep[u]*2,cnt++;
+	if(cnt) ans-=dep[u]*2*(cnt-1),cnt=1;
+	return cnt;
 }
 
 void solve(int Case){
-	cin>>str;
-	for(int i=0;i<str.size();i++)
-		insert(root,str[i],0);
-	cout<<"Answer: "<<ans<<endl;
+	read(n),read(d);
+	rep(i,1,n-1){
+		int u=read(),v=read();
+		e[u].pb(v);
+		e[v].pb(u);
+	}
+	read(ma);
+	rep(i,1,ma) a[read()]=1;
+	read(mb);
+	rep(i,1,mb) b[read()]=1;
+	dep[0]=-1;
+	dfs1(1,0);
+	dfs2(1,0);
+	dfs3(1,0);
+	write(ans,endl);	
 }
 
 /* ======================================| Main Program End |====================================== */
 
 signed main(){
+	srand(time(0));
     //int size(512<<20);  //512M
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
 	//cin.tie(nullptr)->sync_with_stdio(false);
 	//freopen("in.txt","r",stdin);
 	//freopen("stdout.txt","w",stdout);
-	//srand(time(0));
 	int CASE=1;
 	//cin>>CASE;
 	rep(Case,1,CASE) solve(Case);
-	read();
 	//system("fc stdout.txt out.txt");
     //exit(0);
 	return 0;

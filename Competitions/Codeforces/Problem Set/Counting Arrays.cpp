@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 12/22/2022 8:21:00 PM
+ * Date: 12/23/2022 6:47:04 PM
  * Problem:
  * Source:
  * Description:
@@ -9,7 +9,7 @@
 //#pragma GCC optimize(2)
 //#pragma GCC optimize(3)
 #include<bits/stdc++.h>
-//#define int long long
+#define int long long
 #define pb push_back
 #define fir first
 #define sec second
@@ -38,7 +38,7 @@ namespace fast_io{
 /* Common constants, functions, and data structures */
 const int INF = 0x3f3f3f3f;
 const ll LLINF = 0x3f3f3f3f3f3f3f3f;
-const int MOD = 1e9+7;
+const int MOD = 998244353;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 
 namespace comfun{
@@ -48,7 +48,7 @@ namespace comfun{
 	template<typename T> inline T chkmax(T &a,T b){return a=max(a,b);}
 	template<typename T> inline T chkmin(T &a,T b){return a=min(a,b);}
 	template<typename T> inline T qpow(T a,T b){T ans=1;while(b){if(b&1) ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
-	template<typename T> inline T inv(T x){return pow(x,MOD-2);}
+	template<typename T> inline T inv(T x){return qpow(x,MOD-2);}
 	template<typename T> inline bool is_prime(T x){if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false; return true;}
 } using namespace comfun;
 
@@ -69,32 +69,35 @@ struct fenwick_interval{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
-int root,tot,ans;
-string str;
+const int N = 3e5+10;
+int n,m,cnt=1,sum=1,num,ans;
+int tot,prime[N],notPrime[N],low[N];
 
-struct node{
-	int rt,lc,rc,dep;
-	char s;
-} st[N];
-
-void insert(int &rt,char s,int dep){
-	if(!rt){
-		rt=++tot;
-		st[rt].s=s;
-		st[rt].dep=dep;
-		ans+=dep;
-		return;
+void init(){
+	rep(i,2,n){
+		if(!notPrime[i]){
+			prime[++tot]=i;
+			low[i]=i;
+		}
+		for(int j=1;j<=tot&&i*prime[j]<=n;j++){
+			notPrime[i*prime[j]]=1;
+			low[i*prime[j]]=prime[j];
+			if(i%prime[j]==0) break;
+		}
 	}
-	if(s<=st[rt].s) insert(st[rt].lc,s,dep+1);
-	else insert(st[rt].rc,s,dep+1);
 }
 
 void solve(int Case){
-	cin>>str;
-	for(int i=0;i<str.size();i++)
-		insert(root,str[i],0);
-	cout<<"Answer: "<<ans<<endl;
+	cin>>n>>m;
+	init();
+	num=m;
+	rep(i,1,n){ 
+		if(!notPrime[i]) num/=i;
+		sum=m%MOD*sum%MOD;
+		cnt=num%MOD*cnt%MOD;
+		ans=(ans+sum-cnt+MOD)%MOD;
+	}
+	cout<<ans<<endl;
 }
 
 /* ======================================| Main Program End |====================================== */
@@ -109,7 +112,6 @@ signed main(){
 	int CASE=1;
 	//cin>>CASE;
 	rep(Case,1,CASE) solve(Case);
-	read();
 	//system("fc stdout.txt out.txt");
     //exit(0);
 	return 0;

@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 12/22/2022 8:21:00 PM
+ * Date: 12/22/2022 8:19:45 PM
  * Problem:
  * Source:
  * Description:
@@ -69,32 +69,32 @@ struct fenwick_interval{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
-int root,tot,ans;
-string str;
+const int N = 110;
+int n,m,d,a[N][N],res[N][N],ans[N][N];
 
-struct node{
-	int rt,lc,rc,dep;
-	char s;
-} st[N];
-
-void insert(int &rt,char s,int dep){
-	if(!rt){
-		rt=++tot;
-		st[rt].s=s;
-		st[rt].dep=dep;
-		ans+=dep;
-		return;
-	}
-	if(s<=st[rt].s) insert(st[rt].lc,s,dep+1);
-	else insert(st[rt].rc,s,dep+1);
+void mult(int a[N][N],int b[N][N]){
+	memset(res,0,sizeof(res));
+	rep(i,1,n) rep(j,1,n) rep(k,1,n)
+		res[i][j]+=a[i][k]*b[k][j];
+	rep(i,1,n) rep(j,1,n) a[i][j]=res[i][j];
 }
 
 void solve(int Case){
-	cin>>str;
-	for(int i=0;i<str.size();i++)
-		insert(root,str[i],0);
-	cout<<"Answer: "<<ans<<endl;
+	cin>>n>>m;
+	rep(i,1,n){
+		ans[i][i]=1;
+		rep(j,1,n) cin>>a[i][j];
+	}
+	while(m){
+		if(m&1) mult(ans,a);
+		mult(a,a);
+		m>>=1;
+	}
+	cout<<endl<<"Result:"<<endl;
+	rep(i,1,n){
+		rep(j,1,n) cout<<ans[i][j]<<" ";
+		cout<<endl;
+	}
 }
 
 /* ======================================| Main Program End |====================================== */

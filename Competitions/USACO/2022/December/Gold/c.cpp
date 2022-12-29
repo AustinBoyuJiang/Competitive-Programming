@@ -1,15 +1,14 @@
 /*
  * Author: Austin Jiang
- * Date: 12/22/2022 8:21:00 PM
+ * Date: 12/18/2022 5:28:02 PM
  * Problem:
- * Source:
  * Description:
 */
 
-//#pragma GCC optimize(2)
-//#pragma GCC optimize(3)
+#pragma GCC optimize(2)
+#pragma GCC optimize(3)
 #include<bits/stdc++.h>
-//#define int long long
+#define int long long
 #define pb push_back
 #define fir first
 #define sec second
@@ -69,47 +68,72 @@ struct fenwick_interval{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
-int root,tot,ans;
-string str;
+const int N = 1e5+10;
+const int M = 2e5+10;
+int n,m,num,cnt,ans,dfn[N],low[N],instk[N],col[N],mne[N],siz[N],vis[N];
+stack<int> stk;
+VPI e[N];
 
-struct node{
-	int rt,lc,rc,dep;
-	char s;
-} st[N];
-
-void insert(int &rt,char s,int dep){
-	if(!rt){
-		rt=++tot;
-		st[rt].s=s;
-		st[rt].dep=dep;
-		ans+=dep;
-		return;
+void dfs(int u){
+	dfn[u]=low[u]=++num;
+	instk[u]=1,stk.push(u);
+	for(auto i:e[u]){
+		int v=i.fir;
+		if(vis[i.sec]) continue;
+		vis[i.sec]=1;
+		if(!dfn[v]){
+			dfs(v);
+			low[u]=min(low[u],low[v]);
+		}
+		else low[u]=min(low[u],dfn[v]);
 	}
-	if(s<=st[rt].s) insert(st[rt].lc,s,dep+1);
-	else insert(st[rt].rc,s,dep+1);
+	if(dfn[u]!=low[u]) return;
+	col[u]=++cnt;
+	while(stk.top()!=u){
+		col[stk.top()]=cnt;
+		instk[stk.top()]=0,stk.pop();
+	}
+	instk[u]=0,stk.pop();
 }
 
 void solve(int Case){
-	cin>>str;
-	for(int i=0;i<str.size();i++)
-		insert(root,str[i],0);
-	cout<<"Answer: "<<ans<<endl;
+	cin>>n>>m;
+	rep(i,1,m){
+		int u,v;
+		cin>>u>>v;
+		e[u].pb({v,i});
+		e[v].pb({u,i});
+	}
+	dfs(1);
+	memset(mne,0x3f,sizeof(mne)); 
+	rep(u,1,n){
+		int cnt=0;
+		for(auto v:e[u]){
+			if(col[v.fir]==col[u]){
+				cnt++;
+			}
+		}
+		chkmin(mne[col[u]],cnt);
+		siz[col[u]]++;
+	}
+	rep(i,1,cnt){
+		chkmax(ans,mne[i]*siz[i]);
+	}
+	cout<<ans<<endl;
 }
 
 /* ======================================| Main Program End |====================================== */
 
 signed main(){
+	srand(time(0));
     //int size(512<<20);  //512M
     //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
 	//cin.tie(nullptr)->sync_with_stdio(false);
 	//freopen("in.txt","r",stdin);
 	//freopen("stdout.txt","w",stdout);
-	//srand(time(0));
 	int CASE=1;
 	//cin>>CASE;
 	rep(Case,1,CASE) solve(Case);
-	read();
 	//system("fc stdout.txt out.txt");
     //exit(0);
 	return 0;
