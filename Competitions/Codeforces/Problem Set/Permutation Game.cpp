@@ -1,20 +1,20 @@
 /*
  * Author: Austin Jiang
- * Date: 1/6/2023 10:36:55 AM
- * Problem:
+ * Date: 1/5/2023 12:37:03 AM
+ * Problem: Permutation Game
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
-//#define FASTIO
-#define OPTIMIZE
-#define INTTOLL
+#define FASTIO
+//#define OPTIMIZE
+//#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -127,53 +127,27 @@ struct interval_fenwick{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 2010;
-int n,q,ans,h[N];
-set<int> pos[N];
-
-bool comp(int i,int x,int y){
-	return (h[y]-h[i])*(x-i)>=(h[x]-h[i])*(y-i);
-}
-
-void add(int x){
-	ans-=pos[x].size();
-	pos[x].clear();
-	rep(i,x+1,n){
-		if(pos[x].empty()||comp(x,*pos[x].rbegin(),i)){
-			pos[x].insert(i);
-			ans++;
-		}
-	}
-}
+const int N = 5e5+10;
+int n,a[N];
 
 void SOLVE(int Case){
-	read(n);
-	rep(i,1,n) read(h[i]);
-	rep(i,1,n) add(i);
-	cin>>q;
-	while(q--){
-		int x=read(),y=read();
-		h[x]+=y;
-		add(x);
-		rep(i,1,x-1){
-			auto it=pos[i].lb(x);
-			if(*it!=x){
-				it--;
-				if(comp(i,*it,x)){
-					pos[i].insert(x);
-					it++;
-					ans++;
-				}
-				else continue;
-			}
-			it++;
-			while(it!=pos[i].end()&&!comp(i,x,*it)){
-				it=pos[i].erase(it);
-				ans--;
-			}
-		}
-		write(ans,endl);
+	cin>>n;
+	int cnt1=0,cnt2=0,cnt3=0;
+	rep(i,1,n){
+		cin>>a[i];
+		if(a[i]!=i&&a[i]!=n-i+1) cnt3++;
+		else if(a[i]!=i) cnt1++;
+		else if(a[i]!=n-i+1) cnt2++;
 	}
+	if(cnt1+cnt3<=cnt2){
+		cout<<"First"<<endl;
+		return;
+	}
+	if(cnt2+cnt3<cnt1){
+		cout<<"Second"<<endl;
+		return;
+	}
+	cout<<"Tie"<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */

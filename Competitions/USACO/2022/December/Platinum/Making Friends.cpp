@@ -1,7 +1,7 @@
 /*
  * Author: Austin Jiang
- * Date: 1/6/2023 10:36:55 AM
- * Problem:
+ * Date: 1/8/2023 12:01:00 AM
+ * Problem: Making Friends
  * Source:
  * Description:
 */
@@ -14,7 +14,7 @@
 //#define SETMEM
 //#define FASTIO
 #define OPTIMIZE
-#define INTTOLL
+//#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -127,53 +127,31 @@ struct interval_fenwick{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 2010;
-int n,q,ans,h[N];
-set<int> pos[N];
-
-bool comp(int i,int x,int y){
-	return (h[y]-h[i])*(x-i)>=(h[x]-h[i])*(y-i);
-}
-
-void add(int x){
-	ans-=pos[x].size();
-	pos[x].clear();
-	rep(i,x+1,n){
-		if(pos[x].empty()||comp(x,*pos[x].rbegin(),i)){
-			pos[x].insert(i);
-			ans++;
-		}
-	}
-}
+const int N = 2e5+10;
+int n,m,f[N];
+ll ans;
+set<int> e[N];
 
 void SOLVE(int Case){
-	read(n);
-	rep(i,1,n) read(h[i]);
-	rep(i,1,n) add(i);
-	cin>>q;
-	while(q--){
-		int x=read(),y=read();
-		h[x]+=y;
-		add(x);
-		rep(i,1,x-1){
-			auto it=pos[i].lb(x);
-			if(*it!=x){
-				it--;
-				if(comp(i,*it,x)){
-					pos[i].insert(x);
-					it++;
-					ans++;
-				}
-				else continue;
-			}
-			it++;
-			while(it!=pos[i].end()&&!comp(i,x,*it)){
-				it=pos[i].erase(it);
-				ans--;
-			}
-		}
-		write(ans,endl);
+	read(n),read(m);
+	rep(i,1,m){
+		int u=read(),v=read();
+		if(u>v) swap(u,v);
+		e[u].insert(v);
 	}
+	rep(u,1,n){
+		ans+=e[u].size();
+		if(e[u].empty()) continue;
+		int nxt=*e[u].begin();
+		e[u].erase(nxt);
+		if(e[u].size()>e[nxt].size()){
+			swap(e[u],e[nxt]);
+		}
+		for(auto v:e[u]){
+			e[nxt].insert(v);
+		}
+	}
+	write(ans-m);
 }
 
 /* =====================================| End of Main Program |===================================== */

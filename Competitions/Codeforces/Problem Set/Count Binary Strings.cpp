@@ -1,8 +1,8 @@
 /*
  * Author: Austin Jiang
- * Date: 1/6/2023 10:36:55 AM
- * Problem:
- * Source:
+ * Date: 1/4/2023 12:40:40 PM
+ * Problem: Count Binary Strings
+ * Source: Educational Codeforces Round 140 (Rated for Div. 2)
  * Description:
 */
 
@@ -12,8 +12,8 @@
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
-//#define FASTIO
-#define OPTIMIZE
+#define FASTIO
+//#define OPTIMIZE
 #define INTTOLL
 
 #ifdef OPTIMIZE
@@ -93,7 +93,7 @@ const int INF = 0x3f3f3f3f;
 #else
 const ll INF = LLINF;
 #endif
-const int MOD = 1e9+7;
+const int MOD = 998244353;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 const US<char> vowel = {'a','e','i','o','u'};
 
@@ -127,53 +127,33 @@ struct interval_fenwick{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 2010;
-int n,q,ans,h[N];
-set<int> pos[N];
+const int N = 110;
+int n,ans,a[N][N],dp[N][N];
 
-bool comp(int i,int x,int y){
-	return (h[y]-h[i])*(x-i)>=(h[x]-h[i])*(y-i);
-}
-
-void add(int x){
-	ans-=pos[x].size();
-	pos[x].clear();
-	rep(i,x+1,n){
-		if(pos[x].empty()||comp(x,*pos[x].rbegin(),i)){
-			pos[x].insert(i);
-			ans++;
-		}
+bool check(int cnt,int lst){
+	rep(i,1,cnt){
+		if(a[i][cnt]==1&&i<=lst) return false;
+		if(a[i][cnt]==2&&i>lst) return false;
 	}
+	return true;
 }
 
 void SOLVE(int Case){
-	read(n);
-	rep(i,1,n) read(h[i]);
-	rep(i,1,n) add(i);
-	cin>>q;
-	while(q--){
-		int x=read(),y=read();
-		h[x]+=y;
-		add(x);
-		rep(i,1,x-1){
-			auto it=pos[i].lb(x);
-			if(*it!=x){
-				it--;
-				if(comp(i,*it,x)){
-					pos[i].insert(x);
-					it++;
-					ans++;
-				}
-				else continue;
-			}
-			it++;
-			while(it!=pos[i].end()&&!comp(i,x,*it)){
-				it=pos[i].erase(it);
-				ans--;
-			}
+	cin>>n;
+	rep(i,1,n){
+		rep(j,i,n){
+			cin>>a[i][j];
 		}
-		write(ans,endl);
 	}
+	if(a[1][1]!=2) dp[1][0]=2;
+	rep(i,1,n-1){
+		rep(j,0,i-1){
+			if(check(i+1,j)) dp[i+1][j]=(dp[i+1][j]+dp[i][j])%MOD;
+			if(check(i+1,i)) dp[i+1][i]=(dp[i+1][i]+dp[i][j])%MOD;
+		}
+	}
+	rep(i,0,n-1) ans=(ans+dp[n][i])%MOD;
+	cout<<ans<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */

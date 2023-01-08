@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 1/6/2023 10:36:55 AM
+ * Date: 12/30/2022 10:18:43 AM
  * Problem:
  * Source:
  * Description:
@@ -12,8 +12,8 @@
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
-//#define FASTIO
-#define OPTIMIZE
+#define FASTIO
+//#define OPTIMIZE
 #define INTTOLL
 
 #ifdef OPTIMIZE
@@ -127,52 +127,14 @@ struct interval_fenwick{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 2010;
-int n,q,ans,h[N];
-set<int> pos[N];
-
-bool comp(int i,int x,int y){
-	return (h[y]-h[i])*(x-i)>=(h[x]-h[i])*(y-i);
-}
-
-void add(int x){
-	ans-=pos[x].size();
-	pos[x].clear();
-	rep(i,x+1,n){
-		if(pos[x].empty()||comp(x,*pos[x].rbegin(),i)){
-			pos[x].insert(i);
-			ans++;
-		}
-	}
-}
+const int N = 1e6+10;
+int n,m;
 
 void SOLVE(int Case){
-	read(n);
-	rep(i,1,n) read(h[i]);
-	rep(i,1,n) add(i);
-	cin>>q;
-	while(q--){
-		int x=read(),y=read();
-		h[x]+=y;
-		add(x);
-		rep(i,1,x-1){
-			auto it=pos[i].lb(x);
-			if(*it!=x){
-				it--;
-				if(comp(i,*it,x)){
-					pos[i].insert(x);
-					it++;
-					ans++;
-				}
-				else continue;
-			}
-			it++;
-			while(it!=pos[i].end()&&!comp(i,x,*it)){
-				it=pos[i].erase(it);
-				ans--;
-			}
-		}
-		write(ans,endl);
+	cin>>n>>m;
+	if(n==1) cout<<(n*m+1)/2<<" "<<(n*m)/2<<endl;
+	else{
+		cout<<(n*m)/2<<" "<<(n*m+1)/2<<endl;
 	}
 }
 

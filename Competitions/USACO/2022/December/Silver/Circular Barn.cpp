@@ -1,20 +1,20 @@
 /*
  * Author: Austin Jiang
- * Date: 1/6/2023 10:36:55 AM
- * Problem:
+ * Date: 1/8/2023 2:22:06 AM
+ * Problem: Circular Barn
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
-//#define FASTIO
-#define OPTIMIZE
-#define INTTOLL
+#define FASTIO
+//#define OPTIMIZE
+//#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -127,52 +127,30 @@ struct interval_fenwick{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 2010;
-int n,q,ans,h[N];
-set<int> pos[N];
-
-bool comp(int i,int x,int y){
-	return (h[y]-h[i])*(x-i)>=(h[x]-h[i])*(y-i);
-}
-
-void add(int x){
-	ans-=pos[x].size();
-	pos[x].clear();
-	rep(i,x+1,n){
-		if(pos[x].empty()||comp(x,*pos[x].rbegin(),i)){
-			pos[x].insert(i);
-			ans++;
-		}
-	}
-}
+const int N = 2e5+10;
+int n,a[N];
 
 void SOLVE(int Case){
-	read(n);
-	rep(i,1,n) read(h[i]);
-	rep(i,1,n) add(i);
-	cin>>q;
-	while(q--){
-		int x=read(),y=read();
-		h[x]+=y;
-		add(x);
-		rep(i,1,x-1){
-			auto it=pos[i].lb(x);
-			if(*it!=x){
-				it--;
-				if(comp(i,*it,x)){
-					pos[i].insert(x);
-					it++;
-					ans++;
-				}
-				else continue;
-			}
-			it++;
-			while(it!=pos[i].end()&&!comp(i,x,*it)){
-				it=pos[i].erase(it);
-				ans--;
-			}
+	cin>>n;
+	int cnt[2]={0,0};
+	rep(i,1,n) cin>>a[i];
+	rep(i,1,n){
+		if(a[i]==0){
+			if(i&1) cout<<"Farmer John"<<endl;
+			else cout<<"Farmer Nhoj"<<endl;
+			return; 
 		}
-		write(ans,endl);
+		cnt[i&1]+=a[i];
+	}
+	if(n&1){
+		cout<<"Farmer Nhoj"<<endl;
+		return;
+	}
+	if(cnt[1]<=cnt[0]){
+		cout<<"Farmer Nhoj"<<endl;
+	}
+	else{
+		cout<<"Farmer Nhoj"<<endl;
 	}
 }
 

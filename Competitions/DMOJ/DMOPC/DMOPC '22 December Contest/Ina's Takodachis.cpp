@@ -1,7 +1,7 @@
 /*
  * Author: Austin Jiang
- * Date: 1/6/2023 10:36:55 AM
- * Problem:
+ * Date: 12/30/2022 11:43:19 AM
+ * Problem: Ina's Takodachis
  * Source:
  * Description:
 */
@@ -12,8 +12,8 @@
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
-//#define FASTIO
-#define OPTIMIZE
+#define FASTIO
+//#define OPTIMIZE
 #define INTTOLL
 
 #ifdef OPTIMIZE
@@ -127,53 +127,67 @@ struct interval_fenwick{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 2010;
-int n,q,ans,h[N];
-set<int> pos[N];
-
-bool comp(int i,int x,int y){
-	return (h[y]-h[i])*(x-i)>=(h[x]-h[i])*(y-i);
-}
-
-void add(int x){
-	ans-=pos[x].size();
-	pos[x].clear();
-	rep(i,x+1,n){
-		if(pos[x].empty()||comp(x,*pos[x].rbegin(),i)){
-			pos[x].insert(i);
-			ans++;
-		}
-	}
-}
+const int N = 2e5+10;
+int n,mx,tot,cnt,h[N];
 
 void SOLVE(int Case){
-	read(n);
-	rep(i,1,n) read(h[i]);
-	rep(i,1,n) add(i);
-	cin>>q;
-	while(q--){
-		int x=read(),y=read();
-		h[x]+=y;
-		add(x);
-		rep(i,1,x-1){
-			auto it=pos[i].lb(x);
-			if(*it!=x){
-				it--;
-				if(comp(i,*it,x)){
-					pos[i].insert(x);
-					it++;
-					ans++;
-				}
-				else continue;
-			}
-			it++;
-			while(it!=pos[i].end()&&!comp(i,x,*it)){
-				it=pos[i].erase(it);
-				ans--;
-			}
-		}
-		write(ans,endl);
+	cin>>n;
+	rep(i,1,n){
+		cin>>h[i];
 	}
+	if(n==2){
+		if(h[2]>h[1]){
+			cout<<-1<<endl;
+		}
+		else{
+			cout<<h[1]-h[2]<<endl;
+		}
+		return;
+	}
+	PQG<int> q;
+	per(i,n,1){
+		if(h[i]%2!=h[n]%2){
+			h[i]++;
+			int tp=q.top();
+			q.pop();
+			q.push(tp+2);
+			cnt++;
+			tot++;
+		}
+		q.push(h[i]);
+	}
+	while(!q.empty()){
+		mx=q.top();
+		q.pop();
+	}
+	
+	
+	
+	
+	
+	return;
+	int tmp=h[1];
+	rep(i,2,n) h[1]+=(mx-h[i])/2;
+	h[1]-=cnt;
+	if(mx<h[1]){
+		mx+=lcm(n-1,3ll);
+	}
+	tot+=h[1]-tmp;
+	if(n==3){
+		if(h[1]!=mx){
+			cout<<-1<<endl;
+		}
+		else{
+			cout<<tot<<endl;
+		}
+		return;
+	}
+	if(h[1]>mx||(mx-h[1])%(n-3)){
+		cout<<-1<<endl;
+		return;
+	}
+	int x=(mx-h[1])/(n-3);
+	cout<<mx+x*2<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */

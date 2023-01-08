@@ -1,19 +1,19 @@
 /*
  * Author: Austin Jiang
- * Date: 1/6/2023 10:36:55 AM
- * Problem:
- * Source:
+ * Date: 12/29/2022 10:29:41 PM
+ * Problem: Magical Array
+ * Source: CodeTON Round 2 (Div. 1 + Div. 2, Rated, Prizes!)
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
-//#define FASTIO
-#define OPTIMIZE
+#define FASTIO
+//#define OPTIMIZE
 #define INTTOLL
 
 #ifdef OPTIMIZE
@@ -127,53 +127,22 @@ struct interval_fenwick{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 2010;
-int n,q,ans,h[N];
-set<int> pos[N];
-
-bool comp(int i,int x,int y){
-	return (h[y]-h[i])*(x-i)>=(h[x]-h[i])*(y-i);
-}
-
-void add(int x){
-	ans-=pos[x].size();
-	pos[x].clear();
-	rep(i,x+1,n){
-		if(pos[x].empty()||comp(x,*pos[x].rbegin(),i)){
-			pos[x].insert(i);
-			ans++;
-		}
-	}
-}
+const int N = 1e6+10;
+int n,m,a[N];
 
 void SOLVE(int Case){
-	read(n);
-	rep(i,1,n) read(h[i]);
-	rep(i,1,n) add(i);
-	cin>>q;
-	while(q--){
-		int x=read(),y=read();
-		h[x]+=y;
-		add(x);
-		rep(i,1,x-1){
-			auto it=pos[i].lb(x);
-			if(*it!=x){
-				it--;
-				if(comp(i,*it,x)){
-					pos[i].insert(x);
-					it++;
-					ans++;
-				}
-				else continue;
-			}
-			it++;
-			while(it!=pos[i].end()&&!comp(i,x,*it)){
-				it=pos[i].erase(it);
-				ans--;
-			}
+	cin>>n>>m;
+	rep(i,1,n){
+		a[i]=0;
+		rep(j,1,m){
+			int x;
+			cin>>x;
+			a[i]+=j*x;
 		}
-		write(ans,endl);
 	}
+	a[0]=a[n];
+	int id=max_element(a+1,a+n+1)-a;
+	cout<<id<<" "<<a[id]-a[id-1]<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */

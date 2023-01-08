@@ -1,20 +1,20 @@
 /*
  * Author: Austin Jiang
- * Date: 1/6/2023 10:36:55 AM
- * Problem:
+ * Date: 1/8/2023 9:49:30 AM
+ * Problem: Feeding the Cows 
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
-//#define FASTIO
-#define OPTIMIZE
-#define INTTOLL
+#define FASTIO
+//#define OPTIMIZE
+//#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -127,53 +127,43 @@ struct interval_fenwick{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 2010;
-int n,q,ans,h[N];
-set<int> pos[N];
-
-bool comp(int i,int x,int y){
-	return (h[y]-h[i])*(x-i)>=(h[x]-h[i])*(y-i);
-}
-
-void add(int x){
-	ans-=pos[x].size();
-	pos[x].clear();
-	rep(i,x+1,n){
-		if(pos[x].empty()||comp(x,*pos[x].rbegin(),i)){
-			pos[x].insert(i);
-			ans++;
-		}
-	}
-}
+const int N = 1e5+10;
+int n,k,cnt;
+char ans[N];
+string s;
 
 void SOLVE(int Case){
-	read(n);
-	rep(i,1,n) read(h[i]);
-	rep(i,1,n) add(i);
-	cin>>q;
-	while(q--){
-		int x=read(),y=read();
-		h[x]+=y;
-		add(x);
-		rep(i,1,x-1){
-			auto it=pos[i].lb(x);
-			if(*it!=x){
-				it--;
-				if(comp(i,*it,x)){
-					pos[i].insert(x);
-					it++;
-					ans++;
-				}
-				else continue;
+	cin>>n>>k>>s;
+	cnt=0;
+	int lstg=-1,lsth=-1;
+	rep(i,0,n-1) ans[i]='.';
+	rep(i,0,n-1){
+		if(s[i]=='G'&&i>lstg){
+			if(ans[min(n-1,i+k)]=='.'){
+				ans[min(n-1,i+k)]='G';
+				lstg=i+k*2;
 			}
-			it++;
-			while(it!=pos[i].end()&&!comp(i,x,*it)){
-				it=pos[i].erase(it);
-				ans--;
+			else{
+				ans[min(n-1,i+k)-1]='G';
+				lstg=i+k*2-1;
 			}
+			cnt++;
 		}
-		write(ans,endl);
+		if(s[i]=='H'&&i>lsth){
+			if(ans[min(n-1,i+k)]=='.'){
+				ans[min(n-1,i+k)]='H';
+				lsth=i+k*2;
+			}
+			else{
+				ans[min(n-1,i+k)-1]='H';
+				lsth=i+k*2-1;
+			}
+			cnt++;
+		}
 	}
+	cout<<cnt<<endl;
+	rep(i,0,n-1) cout<<ans[i];
+	cout<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */

@@ -1,19 +1,19 @@
 /*
  * Author: Austin Jiang
- * Date: 1/6/2023 10:36:55 AM
+ * Date: 12/30/2022 7:06:58 AM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
-//#define FASTIO
-#define OPTIMIZE
+#define FASTIO
+//#define OPTIMIZE
 #define INTTOLL
 
 #ifdef OPTIMIZE
@@ -93,7 +93,7 @@ const int INF = 0x3f3f3f3f;
 #else
 const ll INF = LLINF;
 #endif
-const int MOD = 1e9+7;
+const int MOD = 998244353;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 const US<char> vowel = {'a','e','i','o','u'};
 
@@ -127,53 +127,71 @@ struct interval_fenwick{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 2010;
-int n,q,ans,h[N];
-set<int> pos[N];
+const int N = 1e5+10;
+int n,ans,a[N],b[N],f[N],vis[N],flag[N];
+VI e[N];
 
-bool comp(int i,int x,int y){
-	return (h[y]-h[i])*(x-i)>=(h[x]-h[i])*(y-i);
+int find(int x){
+	if(f[x]==x) return x;
+	return f[x]=find(f[x]);
 }
 
-void add(int x){
-	ans-=pos[x].size();
-	pos[x].clear();
-	rep(i,x+1,n){
-		if(pos[x].empty()||comp(x,*pos[x].rbegin(),i)){
-			pos[x].insert(i);
-			ans++;
-		}
+void dfs(int u){
+	vis[u]--;
+	for(auto v:e[u]){
+		if(vis[v]>0) vis[v]--;
+		if(vis[v]==1) dfs(v);
 	}
 }
 
 void SOLVE(int Case){
-	read(n);
-	rep(i,1,n) read(h[i]);
-	rep(i,1,n) add(i);
-	cin>>q;
-	while(q--){
-		int x=read(),y=read();
-		h[x]+=y;
-		add(x);
-		rep(i,1,x-1){
-			auto it=pos[i].lb(x);
-			if(*it!=x){
-				it--;
-				if(comp(i,*it,x)){
-					pos[i].insert(x);
-					it++;
-					ans++;
-				}
-				else continue;
-			}
-			it++;
-			while(it!=pos[i].end()&&!comp(i,x,*it)){
-				it=pos[i].erase(it);
-				ans--;
-			}
-		}
-		write(ans,endl);
+	cin>>n;
+	ans=1;
+	rep(i,1,n){
+		vis[i]=0;
+		f[i]=i;
+		e[i].clear();
+		flag[i]=0;
 	}
+	rep(i,1,n){
+		cin>>a[i];
+		vis[a[i]]++;
+	}
+	rep(i,1,n){
+		cin>>b[i];
+		vis[b[i]]++;
+		e[a[i]].pb(b[i]);
+		e[b[i]].pb(a[i]);
+	}
+	rep(i,1,n){
+		if(vis[i]==0){
+			cout<<0<<endl;
+			return;
+		}
+		f[find(a[i])]=find(b[i]);
+	}
+	rep(i,1,n) if(vis[i]==1) dfs(i);
+	rep(i,1,n){
+		if(vis[i]>0) flag[find(i)]=1;
+	}
+	rep(i,1,n){
+		if(f[i]==i&&!flag[i]){
+			cout<<0<<endl;
+			return;
+		}
+	}
+	int cnt1=0,cnt2=0;
+	rep(i,1,n){
+		if(f[i]==i) cnt1++;
+		if(a[i]==b[i]) cnt2++,cnt1--;
+	}
+	rep(i,1,cnt2){
+		ans=ans*n%MOD;
+	}
+	rep(i,1,cnt1){
+		ans=ans*2%MOD;
+	}
+	cout<<ans<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */

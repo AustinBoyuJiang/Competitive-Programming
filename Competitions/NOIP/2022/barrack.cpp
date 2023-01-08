@@ -47,7 +47,7 @@ namespace comfun{
 	template<typename T> inline T chkmax(T &a,T b){return a=max(a,b);}
 	template<typename T> inline T chkmin(T &a,T b){return a=min(a,b);}
 	template<typename T> inline T qpow(T a,T b){T ans=1;while(b){if(b&1) ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
-	template<typename T> inline T inv(T x){return pow(x,MOD-2);}
+	template<typename T> inline T inv(T x){return qpow(x,MOD-2);}
 	template<typename T> inline bool is_prime(T x){if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false; return true;}
 } using namespace comfun;
 
@@ -70,8 +70,7 @@ struct fenwick_interval{
 
 const int N = 5e5+10;
 const int M = 1e6+10;
-int n,m,cnt,tot,dfn[N],low[N],instk[N],vis[M],col[N],sz[N],eg[N],power[N+M],dp[N][2];
-//dp[i][0/1]表示以i为根节点的子树，有无点的不同方案数量 
+int n,m,cnt,tot,dfn[N],low[N],instk[N],vis[M],col[N],sz[N],eg[N],power[N+M],dp[N][3];
 stack<int> stk;
 VPI e[N];
 VI ee[N];
@@ -97,17 +96,22 @@ void DFS(int u){
 }
 
 void DP(int u,int fa){
-	int sum=0;
-	dp[u][0]=power[eg[u]];
-	dp[u][1]=(power[sz[u]+eg[u]]-power[eg[u]]+MOD)%MOD;
+	dp[u][0]=power[eg[u]];//子树没点 
+	dp[u][1]=power[sz[u]+eg[u]];//答案 
+	dp[u][2]=power[sz[u]+eg[u]];//子树有点，并且连接到子节点 
 	for(auto v:ee[u]){
 		if(v==fa) continue;
 		DP(v,u);
-		dp[u][0]=dp[u][0]*dp[v][0]*2%MOD;
-		dp[u][1]=dp[u][1]*(dp[v][0]*2+dp[v][1])%MOD;
-		sum=(sum+dp[v][1]*2)%MOD;
+		(dp[u][0]*=dp[v][0]*2)%=MOD;
+		(dp[u][1]*=dp[v][2]+dp[v][0]*2)%=MOD;
+		(dp[u][2]*=dp[v][2]+dp[v][0]*2)%=MOD;
 	}
-	dp[u][1]=(dp[u][1]+sum)%MOD;
+	for(auto v:ee[u]){
+		if(v==fa) continue;
+		(dp[u][1]+=(dp[v][1]*2-dp[v][2]+MOD)%MOD*dp[u][0]%MOD*inv(dp[v][0]*2)%MOD)%=MOD;
+	}
+	(dp[u][1]-=dp[u][0]-MOD)%=MOD;
+	(dp[u][2]-=dp[u][0]-MOD)%=MOD;
 }
 
 void solve(int Case){
@@ -132,29 +136,21 @@ void solve(int Case){
 	DP(1,0);
 	write(dp[1][1],endl);
 }
-/*
-Graph Editor Data
-1 2
-2 5
-5 3
-5 4
-5 6 3
-*/
 
 /* ======================================| Main Program End |====================================== */
 
 signed main(){
 	//srand(time(0));
-    //int size(512<<20);  //512M
-    //__asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
-	cin.tie(nullptr)->sync_with_stdio(false);
-	freopen("in.txt","r",stdin);
+    int size(512<<20);  //512M
+    __asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
+//	cin.tie(nullptr)->sync_with_stdio(false);
+//	freopen("in.txt","r",stdin);
 //	freopen("stdout.txt","w",stdout);
 	int CASE=1;
 	//cin>>CASE;
 	rep(Case,1,CASE) solve(Case);
 	//system("fc stdout.txt out.txt");
-    //exit(0);
+    exit(0);
 	return 0;
 }
 

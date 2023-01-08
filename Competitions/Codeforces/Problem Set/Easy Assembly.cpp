@@ -1,8 +1,8 @@
 /*
  * Author: Austin Jiang
- * Date: 1/6/2023 10:36:55 AM
- * Problem:
- * Source:
+ * Date: 1/4/2023 12:07:42 AM
+ * Problem: Easy Assembly
+ * Source: 2022-2023 ICPC, NERC, Northern Eurasia Onsite (Unrated, Online Mirror, ICPC Rules, Teams Preferred)
  * Description:
 */
 
@@ -12,9 +12,9 @@
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
-//#define FASTIO
-#define OPTIMIZE
-#define INTTOLL
+#define FASTIO
+//#define OPTIMIZE
+//#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -127,53 +127,35 @@ struct interval_fenwick{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 2010;
-int n,q,ans,h[N];
-set<int> pos[N];
-
-bool comp(int i,int x,int y){
-	return (h[y]-h[i])*(x-i)>=(h[x]-h[i])*(y-i);
-}
-
-void add(int x){
-	ans-=pos[x].size();
-	pos[x].clear();
-	rep(i,x+1,n){
-		if(pos[x].empty()||comp(x,*pos[x].rbegin(),i)){
-			pos[x].insert(i);
-			ans++;
-		}
-	}
-}
+const int N = 1e4+10;
+int n,m,ans1,ans2,a[N],k[N];
+map<int,int> posa;
+map<int,PI> posb;
+VI b[N];
 
 void SOLVE(int Case){
-	read(n);
-	rep(i,1,n) read(h[i]);
-	rep(i,1,n) add(i);
-	cin>>q;
-	while(q--){
-		int x=read(),y=read();
-		h[x]+=y;
-		add(x);
-		rep(i,1,x-1){
-			auto it=pos[i].lb(x);
-			if(*it!=x){
-				it--;
-				if(comp(i,*it,x)){
-					pos[i].insert(x);
-					it++;
-					ans++;
-				}
-				else continue;
-			}
-			it++;
-			while(it!=pos[i].end()&&!comp(i,x,*it)){
-				it=pos[i].erase(it);
-				ans--;
-			}
+	cin>>n;
+	rep(i,1,n){
+		cin>>k[i];
+		b[i].resize(k[i]+1);
+		rep(j,1,k[i]){
+			cin>>b[i][j];
+			a[++m]=b[i][j];
+			posb[b[i][j]]={i,j};
 		}
-		write(ans,endl);
 	}
+	sort(a+1,a+m+1);
+	rep(i,1,m) posa[a[i]]=i;
+	rep(i,1,n){
+		rep(j,1,k[i]-1){
+			if(a[posa[b[i][j]]+1]!=b[i][j+1]) ans1++;
+		}
+	}
+	rep(i,1,m-1){
+		PI x=posb[a[i]],y=posb[a[i+1]];
+		if(!(x.fir==y.fir&&x.sec+1==y.sec)) ans2++;
+	}
+	cout<<ans1<<" "<<ans2<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */

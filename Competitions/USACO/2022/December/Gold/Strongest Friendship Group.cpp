@@ -1,7 +1,7 @@
 /*
  * Author: Austin Jiang
- * Date: 1/6/2023 10:36:55 AM
- * Problem:
+ * Date: 1/6/2023 12:17:53 AM
+ * Problem: Strongest Friendship Group
  * Source:
  * Description:
 */
@@ -14,7 +14,7 @@
 //#define SETMEM
 //#define FASTIO
 #define OPTIMIZE
-#define INTTOLL
+//#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -127,53 +127,50 @@ struct interval_fenwick{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 2010;
-int n,q,ans,h[N];
-set<int> pos[N];
+const int N = 1e5+10;
+int n,m,u,ans,in[N],f[N],sz[N],ord[N],flag[N];
+set<PI> vtx;
+VI e[N];
 
-bool comp(int i,int x,int y){
-	return (h[y]-h[i])*(x-i)>=(h[x]-h[i])*(y-i);
+int find(int x){
+	if(f[x]==x) return x;
+	return f[x]=find(f[x]);
 }
 
-void add(int x){
-	ans-=pos[x].size();
-	pos[x].clear();
-	rep(i,x+1,n){
-		if(pos[x].empty()||comp(x,*pos[x].rbegin(),i)){
-			pos[x].insert(i);
-			ans++;
-		}
-	}
+void merge(int x,int y){
+	int fx=find(x),fy=find(y);
+	if(fx==fy) return;
+	sz[fy]+=sz[fx];
+	f[fx]=fy;
 }
 
 void SOLVE(int Case){
-	read(n);
-	rep(i,1,n) read(h[i]);
-	rep(i,1,n) add(i);
-	cin>>q;
-	while(q--){
-		int x=read(),y=read();
-		h[x]+=y;
-		add(x);
-		rep(i,1,x-1){
-			auto it=pos[i].lb(x);
-			if(*it!=x){
-				it--;
-				if(comp(i,*it,x)){
-					pos[i].insert(x);
-					it++;
-					ans++;
-				}
-				else continue;
-			}
-			it++;
-			while(it!=pos[i].end()&&!comp(i,x,*it)){
-				it=pos[i].erase(it);
-				ans--;
-			}
-		}
-		write(ans,endl);
+	read(n),read(m);
+	rep(i,1,m){
+		int u=read(),v=read();
+		e[u].pb(v),in[u]++;
+		e[v].pb(u),in[v]++;
 	}
+	rep(i,1,n){
+		sz[f[i]=i]=1;
+		vtx.insert({in[i],i});
+	}
+	rep(i,1,n){
+		u=(*vtx.begin()).sec;
+		vtx.erase(vtx.begin());
+		flag[ord[i]=u]=1;
+		for(int v:e[u]){
+			if(flag[v]) continue;
+			vtx.erase({in[v],v});
+			vtx.insert({--in[v],v});
+		}
+	}
+	per(i,n,1){
+		flag[u=ord[i]]=0;
+		for(int v:e[u]) if(!flag[v]) merge(u,v);
+		chkmax(ans,sz[find(u)]*in[u]);
+	}
+	write(ans);
 }
 
 /* =====================================| End of Main Program |===================================== */

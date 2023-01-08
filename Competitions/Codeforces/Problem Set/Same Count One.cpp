@@ -1,20 +1,20 @@
 /*
  * Author: Austin Jiang
- * Date: 1/6/2023 10:36:55 AM
- * Problem:
- * Source:
+ * Date: 12/30/2022 2:37:17 PM
+ * Problem: Same Count One
+ * Source: Polynomial Round 2022 (Div. 1 + Div. 2, Rated, Prizes!)
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
-//#define FASTIO
+#define FASTIO
 #define OPTIMIZE
-#define INTTOLL
+//#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -127,52 +127,59 @@ struct interval_fenwick{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 2010;
-int n,q,ans,h[N];
-set<int> pos[N];
-
-bool comp(int i,int x,int y){
-	return (h[y]-h[i])*(x-i)>=(h[x]-h[i])*(y-i);
-}
-
-void add(int x){
-	ans-=pos[x].size();
-	pos[x].clear();
-	rep(i,x+1,n){
-		if(pos[x].empty()||comp(x,*pos[x].rbegin(),i)){
-			pos[x].insert(i);
-			ans++;
-		}
-	}
-}
+const int N = 1e6+10;
+int n,m;
+VEC<VI> a;
+VI cnt;
 
 void SOLVE(int Case){
-	read(n);
-	rep(i,1,n) read(h[i]);
-	rep(i,1,n) add(i);
-	cin>>q;
-	while(q--){
-		int x=read(),y=read();
-		h[x]+=y;
-		add(x);
-		rep(i,1,x-1){
-			auto it=pos[i].lb(x);
-			if(*it!=x){
-				it--;
-				if(comp(i,*it,x)){
-					pos[i].insert(x);
-					it++;
-					ans++;
+	cin>>n>>m;
+	a.resize(n+1);
+	cnt.resize(n+1);
+	int avg=0,tot=0;
+	VI ord;
+	rep(i,1,n){
+		cnt[i]=0;
+		a[i].resize(m+1);
+		rep(j,1,m){
+			cin>>a[i][j];
+			cnt[i]+=a[i][j];
+		}
+		avg+=cnt[i];
+		ord.pb(i);
+	}
+	if(avg%n){
+		cout<<-1<<endl;
+		return;
+	}
+	avg/=n;
+	rep(i,1,n){
+		tot+=abs(avg-cnt[i]);
+	}
+	cout<<tot/2<<endl;
+	sort(all(ord),[](int a,int b){return cnt[a]<cnt[b];});
+	int j=n-1;
+	rep(i,0,n-1){
+		if(cnt[ord[i]]>=avg) break;
+		rep(k,1,m){
+			if(a[ord[j]][k]==1&&a[ord[i]][k]==0){
+				a[ord[i]][k]=1;
+				a[ord[j]][k]=0;
+				cnt[ord[i]]++;
+				cnt[ord[j]]--;
+				cout<<ord[i]<<" "<<ord[j]<<" "<<k<<endl;
+				if(cnt[ord[j]]==avg){
+					j--;
+					break;
 				}
-				else continue;
-			}
-			it++;
-			while(it!=pos[i].end()&&!comp(i,x,*it)){
-				it=pos[i].erase(it);
-				ans--;
+				if(cnt[ord[i]]==avg){
+					break;
+				}
 			}
 		}
-		write(ans,endl);
+		if(cnt[ord[i]]<avg){
+			i--;
+		}
 	}
 }
 

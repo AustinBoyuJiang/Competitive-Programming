@@ -1,20 +1,20 @@
 /*
  * Author: Austin Jiang
- * Date: 1/6/2023 10:36:55 AM
- * Problem:
- * Source:
+ * Date: 12/29/2022 4:36:05 PM
+ * Problem: Build a Tree and That Is It
+ * Source: Codeforces Round #811 (Div. 3)
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
-//#define FASTIO
-#define OPTIMIZE
-#define INTTOLL
+#define FASTIO
+//#define OPTIMIZE
+//#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -127,52 +127,123 @@ struct interval_fenwick{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 2010;
-int n,q,ans,h[N];
-set<int> pos[N];
-
-bool comp(int i,int x,int y){
-	return (h[y]-h[i])*(x-i)>=(h[x]-h[i])*(y-i);
-}
-
-void add(int x){
-	ans-=pos[x].size();
-	pos[x].clear();
-	rep(i,x+1,n){
-		if(pos[x].empty()||comp(x,*pos[x].rbegin(),i)){
-			pos[x].insert(i);
-			ans++;
-		}
-	}
-}
+const int N = 1e6+10;
+int n,a,b,c;
 
 void SOLVE(int Case){
-	read(n);
-	rep(i,1,n) read(h[i]);
-	rep(i,1,n) add(i);
-	cin>>q;
-	while(q--){
-		int x=read(),y=read();
-		h[x]+=y;
-		add(x);
-		rep(i,1,x-1){
-			auto it=pos[i].lb(x);
-			if(*it!=x){
-				it--;
-				if(comp(i,*it,x)){
-					pos[i].insert(x);
-					it++;
-					ans++;
-				}
-				else continue;
-			}
-			it++;
-			while(it!=pos[i].end()&&!comp(i,x,*it)){
-				it=pos[i].erase(it);
-				ans--;
-			}
+	cin>>n>>a>>b>>c;
+	if(a+b==c){
+		if(c>=n){
+			cout<<"NO"<<endl;
+			return;
 		}
-		write(ans,endl);
+		cout<<"YES"<<endl;
+		if(a==1){
+			cout<<1<<" "<<2<<endl;
+		}
+		else{
+			cout<<1<<" "<<4<<endl;
+			rep(i,4,4+a-3) cout<<i<<" "<<i+1<<endl;
+			cout<<4+a-2<<" "<<2<<endl;
+		}
+		if(b==1){
+			cout<<2<<" "<<3<<endl;
+		}
+		else{
+			cout<<2<<" "<<4+a-1<<endl;
+			rep(i,4+a-1,4+a+b-4) cout<<i<<" "<<i+1<<endl;
+			cout<<4+a+b-3<<" "<<3<<endl;
+		}
+		if(c<n-1){
+			cout<<3<<" "<<4+a+b-2<<endl;
+			rep(i,4+a+b-2,n-1) cout<<i<<" "<<i+1<<endl;
+		}
+		return;
+	}
+	if(c+b==a){
+		if(a>=n){
+			cout<<"NO"<<endl;
+			return;
+		}
+		cout<<"YES"<<endl;
+		if(c==1){
+			cout<<1<<" "<<3<<endl;
+		}
+		else{
+			cout<<1<<" "<<4<<endl;
+			rep(i,4,4+c-3) cout<<i<<" "<<i+1<<endl;
+			cout<<4+c-2<<" "<<3<<endl;
+		}
+		if(b==1){
+			cout<<3<<" "<<2<<endl;
+		}
+		else{
+			cout<<3<<" "<<4+c-1<<endl;
+			rep(i,4+c-1,4+c+b-4) cout<<i<<" "<<i+1<<endl;
+			cout<<4+c+b-3<<" "<<2<<endl;
+		}
+		if(a<n-1){
+			cout<<2<<" "<<4+c+b-2<<endl;
+			rep(i,4+c+b-2,n-1) cout<<i<<" "<<i+1<<endl;
+		}
+		return;
+	}
+	int x,y,z;
+	y=(a-c+b)/2;
+	x=a-y;
+	z=b-y;
+	if(x+z!=c){
+		cout<<"NO"<<endl;
+		return;
+	}
+	if(x+y+z>=n){
+		cout<<"NO"<<endl;
+		return;
+	}
+	if(x<0||y<=0||z<=0){
+		cout<<"NO"<<endl;
+		return;
+	}
+	cout<<"YES"<<endl;
+//	cout<<x<<" "<<y<<" "<<z<<endl;
+	int w=3;
+	if(x){
+		cout<<1<<" "<<4<<endl;
+		rep(i,4,4+x-2) cout<<i<<" "<<i+1<<endl;
+		w=4+x-1;
+	}
+	if(y==1){
+		if(w==3){
+			cout<<1<<" "<<2<<endl;
+		}
+		else{
+			cout<<w<<" "<<2<<endl;
+		}
+	}
+	else{
+		if(w==3){
+			cout<<1<<" "<<w+1<<endl;
+		}
+		else cout<<w<<" "<<w+1<<endl;
+		rep(i,w+1,w+y-2) cout<<i<<" "<<i+1<<endl;
+		cout<<w+y-1<<" "<<2<<endl;
+	}
+	if(z==1){
+		if(w==3){
+			cout<<1<<" "<<3<<endl;
+		}
+		else cout<<w<<" "<<3<<endl;
+	}
+	else{
+		if(w==3){
+			cout<<1<<" "<<w+y<<endl;
+		}
+		else cout<<w<<" "<<w+y<<endl;
+		rep(i,w+y,w+y+z-3) cout<<i<<" "<<i+1<<endl;
+		cout<<w+y+z-2<<" "<<3<<endl;
+	}
+	rep(i,max(w+y+z-1,4),n){
+		cout<<1<<" "<<i<<endl;
 	}
 }
 
