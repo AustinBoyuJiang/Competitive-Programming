@@ -112,17 +112,17 @@ namespace comfun{
 
 struct fenwick{
 	int sum[(int)1e6+10];
-	void add(int x,int y){ for(int i=x;i<=1e6;i+=lowbit(i)) sum[i]+=y;}
-	int ask(int x,int y){ int res=0; for(int i=y;i>0;i-=lowbit(i)) res+=sum[i];
+	inline void add(int x,int y){ for(int i=x;i<=1e6;i+=lowbit(i)) sum[i]+=y;}
+	inline int ask(int x,int y){ int res=0; for(int i=y;i>0;i-=lowbit(i)) res+=sum[i];
 	for(int i=x-1;i>0;i-=lowbit(i)) res-=sum[i]; return res;}
 };
 
 struct interval_fenwick{
 	int d[(int)1e6+10][2];
-	void update(int x,int v){for(int i=x;i<=1e6;i+=lowbit(i))d[i][0]+=v,d[i][1]+=v*x;}
-	int query(int x,int k){int ans=0;for(int i=x;i>0;i-=lowbit(i)) ans+=d[i][k];return ans;}
-	void add(int x,int y,int v){update(x,v),update(y+1,-v);}
-	int ask(int x,int y){return (y+1)*query(y,0)-query(y,1)-x*query(x-1,0)+query(x-1,1);}
+	inline void update(int x,int v){for(int i=x;i<=1e6;i+=lowbit(i))d[i][0]+=v,d[i][1]+=v*x;}
+	inline int query(int x,int k){int ans=0;for(int i=x;i>0;i-=lowbit(i)) ans+=d[i][k];return ans;}
+	inline void add(int x,int y,int v){update(x,v),update(y+1,-v);}
+	inline int ask(int x,int y){return (y+1)*query(y,0)-query(y,1)-x*query(x-1,0)+query(x-1,1);}
 };
 
 /* ========================================| Main Program |======================================== */
@@ -150,7 +150,7 @@ signed main(){
 	#endif
 	rep(i,1,CASE){
 		#ifdef LOCAL
-		printf("Case #%d:\n",i);
+		cout<<"Case #"<<i<<": "<<endl;
 		#endif
 		SOLVE(i);
 	}

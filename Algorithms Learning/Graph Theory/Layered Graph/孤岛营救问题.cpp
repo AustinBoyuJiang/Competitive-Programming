@@ -1,19 +1,19 @@
 /*
  * Author: Austin Jiang
- * Date: 1/8/2023 10:00:38 PM
- * Problem:
+ * Date: 1/10/2023 2:21:51 AM
+ * Problem: 
  * Source:
  * Description:
 */
 
 /* Configuration */
-#define MULTICASES
+//#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
 #define FASTIO
-#define OPTIMIZE
+//#define OPTIMIZE
 //#define INTTOLL
 
 #ifdef OPTIMIZE
@@ -127,35 +127,12 @@ struct interval_fenwick{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e5+10;
-const int A = 5e6+10;
-int n,a[N],p[4]={2,1,0,0},step[A];
-int tot=0,np[A],prime[A];
-
-void init(){
-	rep(i,2,A-1){
-		if(!np[i]){
-			prime[tot++]=i;
-			p[i%4]=i;
-		}
-		step[i]=(i-p[i%4])/2+1;
-		for(int j=0;j<tot&&i*prime[j]<A;j++){
-			np[i*prime[j]]=1;
-			if(i%prime[j]==0) break;
-		}
-	}
-	step[1]=1;
-}
+const int N = 1e6+10;
+int n;
 
 void SOLVE(int Case){
 	cin>>n;
-	int ans=INF;
-	rep(i,1,n){
-		cin>>a[i];
-		if(step[a[i]]/2<ans/2) ans=step[a[i]];
-	}
-	if(ans&1) cout<<"Farmer John"<<endl;
-	else cout<<"Farmer Nhoj"<<endl;
+
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -167,14 +144,13 @@ signed main(){
 	#endif
 	#ifndef FILESCOMP
 	SETUP();
-	init();
 	int CASE=1;
 	#ifdef MULTICASES
 	cin>>CASE;
 	#endif
 	rep(i,1,CASE){
 		#ifdef LOCAL
-		printf("Case #%d:\n",i);
+		cout<<"Case #"<<i<<": "<<endl;
 		#endif
 		SOLVE(i);
 	}

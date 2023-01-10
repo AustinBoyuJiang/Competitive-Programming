@@ -1,18 +1,18 @@
 /*
  * Author: Austin Jiang
- * Date: 1/8/2023 10:00:38 PM
- * Problem:
+ * Date: 1/9/2023 11:07:36 PM
+ * Problem: Breakdown
  * Source:
  * Description:
 */
 
 /* Configuration */
-#define MULTICASES
+//#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
-#define FASTIO
+//#define FASTIO
 #define OPTIMIZE
 //#define INTTOLL
 
@@ -127,35 +127,49 @@ struct interval_fenwick{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e5+10;
-const int A = 5e6+10;
-int n,a[N],p[4]={2,1,0,0},step[A];
-int tot=0,np[A],prime[A];
-
-void init(){
-	rep(i,2,A-1){
-		if(!np[i]){
-			prime[tot++]=i;
-			p[i%4]=i;
-		}
-		step[i]=(i-p[i%4])/2+1;
-		for(int j=0;j<tot&&i*prime[j]<A;j++){
-			np[i*prime[j]]=1;
-			if(i%prime[j]==0) break;
-		}
-	}
-	step[1]=1;
-}
+const int N = 301;
+const int K = 9;
+int n,k,a[N][N],dp[N][N][K],ans[N*N];
+PI ask[N*N];
 
 void SOLVE(int Case){
-	cin>>n;
-	int ans=INF;
+	read(n),read(k);
+	int k14=k/2,k58=k-k14,k12=k14/2,k34=k14-k12,k56=k58/2,k78=k58-k56;
+	memset(dp,0x3f,sizeof(dp));
 	rep(i,1,n){
-		cin>>a[i];
-		if(step[a[i]]/2<ans/2) ans=step[a[i]];
+		rep(j,1,n) read(a[i][j]);
+		dp[i][i][0]=0;
 	}
-	if(ans&1) cout<<"Farmer John"<<endl;
-	else cout<<"Farmer Nhoj"<<endl;
+	rep(i,1,n*n) ask[i]={read(),read()};
+	int u,v;
+	per(i,n*n,1){
+		if(i<n*n){
+			rep(i,1,n){
+				chkmin(dp[u][i][2],dp[u][v][1]+dp[v][i][1]);
+				chkmin(dp[i][v][2],dp[i][u][1]+dp[u][v][1]);
+				chkmin(dp[i][n][2],dp[i][u][1]+dp[u][n][1]);//u==1
+				chkmin(dp[1][i][2],dp[1][v][1]+dp[v][i][1]);//v==n
+			}
+			rep(i,1,n){
+				chkmin(dp[1][i][k14],dp[1][u][k12]+dp[u][i][k34]);
+				chkmin(dp[1][v][k14],dp[1][i][k12]+dp[i][v][k34]);
+				chkmin(dp[1][i][k14],dp[1][v][k12]+dp[v][i][k34]);
+				if(u==1) rep(j,1,n) chkmin(dp[1][i][k14],dp[1][j][k12]+dp[j][i][k34]);
+				chkmin(dp[i][n][k58],dp[i][v][k56]+dp[v][n][k78]);
+				chkmin(dp[u][n][k58],dp[u][i][k56]+dp[i][n][k78]);
+				chkmin(dp[i][n][k58],dp[i][u][k56]+dp[u][n][k78]);
+				if(v==n) rep(j,1,n) chkmin(dp[i][n][k58],dp[i][j][k56]+dp[j][n][k78]);
+			}
+			rep(i,1,n) chkmin(dp[1][n][k],dp[1][i][k14]+dp[i][n][k58]);
+		}
+		ans[i]=dp[1][n][k];
+		u=ask[i].fir,v=ask[i].sec;
+		dp[u][v][1]=a[u][v];
+	}
+	rep(i,1,n*n){
+		if(ans[i]==INF) puts("-1");
+		else write(ans[i],endl);
+	}
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -167,14 +181,13 @@ signed main(){
 	#endif
 	#ifndef FILESCOMP
 	SETUP();
-	init();
 	int CASE=1;
 	#ifdef MULTICASES
 	cin>>CASE;
 	#endif
 	rep(i,1,CASE){
 		#ifdef LOCAL
-		printf("Case #%d:\n",i);
+		cout<<"Case #"<<i<<": "<<endl;
 		#endif
 		SOLVE(i);
 	}

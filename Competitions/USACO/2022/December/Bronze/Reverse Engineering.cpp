@@ -1,13 +1,13 @@
 /*
  * Author: Austin Jiang
- * Date: 1/8/2023 10:19:22 AM
- * Problem: Reverse Engineering
+ * Date: 1/8/2023 8:40:19 PM
+ * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
@@ -127,12 +127,49 @@ struct interval_fenwick{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
-int n;
+const int N = 110;
+int n,m;
 
 void SOLVE(int Case){
-	cin>>n;
-
+	cin>>n>>m;
+	set<string> res[2];
+	rep(i,1,m){
+		string s;
+		int p;
+		cin>>s>>p;
+		res[p].insert(s);
+	}
+	while(m--){
+		rep(i,0,1){
+			bool ok;
+			rep(j,0,n-1){
+				ok=1;
+				if(res[i].empty()) break;
+				int fst=(*res[i].begin())[j];
+				for(string x:res[i]){
+					if(x[j]!=fst){
+						ok=0;
+						break;
+					}
+				}
+				if(ok==1){
+					set<string> nxt;
+					for(string x:res[i^1]){
+						if(x[j]==fst){
+							nxt.insert(x);
+						}
+					}
+					res[i^1]=nxt;
+				}
+			}
+		}
+	}
+	if(res[0].empty()||res[1].empty()){
+		cout<<"OK"<<endl;
+	}
+	else{
+		cout<<"LIE"<<endl;
+	}
 }
 
 /* =====================================| End of Main Program |===================================== */
