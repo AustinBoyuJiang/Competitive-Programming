@@ -128,10 +128,18 @@ struct interval_fenwick{
 /* ========================================| Main Program |======================================== */
 
 const int N = 510;
-int n,m,ans,cnt,a[N][N],d[N][N],vis[N][N],res[N*N],reachable[2510][2510];
+int n,m,ans,cnt,a[N][N],d[N][N],vis[N][N],res[N*N];
 PI flag[N][N][4];
-int tot,colcnt,dfn[N][N],low[N][N],instk[N][N],col[N][N];
+
+int in[N*N],root[N*N],f[N*N][20],dep[N*N];
+VI e[N*N],ee[N*N];
+
+int tot,colcnt,dfn[N][N],low[N][N],instk[N][N],col[N*N];
 stack<PI> stk;
+
+inline int id(int x,int y){
+	return (x-1)*m+y;
+}
 
 inline bool ok(int x,int y){
 	if(x<1||x>n) return 0;
@@ -149,10 +157,10 @@ inline void tarjan(int x,int y){
 		if(instk[nx][ny]) chkmin(low[x][y],low[nx][ny]);
 	}
 	if(dfn[x][y]!=low[x][y]) return;
-	col[x][y]=++colcnt;
+	col[id(x,y)]=++colcnt;
 	while(stk.top()!=(PI){x,y}){
 		PI top=stk.top();
-		col[top.fir][top.sec]=colcnt;
+		col[id(top.fir,top.sec)]=colcnt;
 		instk[top.fir][top.sec]=0;
 		stk.pop();
 	}
@@ -160,36 +168,55 @@ inline void tarjan(int x,int y){
 	stk.pop();
 }
 
-int id(int x,int y){
-	return (x-1)*m+y;
+inline void dfs(int u,int fa){
+	if(root[u]) return;
+	root[u]=root[fa];
+	dep[u]=dep[fa]+1;
+	f[u][0]=fa;
+	rep(i,1,19) f[u][i]=f[f[u][i-1]][i-1];
+	for(int v:ee[u]){
+		dfs(v,u);
+	}
 }
 
-inline void find(int x,int y,int stx,int sty){
-	if(vis[x][y]) return;
-	vis[x][y]=1;
-	reachable[id(stx,sty)][id(x,y)]=1;
-	int nx=x+dir[d[x][y]][0];
-	int ny=y+dir[d[x][y]][1];
-	if(ok(nx,ny)) find(nx,ny,stx,sty);
+inline int LCA(int x,int y){
+	if(dep[x]<dep[y]) swap(x,y);
+	per(i,19,0){
+		if(dep[f[x][i]]>=dep[y]){
+			x=f[x][i];
+			if(x==y) return x;
+		}
+	}
+	per(i,19,0){
+		if(f[x][i]!=f[y][i]){
+			x=f[x][i];
+			y=f[y][i];
+		}
+	}
+	return f[x][0];
+}
+
+inline bool reachable(int x,int y){
+	if(root[col[x]]==root[col[y]]&&LCA(col[x],col[y])==col[y]) return 1;
+	return 0;
 }
 
 inline bool check(int nx,int ny,int j,int x,int y){
 	int ox=flag[nx][ny][j].fir;
 	int oy=flag[nx][ny][j].sec;
-//	return vis[ox][oy]!=vis[x][y];//并不一定连通 
-	if(col[ox][oy]==col[x][y]) return 0;
-	if(reachable[id(x,y)][id(ox,oy)]) return 0;//超时 ,可以建树，判断对方是否为祖先，时间O(log) 
+	if(col[id(ox,oy)]==col[id(x,y)]) return 0;
+	if(reachable(id(x,y),id(ox,oy))) return 0;
 	return 1;
 }
 
-inline int dfs(int x,int y,int group){
-	if(vis[x][y]) return res[col[x][y]];
+inline int find(int x,int y,int group){
+	if(vis[x][y]) return res[col[id(x,y)]];
 	vis[x][y]=group;
 	int nx=x+dir[d[x][y]][0];
 	int ny=y+dir[d[x][y]][1];
 	int cnt=0;
 	if(ok(nx,ny)){
-		cnt=dfs(nx,ny,vis[x][y]);
+		cnt=find(nx,ny,vis[x][y]);
 		vis[x][y]=vis[nx][ny];
 	}
 	rep(i,0,3){
@@ -202,8 +229,8 @@ inline int dfs(int x,int y,int group){
 			flag[nx][ny][i]={x,y};
 		}
 	}
-	chkmax(res[col[x][y]],cnt);
-	return res[col[x][y]];
+	chkmax(res[col[id(x,y)]],cnt);
+	return res[col[id(x,y)]];
 }
 
 void SOLVE(int Case){
@@ -220,36 +247,47 @@ void SOLVE(int Case){
 			if(x=='<') d[i][j]=3;
 		}
 	}
+	
+	//SCC
 	rep(i,1,n) rep(j,1,m)
 		if(d[i][j]!=-1&&!dfn[i][j]) tarjan(i,j);
-	rep(i,1,n) rep(j,1,m)
-		if(d[i][j]!=-1){
-			find(i,j,i,j);
-			memset(vis,0,sizeof(vis));
+	
+	//LCA
+	rep(x,1,n) rep(y,1,m){
+		if(d[x][y]==-1) continue;
+		int nx=x+dir[d[x][y]][0];
+		int ny=y+dir[d[x][y]][1];
+		if(!ok(nx,ny)||d[nx][ny]==-1) continue;
+		e[id(x,y)].pb(id(nx,ny));
+	}
+	rep(x,1,n) rep(y,1,m){
+		if(d[x][y]==-1) continue; 
+		int u=id(x,y);
+		for(int v:e[u]){
+			if(col[u]==col[v]) continue;
+			ee[col[v]].pb(col[u]);
+			in[col[u]]++;
 		}
+	}
+	rep(i,1,colcnt){
+		if(in[i]) continue;
+		root[i]=i;
+		dfs(i,0);
+	}
+	
+	//DFS
 	rep(i,1,n) rep(j,1,m){
-		if(d[i][j]!=-1) dfs(i,j,++cnt);
-		chkmax(ans,res[col[i][j]]);
+		if(d[i][j]!=-1) find(i,j,++cnt);
+		chkmax(ans,res[col[id(i,j)]]);
 	}
 	cout<<ans<<endl;
 }
-
-/*
-
-3 3
-v<<
-#^#
-.#.
-
-3
-
-*/
 
 /* =====================================| End of Main Program |===================================== */
 
 signed main(){
 	#ifdef SETMEM
-    int size(512<<20);  //512MB
+    int size(1<<30);  //1GB
     __asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
 	#endif
 	#ifndef FILESCOMP

@@ -127,13 +127,13 @@ struct interval_fenwick{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 5;
+const int N = 50;
 int n,m;
 char s[6]={'#','.','v','<','>','^'};
 
 void SOLVE(int Case){
-	n=random(3,N);
-	m=random(3,N);
+	n=random(50,N);
+	m=random(50,N);
 	cout<<n<<" "<<m<<endl;
 	rep(i,1,n){
 		rep(j,1,m){
