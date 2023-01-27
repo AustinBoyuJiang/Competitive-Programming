@@ -6,6 +6,7 @@ for i in range(n):
     for s in range(i*5+6):
         dp2+=[sum(dp1[max(0,s-5):s+1])]
         if(i==n-1):result+=[[n+s,dp2[s]/6**n]]
+print(4*(result[0][1]+result[1][1]+result[2][1])+10*result[0][1]+3*result[1][1])
 print(result)
 '''
 class Solution:

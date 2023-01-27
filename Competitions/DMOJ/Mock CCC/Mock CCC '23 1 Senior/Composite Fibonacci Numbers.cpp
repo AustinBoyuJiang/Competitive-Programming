@@ -1,7 +1,7 @@
 /*
  * Author: Austin Jiang
- * Date: 1/11/2023 8:40:36 PM
- * Problem:
+ * Date: 1/12/2023 9:24:18 PM
+ * Problem: Composite Fibonacci Numbers
  * Source:
  * Description:
 */
@@ -12,7 +12,7 @@
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
-//#define FASTIO
+#define FASTIO
 //#define OPTIMIZE
 //#define INTTOLL
 
@@ -128,39 +128,35 @@ struct interval_fenwick{
 /* ========================================| Main Program |======================================== */
 
 const int N = 1e5+10;
-int t,n,cnt=1,fib[N]={0,1},fiib[N],ans[N];
+int t,n,cnt,fib[N],ans[N];
+map<string,bool> vis;
 
 void SOLVE(int Case){
 	cin>>t;
-	fiib[0]=fiib[1]=1;
+	fib[++cnt]=0;
+	fib[++cnt]=1;
+	vis["0"]=vis["1"]=1;
 	while(fib[cnt]<N){
 		cnt++;
 		fib[cnt]=fib[cnt-1]+fib[cnt-2];
-		if(fib[cnt]<N) fiib[fib[cnt]]=1;
+		vis[to_string(fib[cnt])]=1;
 	}
-	rep(i,2,N-1){
+	rep(i,10,N-1){
 		string s=to_string(i);
-		int pre=0;
-		rep(j,0,(int)s.size()-2){
-			pre*=10;
-			pre+=s[j]-'0';
-			int lst=0;
-			rep(k,j+1,(int)s.size()-1){
-				lst*=10;
-				lst+=s[k]-'0';
+		rep(len,1,s.size()){
+			if(!vis[s.substr(0,len)]) continue;
+			if(vis[s.substr(len,s.size()-len)]){
+				ans[i]=1;
+				vis[s]=1;
+				break;
 			}
-			rep(k,1,cnt){
-				if(pre==fib[k]&&(ans[lst]||fiib[lst])){
-					ans[i]=1;
-					break;
-				}
-			}
+			if(ans[i]) break;
 		}
 	}
 	while(t--){
 		cin>>n;
-		if(ans[n]&&n!=8&&n!=1) cout<<"YES"<<endl;
-		else cout<<"NO"<<endl;
+		if(ans[n]) cout<<"YES"<<endl;
+		else cout<<"NO"<<endl; 
 	}
 }
 

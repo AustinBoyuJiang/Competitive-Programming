@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 1/11/2023 9:12:55 PM
+ * Date: 1/12/2023 9:41:26 PM
  * Problem: Richard The Penguin
  * Source:
  * Description:
@@ -12,9 +12,9 @@
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
-#define FASTIO
+//#define FASTIO
 #define OPTIMIZE
-#define INTTOLL
+//#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -127,64 +127,24 @@ struct interval_fenwick{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 5e3+10;
-int n,k,ans,dp[N],f[N][N];
-//dp[i]表示前i置的组合数 
+const int N = 5010;
+int n,k,ans,dp[N][N],sum[2][N][N];
 
 void SOLVE(int Case){
-	cin>>n>>k;
-	if(k<=2){
-		if(n==2){
-			cout<<1<<endl;
-			return;
-		}
-		if(k==1) cout<<0<<endl;
-		else cout<<2<<endl;
-		return;
-	}
-	if(k==n-1){
-		int ans=1;
-		rep(i,1,n-2){
-			ans*=3;
-			ans%=MOD;
-		}
-		cout<<ans<<endl;
-		return;
-	}
-	
-	dp[0]=1;
-	rep(i,1,n-2){
-		rep(j,max(0ll,i-k),i-1){
-			dp[i]+=dp[j];
-			dp[i]%=MOD;
-		}
-		if(i>=k) dp[i]=(dp[i]-dp[i-k]+MOD)%MOD;
-	}
-	rep(i,1,n-2){
-		if(i<=k) rep(j,0,i-1) f[i][j]=dp[j];
-//		if(i==3) cout<<f[3][1]<<endl;
-		rep(j,max(1ll,i-k),i-1){
-			rep(lst,0,i-1) rep(jlst,max(0ll,lst-k),lst){
-				if(lst!=j){
-//					if(i==3&&lst==1&&f[j][jlst]){
-//						cout<<j<<" "<<jlst<<endl;
-//					}
-					if(j>lst&&lst!=jlst) continue;
-					f[i][lst]+=f[j][jlst];
-					f[i][lst]%=MOD;
-				}
+	read(n),read(k);
+	sum[0][1][1]=sum[1][1][1]=dp[1][1]=1;
+	rep(i,1,n){
+		rep(j,1,n){
+			if(i!=j||i==n){
+				if(i>j) dp[i][j]=sum[1][i-1][j]-sum[1][max(0,i-k-1)][j]+MOD;
+				else dp[i][j]=sum[0][i][j-1]-sum[0][i][max(0,j-k-1)]+MOD;
+				dp[i][j]%=MOD;
 			}
+			sum[0][i][j]=(sum[0][i][j-1]+dp[i][j])%MOD;
+			sum[1][i][j]=(sum[1][i-1][j]+dp[i][j])%MOD;
 		}
 	}
-	rep(i,n-k-1,n-2){
-		rep(j,n-k-1,i-1){
-//			if(f[i][j]) cout<<i<<"-"<<j<<" "<<f[i][j]<<endl;
-			ans+=f[i][j];
-			ans%=MOD;
-		}
-	}
-//	cout<<f[3][1]<<endl;
-	cout<<ans*2%MOD<<endl;
+	write(dp[n][n],endl);
 }
 
 /* =====================================| End of Main Program |===================================== */

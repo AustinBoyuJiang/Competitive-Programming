@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 1/11/2023 9:05:17 PM
+ * Date: 1/12/2023 9:40:08 PM
  * Problem: Keenan Hates Triangles
  * Source:
  * Description:
@@ -14,7 +14,7 @@
 //#define SETMEM
 #define FASTIO
 //#define OPTIMIZE
-#define INTTOLL
+//#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -131,13 +131,12 @@ const int N = 1e6+10;
 int n;
 
 void SOLVE(int Case){
+	ll ans=1;
 	cin>>n;
-	int ans=1;
 	rep(i,1,n){
-		ans*=i;
-		ans%=MOD;
+		ans=ans*i%MOD;
 	}
-	cout<<ans<<endl; 
+	cout<<ans<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */

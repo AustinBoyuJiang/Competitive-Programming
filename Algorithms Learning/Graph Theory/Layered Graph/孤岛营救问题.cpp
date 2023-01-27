@@ -13,7 +13,7 @@
 //#define FILESCOMP
 //#define SETMEM
 #define FASTIO
-//#define OPTIMIZE
+#define OPTIMIZE
 //#define INTTOLL
 
 #ifdef OPTIMIZE
@@ -58,6 +58,7 @@ using ll = long long;
 using ull = unsigned long long;
 using ld = long double;
 using PI = pair<int,int>;
+using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <typename T> using VEC = vector<T>;
@@ -127,12 +128,66 @@ struct interval_fenwick{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
-int n;
+const int N = 11;
+const int S = 1<<N;
+int n,m,k,p,q,ans=INF,Map[N][N][4],dist[N][N][S],vis[N][N][S];
+map<PI,int> rot={{{1,0},0},{{0,1},1},{{0,-1},2},{{-1,0},3}};
 
-void SOLVE(int Case){
-	cin>>n;
+struct node{
+	int x,y,s;
+}; VEC<pair<node,int>> e[N][N][S];
 
+inline bool operator >(pair<int,node> a,pair<int,node> b){
+	return a.fir>b.fir;
+}
+
+inline void SOLVE(int Case){
+	cin>>n>>m>>k>>p;
+	rep(i,1,p){
+		int x1,y1,x2,y2,t;
+		cin>>x1>>y1>>x2>>y2>>t;
+		if(t==0) t=-1;
+		Map[x1][y1][rot[{x2-x1,y2-y1}]]=t;
+		Map[x2][y2][rot[{x1-x2,y1-y2}]]=t;
+	}
+	cin>>q;
+	rep(i,1,q){
+		int x,y,t;
+		cin>>x>>y>>t;
+		rep(s,0,(1<<k)-1) if(!((s>>(t-1))&1))
+			e[x][y][s].pb({{x,y,s|(1<<(t-1))},0});
+	}
+	rep(x,1,n) rep(y,1,m){
+		rep(i,0,3){
+			if(Map[x][y][i]==-1) continue;
+			int nx=x+dir[i][0];
+			int ny=y+dir[i][1];
+			if(nx<1||nx>n||ny<1||ny>m) continue;
+			rep(s,0,(1<<k)-1) if(Map[x][y][i]==0||((s>>(Map[x][y][i]-1))&1))
+				e[x][y][s].pb({{nx,ny,s},1});
+		}
+	}
+	memset(dist,0x3f,sizeof(dist));
+	dist[1][1][0]=0;
+	PQG<pair<int,node>> q;
+	q.push({0,{1,1,0}});
+	while(!q.empty()){
+		node u=q.top().sec; q.pop();
+		int x=u.x,y=u.y,s=u.s;
+		if(vis[x][y][s]) continue;
+		vis[x][y][s]=1;
+		for(auto edge:e[x][y][s]){
+			node v=edge.fir; int w=edge.sec;
+			int nx=v.x,ny=v.y,ns=v.s;
+			if(dist[x][y][s]+w<dist[nx][ny][ns]){
+				dist[nx][ny][ns]=dist[x][y][s]+w;
+				q.push({dist[nx][ny][ns],{nx,ny,ns}});
+			}
+		}
+	}
+	rep(s,0,(1<<k)-1) chkmin(ans,dist[n][m][s]);
+	if(ans==INF) cout<<-1<<endl;
+	else cout<<ans<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
