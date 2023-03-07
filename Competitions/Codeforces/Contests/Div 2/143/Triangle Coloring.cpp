@@ -1,7 +1,7 @@
 /*
  * Author: Austin Jiang
- * Date: 1/27/2023 3:44:53 PM
- * Problem:
+ * Date: 2/17/2023 5:41:05 PM
+ * Problem: Triangle Coloring
  * Source:
  * Description:
 */
@@ -14,7 +14,7 @@
 //#define SETMEM
 #define FASTIO
 //#define OPTIMIZE
-//#define INTTOLL
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -94,7 +94,7 @@ const int INF = 0x3f3f3f3f;
 #else
 const ll INF = LLINF;
 #endif
-const int MOD = 1e9+7;
+const int MOD = 998244353;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 const US<char> vowel = {'a','e','i','o','u'};
 
@@ -128,54 +128,33 @@ struct interval_fenwick{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 2<<10;
+const int N = 3e5+10;
 
-int t,n,dp[N][N];
+int n,w[N],frac[N];
 
-int highbit(int x){
-	per(i,n-1,0){
-		if((x>>i)&1) return 1<<i;
-	}
-	return 0;
+int C(int n,int m){
+	return frac[n]*inv(frac[m])%MOD*inv(frac[n-m])%MOD;
 }
 
 void SOLVE(int Case){
-	cin>>t>>n;
-//	rep(i,0,(1<<n)-1) dp[0][i]=1;
-//	rep(i,1,(1<<n)-1) rep(j,0,(1<<n)-1){
-//		int lst=((j<<1)|(j>>(n-1)));
-//		lst&=(1<<n)-1;
-//		dp[i][j]=INF;
-//		rep(i,0,n-1){
-//			lst^=1<<i;
-//			chkmin(dp[i][j],dp[i^lst][lst]+1);
-//			lst^=1<<i;
-//		}
-//	}
-	while(t--){
-		int a=0,b=0,ans=0;
-		rep(i,1,n){
-			char x;
-			cin>>x;
-			a=(a<<1)|(x-'0');
-		}
-		rep(i,1,n){
-			char x;
-			cin>>x;
-			b=(b<<1)|(x-'0');
-		}
-		int pos;
-		while(a){
-			ans++;
-			if(a==b) pos=lowbit(a);
-			else pos=lowbit(a^b);
-			b^=pos;
-			a^=b;
-			b=(b>>1)|((b&1)<<(n-1));
-		}
-		cout<<ans<<endl;
-//		cout<<dp[a][b]<<endl;
+	cin>>n;
+	rep(i,1,n){
+		cin>>w[i];
 	}
+	frac[0]=1;
+	rep(i,1,n){
+		frac[i]=frac[i-1]*i%MOD;
+	}
+	int ans=C(n/3,n/6);
+	for(int i=1;i<=n;i+=3){
+		int mn=min(w[i],min(w[i+1],w[i+2]));
+		int cnt=0;
+		rep(j,1,3){
+			if(w[i+j-1]==mn) cnt++;
+		}
+		ans=ans*cnt%MOD;
+	}
+	cout<<ans<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */

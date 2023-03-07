@@ -1,20 +1,20 @@
 /*
  * Author: Austin Jiang
- * Date: 1/27/2023 3:14:28 PM
- * Problem:
+ * Date: 2/18/2023 11:31:05 PM
+ * Problem: Explosions?
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
-#define READLOCAL
+//#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
 #define FASTIO
-#define OPTIMIZE
-//#define INTTOLL
+//#define OPTIMIZE
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -128,58 +128,38 @@ struct interval_fenwick{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 2e5+10;
-const ll MX = 2e18;
+const int N = 3e5+10;
 
-int n;
-ll l,r,siz[N][30];
-char a[N];
-string b[N];
-
-inline int id(char x){
-	return x-'a'+1;
-}
-
-inline void dfs(int u,int layer,ll l,ll r){
-	if(siz[layer-1][u]==1){
-		cout<<(char)('a'+u-1);
-		return;
-	}
-	ll sum=0;
-	if(u==id(a[layer])){
-		for(char x:b[layer]){
-			if(l<=sum+siz[layer][id(x)]){
-				ll nxt=min(r,sum+siz[layer][id(x)]);
-				dfs(id(x),layer+1,l-sum,nxt-sum);
-				l=nxt+1;
-			}
-			if(l>r) return;
-			sum+=siz[layer][id(x)];
-		}
-	}
-	else{
-		dfs(u,layer+1,l,r);
-	}
-}
+int n,sum,ans,h[N],L[N],R[N];
 
 void SOLVE(int Case){
-	cin>>l>>r>>n;
-	b[0]="a";
+	cin>>n;
+	sum=0;
 	rep(i,1,n){
-		cin>>a[i]>>b[i];
+		cin>>h[i];
+		sum+=h[i];
 	}
-	rep(i,1,26) siz[n][i]=1;
-	per(i,n-1,0){
-		rep(j,1,26){
-			siz[i][j]=siz[i+1][j];
+	rep(d,0,1){
+		deque<int> q;
+		rep(i,1,n){
+			while(!q.empty()&&
+				h[i]-i<=h[q.back()]-q.back()){
+				q.pop_back();
+			}
+			int lst=0;
+			if(!q.empty()) lst=q.back();
+			if(i-h[i]>lst) L[i]=h[i]*(h[i]+1)/2;
+			else L[i]=L[lst]+(i-lst)*(h[i]*2-(i-lst-1))/2;
+			q.pb(i);
 		}
-		siz[i][id(a[i+1])]=0;
-		for(char x:b[i+1]){
-			siz[i][id(a[i+1])]+=siz[i+1][id(x)];
-			chkmin(siz[i][id(a[i+1])],MX);
-		}
+		rep(i,1,n) swap(L[i],R[i]);
+		reverse(L+1,L+n+1);
+		reverse(R+1,R+n+1);
+		reverse(h+1,h+n+1);
 	}
-	dfs(1,1,l,r);
+	ans=0;
+	rep(i,1,n) chkmax(ans,L[i]+R[i]-h[i]*2);
+	cout<<sum-ans<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */

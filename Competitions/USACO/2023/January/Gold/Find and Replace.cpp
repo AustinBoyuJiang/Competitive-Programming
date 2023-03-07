@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 1/27/2023 3:14:28 PM
+ * Date: 2/25/2023 12:44:18 AM
  * Problem:
  * Source:
  * Description:
@@ -9,7 +9,7 @@
 /* Configuration */
 //#define MULTICASES
 //#define LOCAL
-#define READLOCAL
+//#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
 #define FASTIO
@@ -36,11 +36,7 @@ using namespace std;
 #define fir first
 #define sec second
 
-/* Segment Tree */
-#define lc (rt << 1)
-#define rc (rt << 1 | 1)
-
-/* STL Data Structures */
+/* STL */
 #define lb lower_bound
 #define ub upper_bound
 #define ins insert
@@ -61,20 +57,17 @@ using PI = pair<int,int>;
 using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
-template <typename T> using VEC = vector<T>;
-template <typename T> using US = unordered_set<T>;
-template <typename T> using MS = multiset<T>;
-template <typename T1, typename T2> using UM = unordered_map<T1,T2>;
-template <typename T> using PQ = priority_queue<T>;
-template <typename T> using PQG = priority_queue<T,vector<T>,greater<T>>;
+template <class T> using VEC = vector<T>;
+template <class T> using PQ = priority_queue<T>;
+template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
-namespace fastIO{
+namespace FastIO{
 	inline int read() {int x=0; bool f=0; char ch=0; while(!isdigit(ch)) f=ch=='-',ch=getchar(); while(isdigit(ch)) x=x*10+ch-'0',ch=getchar(); return f?-x:x;}
 	inline ll readLL() {ll x=0; bool f=0; char ch=0; while(!isdigit(ch)) f=ch=='-',ch=getchar(); while(isdigit(ch)) x=x*10+ch-'0',ch=getchar(); return f?-x:x;}
 	inline int read(int &x) {return x=read();}
-    template<typename T> inline void write(T x) {if(x<0) x=-x,putchar('-'); if(x>9) write(x/10); putchar(x%10+'0');}
-	template<typename T> inline void write(T x,char let) {write(x),putchar(let);}
-} using namespace fastIO;
+    template<class T> inline void write(T x) {if(x<0) x=-x,putchar('-'); if(x>9) write(x/10); putchar(x%10+'0');}
+	template<class T> inline void write(T x,char let) {write(x),putchar(let);}
+} using namespace FastIO;
 
 void SETUP(){
 	#ifdef FASTIO
@@ -96,90 +89,71 @@ const ll INF = LLINF;
 #endif
 const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
-const US<char> vowel = {'a','e','i','o','u'};
+const unordered_set<char> vowel = {'a','e','i','o','u'};
 
-namespace comfun{
-	template<typename T> inline T lowbit(T x){return x&-x;}
-	template<typename T> inline T gcd(T a,T b){return b?gcd(b,a%b):a;}
-	template<typename T> inline T lcm(T a,T b){return a/gcd(a,b)*b;}
-	template<typename T> inline T chkmax(T &a,T b){return a=max(a,b);}
-	template<typename T> inline T chkmin(T &a,T b){return a=min(a,b);}
-	template<typename T> inline T qpow(T a,T b){
+namespace Comfun{
+	template<class T> inline T lowbit(T x){return x&-x;}
+	template<class T> inline T gcd(T a,T b){return b?gcd(b,a%b):a;}
+	template<class T> inline T lcm(T a,T b){return a/gcd(a,b)*b;}
+	template<class T> inline T chkmax(T &a,T b){return a=max(a,b);}
+	template<class T> inline T chkmin(T &a,T b){return a=min(a,b);}
+	template<class T> inline T qpow(T a,T b){
 	T ans=1;while(b){if(b&1) ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
-	template<typename T> inline T inv(T x){return qpow(x,MOD-2);}
-	template<typename T> inline bool is_prime(T x){
+	template<class T> inline T inv(T x){return qpow(x,MOD-2);}
+	template<class T> inline bool is_prime(T x){
 	if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false; return true;}
-} using namespace comfun;
+} using namespace Comfun;
 
-struct fenwick{
-	int sum[(int)1e6+10];
-	inline void add(int x,int y){ for(int i=x;i<=1e6;i+=lowbit(i)) sum[i]+=y;}
-	inline int ask(int x,int y){ int res=0; for(int i=y;i>0;i-=lowbit(i)) res+=sum[i];
-	for(int i=x-1;i>0;i-=lowbit(i)) res-=sum[i]; return res;}
-};
-
-struct interval_fenwick{
-	int d[(int)1e6+10][2];
-	inline void update(int x,int v){for(int i=x;i<=1e6;i+=lowbit(i))d[i][0]+=v,d[i][1]+=v*x;}
-	inline int query(int x,int k){int ans=0;for(int i=x;i>0;i-=lowbit(i)) ans+=d[i][k];return ans;}
+template<class T> struct Fenwick{
+	int n; VEC<array<T,2>> d;
+	Fenwick(int n){d.resize(this->n=n);}
+	inline T query(int x,int k){int ans=0;for(int i=x;i>0;i-=lowbit(i)) ans+=d[i][k];return ans;}
+	inline T ask(int x,int y){return (y+1)*query(y,0)-query(y,1)-x*query(x-1,0)+query(x-1,1);}
+	inline void update(int x,int v){for(int i=x;i<=n;i+=lowbit(i))d[i][0]+=v,d[i][1]+=v*x;}
 	inline void add(int x,int y,int v){update(x,v),update(y+1,-v);}
-	inline int ask(int x,int y){return (y+1)*query(y,0)-query(y,1)-x*query(x-1,0)+query(x-1,1);}
+	inline void add(int x,int v){add(x,x,v);}
 };
 
 /* ========================================| Main Program |======================================== */
 
 const int N = 2e5+10;
-const ll MX = 2e18;
 
 int n;
-ll l,r,siz[N][30];
+ll l,r;
 char a[N];
 string b[N];
 
-inline int id(char x){
-	return x-'a'+1;
-}
-
-inline void dfs(int u,int layer,ll l,ll r){
-	if(siz[layer-1][u]==1){
-		cout<<(char)('a'+u-1);
-		return;
-	}
-	ll sum=0;
-	if(u==id(a[layer])){
-		for(char x:b[layer]){
-			if(l<=sum+siz[layer][id(x)]){
-				ll nxt=min(r,sum+siz[layer][id(x)]);
-				dfs(id(x),layer+1,l-sum,nxt-sum);
-				l=nxt+1;
-			}
-			if(l>r) return;
-			sum+=siz[layer][id(x)];
+struct node{
+	char ch;
+	ll siz;
+	node *lc,*rc;
+	
+	void find(ll l,ll r){
+		chkmax(l,1ll);
+		chkmin(r,this->siz);
+		if(l>r) return;
+		if(this->ch!=' '){
+			cout<<ch;
+			return;
 		}
+		this->lc->find(l,r);
+		this->rc->find(l-this->lc->siz,r-this->lc->siz);
 	}
-	else{
-		dfs(u,layer+1,l,r);
-	}
-}
+} *lst[30];
 
 void SOLVE(int Case){
 	cin>>l>>r>>n;
-	b[0]="a";
-	rep(i,1,n){
-		cin>>a[i]>>b[i];
-	}
-	rep(i,1,26) siz[n][i]=1;
-	per(i,n-1,0){
-		rep(j,1,26){
-			siz[i][j]=siz[i+1][j];
+	rep(i,1,n) cin>>a[i]>>b[i];
+	rep(i,1,26) lst[i]=new node{'a'+i-1,1,nullptr,nullptr};
+	per(i,n,1){
+		node *u=nullptr;
+		for(char x:b[i]){
+			if(u==nullptr) u=lst[x-'a'+1];
+			else u=new node{' ',min(LLINF,u->siz+lst[x-'a'+1]->siz),u,lst[x-'a'+1]};
 		}
-		siz[i][id(a[i+1])]=0;
-		for(char x:b[i+1]){
-			siz[i][id(a[i+1])]+=siz[i+1][id(x)];
-			chkmin(siz[i][id(a[i+1])],MX);
-		}
+		lst[a[i]-'a'+1]=u;
 	}
-	dfs(1,1,l,r);
+	lst[1]->find(l,r);
 }
 
 /* =====================================| End of Main Program |===================================== */

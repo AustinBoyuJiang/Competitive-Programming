@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 1/27/2023 3:14:28 PM
+ * Date: 2/19/2023 2:29:12 PM
  * Problem:
  * Source:
  * Description:
@@ -9,7 +9,7 @@
 /* Configuration */
 //#define MULTICASES
 //#define LOCAL
-#define READLOCAL
+//#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
 #define FASTIO
@@ -128,58 +128,86 @@ struct interval_fenwick{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 2e5+10;
-const ll MX = 2e18;
+const int N = 1e6+10;
 
-int n;
-ll l,r,siz[N][30];
-char a[N];
-string b[N];
+int n,m,a[N],ans[N];
+VPI q[N];
 
-inline int id(char x){
-	return x-'a'+1;
-}
-
-inline void dfs(int u,int layer,ll l,ll r){
-	if(siz[layer-1][u]==1){
-		cout<<(char)('a'+u-1);
-		return;
+template<class T,class Fun=function<T(const T,const T)>>
+struct SegTree{
+	int n;
+	VEC<T> st;
+	Fun f;
+	
+	SegTree(int n,int ini,Fun f){
+		this->n=n;
+		this->f=f;
+		st.resize((n<<2)+10,ini);
 	}
-	ll sum=0;
-	if(u==id(a[layer])){
-		for(char x:b[layer]){
-			if(l<=sum+siz[layer][id(x)]){
-				ll nxt=min(r,sum+siz[layer][id(x)]);
-				dfs(id(x),layer+1,l-sum,nxt-sum);
-				l=nxt+1;
-			}
-			if(l>r) return;
-			sum+=siz[layer][id(x)];
+	
+	T query(int rt,int l,int r,int x,int y){
+		if(l==x&&r==y) return st[rt];
+		int mid=l+r>>1;
+		if(y<=mid) return query(rt<<1,l,mid,x,y);
+		else if(x>mid) return query(rt<<1|1,mid+1,r,x,y);
+		else return f(query(rt<<1,l,mid,x,mid),query(rt<<1|1,mid+1,r,mid+1,y));
+	}
+	
+	void update(int rt,int l,int r,int x,int v){
+		if(l==r){
+			st[rt]=f(st[rt],v);
+			return;
 		}
+		int mid=l+r>>1;
+		if(x<=mid) update(rt<<1,l,mid,x,v);
+		else update(rt<<1|1,mid+1,r,x,v);
+		st[rt]=f(st[rt<<1],st[rt<<1|1]);
 	}
-	else{
-		dfs(u,layer+1,l,r);
+	
+	T get(int x,int y){
+		return query(1,1,n,x,y);
 	}
-}
+	
+	void upd(int x,int y){
+		update(1,1,n,x,y);
+	}
+};
 
 void SOLVE(int Case){
-	cin>>l>>r>>n;
-	b[0]="a";
+	cin>>n>>m;
 	rep(i,1,n){
-		cin>>a[i]>>b[i];
+		cin>>a[i];
 	}
-	rep(i,1,26) siz[n][i]=1;
-	per(i,n-1,0){
-		rep(j,1,26){
-			siz[i][j]=siz[i+1][j];
+	rep(i,1,m){
+		int l,r;
+		cin>>l>>r;
+		q[r].pb({l,i}); 
+	}
+	SegTree<int> dp(n,INF,[](int x,int y){return min(x,y);});
+	SegTree<int> pos(n,0,[](int x,int y){return max(x,y);});
+	rep(i,1,n){
+		{
+			int lim=n,j;
+			while(j=pos.get(a[i],lim)){
+				dp.upd(j,abs(a[i]-a[j]));
+				lim=a[i]+a[j]>>1;
+			}
 		}
-		siz[i][id(a[i+1])]=0;
-		for(char x:b[i+1]){
-			siz[i][id(a[i+1])]+=siz[i+1][id(x)];
-			chkmin(siz[i][id(a[i+1])],MX);
+		{
+			int lim=1,j;
+			while(j=pos.get(lim,a[i])){
+				dp.upd(j,abs(a[i]-a[j]));
+				lim=a[i]+a[j]+1>>1;
+			}
+		}
+		pos.upd(a[i],i);
+		for(auto v:q[i]){
+			ans[v.sec]=dp.get(v.fir,i);
 		}
 	}
-	dfs(1,1,l,r);
+	rep(i,1,m){
+		cout<<ans[i]<<endl;
+	}
 }
 
 /* =====================================| End of Main Program |===================================== */

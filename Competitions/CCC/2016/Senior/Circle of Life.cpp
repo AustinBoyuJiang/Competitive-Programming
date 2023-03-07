@@ -130,9 +130,20 @@ struct interval_fenwick{
 
 const int N = 1e5+10;
 
-int n,t;
+int n;
+ll t;
 bitset<N> x;
 bitset<N> b1(1);
+
+struct cmp {
+    bool operator() (const bitset<N> &x, const bitset<N> &y) const {
+        for (int i = N-1; i >= 0; i--) {
+	        if (x[i] ^ y[i]) return y[i];
+	    }
+	    return false;
+    }
+};
+map<bitset<N>,int,cmp> vis;
 
 void SOLVE(int Case){
 	cin>>n>>t;
@@ -142,9 +153,15 @@ void SOLVE(int Case){
 		x<<=1;
 		if(c=='1') x.set(0);
 	}
+	vis[x]=t;
 	while(t--){
 		x=((x<<1)|((x>>(n-1))&b1))^((x>>1)|(x<<(n-1)));
 		x[n]=0;
+		if(vis[x]){
+			cout<<vis[x]-t<<endl;
+			t%=vis[x]-t;
+		}
+		else vis[x]=t;
 	}
 	rep(i,1,n){
 		cout<<x[n-i];

@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 3/6/2023 10:11:56 PM
  * Problem:
  * Source:
  * Description:
@@ -13,8 +13,8 @@
 //#define FILESCOMP
 //#define SETMEM
 #define FASTIO
-//#define OPTIMIZE
-//#define INTTOLL
+#define OPTIMIZE
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -62,7 +62,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using VEC = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 namespace FastIO{
@@ -139,13 +139,80 @@ template<class T> struct Fenwick{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 2e5+10;
+const int base1 = 1331;
+const int base2 = 7853;
+const int base3 = 998244353;
 
-int n;
+int n,a[N],cnt[N],dp11[N],dp12[N],dp21[N],dp22[N],dp31[N],dp32[N];
+VI e[N];
+
+void dfs1(int u,int fa){
+	dp11[u]=1;
+	dp21[u]=1;
+	dp31[u]=1;
+	for(int v:e[u]){
+		if(v==fa) continue;
+		dfs1(v,u);
+		dp11[u]+=dp11[v]*base1;
+		dp11[u]%=MOD;
+		dp21[u]+=dp21[v]*base2;
+		dp21[u]%=MOD;
+		dp31[u]+=dp31[v]*base3;
+		dp31[u]%=MOD;
+	}
+}
+
+void dfs2(int u,int fa){
+	if(fa){
+		dp12[u]=(dp12[fa]+dp11[fa]-dp11[u]*base1%MOD+MOD)*base1%MOD;
+		dp22[u]=(dp22[fa]+dp21[fa]-dp21[u]*base2%MOD+MOD)*base2%MOD;
+		dp32[u]=(dp32[fa]+dp31[fa]-dp31[u]*base3%MOD+MOD)*base3%MOD;
+	}
+	for(int v:e[u]){
+		if(v==fa) continue;
+		dfs2(v,u);
+	}
+}
 
 void SOLVE(int Case){
 	cin>>n;
-	
+	rep(i,1,n-1){
+		cin>>a[i];
+		cnt[a[i]]++;
+	}
+	rep(i,1,n-1){
+		int u,v;
+		cin>>u>>v;
+		e[u].pb(v);
+		e[v].pb(u);
+	}
+	int p1=0,p2=0,p3=0;
+	per(i,n-1,0){
+		p1=(p1*base1+cnt[i])%MOD;
+		p2=(p2*base2+cnt[i])%MOD;
+		p3=(p3*base3+cnt[i])%MOD;
+	}
+	map<int,bool> flag1,flag2,flag3;
+	rep(i,0,n-1){
+		flag1[(qpow(base1,i)+p1)%MOD]=1;
+		flag2[(qpow(base2,i)+p2)%MOD]=1;
+		flag3[(qpow(base3,i)+p3)%MOD]=1;
+	}
+	dfs1(1,0);
+	dfs2(1,0);
+	VI ans;
+	rep(i,1,n){
+		if(flag1[(dp11[i]+dp12[i])%MOD]&&
+			flag2[(dp21[i]+dp22[i])%MOD]&&
+			flag3[(dp31[i]+dp32[i])%MOD]){
+			ans.pb(i);
+		}
+	}
+	cout<<ans.size()<<endl;
+	for(int x:ans){
+		cout<<x<<" ";
+	}
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -186,3 +253,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) duipai
 */
+

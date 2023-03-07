@@ -131,8 +131,8 @@ struct interval_fenwick{
 const int N = 8;
 const int M = pow(N,N);
 
-int n,m,pos[N],dist[M];
-VI e[M],stk[N];
+int n,m,pos[N],dist[M],mn[N];
+VI e[M];
 
 int state(){
 	int res=0;
@@ -145,56 +145,53 @@ int state(){
 
 void SOLVE(int Case){
 	while(read(n)){
-		cout<<n<<endl;
 		m=qpow(n,n);
-//		rep(i,0,m-1) e[i].clear();
-//		int tar=0;
-//		rep(i,0,n-1){
-//			pos[read()-1]=i;
-//			tar*=n;
-//			tar+=n-i-1;
-//		}
+		rep(i,0,m-1) e[i].clear();
+		int tar=0;
+		rep(i,0,n-1){
+			pos[read()-1]=i;
+			tar*=n;
+			tar+=n-i-1;
+		}
+		int cur=state();
+		rep(i,0,m-1){
+			int x=i;
+			fill(mn,mn+n,n);
+			rep(j,0,n-1){
+				pos[j]=x%n;
+				if(mn[pos[j]]==n) mn[pos[j]]=j;
+				x/=n;
+			}
+			rep(j,0,n-1){
+				if(mn[j]==n) continue;
+				if(j-1>=0&&mn[j]<mn[j-1]){
+					pos[mn[j]]=j-1;
+					e[i].pb(state());
+				}
+				if(j+1<n&&mn[j]<mn[j+1]){
+					pos[mn[j]]=j+1;
+					e[i].pb(state());
+				}
+				pos[mn[j]]=j;
+			}
+		}
+		memset(dist,0x3f,sizeof(dist));
+		queue<int> q;
+		q.push(cur);
+		dist[cur]=0;
+		while(!q.empty()){
+			int u=q.front();
+			q.pop();
+			for(int v:e[u]){
+				if(dist[v]!=INF) continue;
+				dist[v]=dist[u]+1;
+				q.push(v);
+			}
+			if(dist[tar]!=INF) break;
+		}
+		if(dist[tar]==INF) puts("IMPOSSIBLE");
+		else write(dist[tar],endl);
 	}
-//		continue;
-//		int cur=state();
-//		rep(i,0,m-1){
-//			rep(j,0,n-1) stk[j].clear();
-//			int x=i;
-//			rep(j,0,n-1){
-//				pos[j]=x%n;
-//				stk[pos[j]].pb(j);
-//				x/=n;
-//			}
-//			rep(j,0,n-1){
-//				if(!stk[j].size()) continue;
-//				if(j-1>=0){
-//					pos[stk[j][0]]=j-1;
-//					e[i].pb(state());
-//				}
-//				if(j+1<n){
-//					pos[stk[j][0]]=j+1;
-//					e[i].pb(state());
-//				}
-//				pos[stk[j][0]]=j;
-//			}
-//		}
-//		memset(dist,0x3f,sizeof(dist));
-//		queue<int> q;
-//		q.push(cur);
-//		dist[cur]=0;
-//		while(!q.empty()){
-//			int u=q.front();
-//			q.pop();
-//			for(int v:e[u]){
-//				if(dist[v]!=INF) continue;
-//				dist[v]=dist[u]+1;
-//				q.push(v);
-//			}
-//			if(dist[tar]) break;
-//		}
-//		if(dist[tar]==INF) puts("IMPOSSIBLE");
-//		else write(dist[tar],endl);
-//	}
 }
 
 /* =====================================| End of Main Program |===================================== */

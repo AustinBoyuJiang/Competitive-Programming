@@ -1,7 +1,7 @@
 /*
  * Author: Austin Jiang
- * Date: 1/27/2023 3:14:28 PM
- * Problem:
+ * Date: 2/15/2023 2:43:02 PM
+ * Problem: Minimum Cost Roads
  * Source:
  * Description:
 */
@@ -9,12 +9,12 @@
 /* Configuration */
 //#define MULTICASES
 //#define LOCAL
-#define READLOCAL
+//#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
 #define FASTIO
-#define OPTIMIZE
-//#define INTTOLL
+//#define OPTIMIZE
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -128,58 +128,82 @@ struct interval_fenwick{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 2e5+10;
-const ll MX = 2e18;
+const int N = 2010;
 
-int n;
-ll l,r,siz[N][30];
-char a[N];
-string b[N];
+int n,m,ans,f[N],lst[N],dist[N][N],vis[N][N],val[N][N];
+VPI e[N];
 
-inline int id(char x){
-	return x-'a'+1;
+struct Edge{
+	int u,v,l,c;
+} ee[N];
+
+bool cmp(Edge a,Edge b){
+	if(a.l==b.l) return a.c<b.c;
+	return a.l<b.l;
 }
 
-inline void dfs(int u,int layer,ll l,ll r){
-	if(siz[layer-1][u]==1){
-		cout<<(char)('a'+u-1);
-		return;
-	}
-	ll sum=0;
-	if(u==id(a[layer])){
-		for(char x:b[layer]){
-			if(l<=sum+siz[layer][id(x)]){
-				ll nxt=min(r,sum+siz[layer][id(x)]);
-				dfs(id(x),layer+1,l-sum,nxt-sum);
-				l=nxt+1;
-			}
-			if(l>r) return;
-			sum+=siz[layer][id(x)];
-		}
-	}
-	else{
-		dfs(u,layer+1,l,r);
-	}
+int find(int x){
+	if(f[x]==x) return x;
+	return f[x]=find(f[x]);
 }
 
 void SOLVE(int Case){
-	cin>>l>>r>>n;
-	b[0]="a";
+	cin>>n>>m;
 	rep(i,1,n){
-		cin>>a[i]>>b[i];
+		f[i]=i;
 	}
-	rep(i,1,26) siz[n][i]=1;
-	per(i,n-1,0){
-		rep(j,1,26){
-			siz[i][j]=siz[i+1][j];
-		}
-		siz[i][id(a[i+1])]=0;
-		for(char x:b[i+1]){
-			siz[i][id(a[i+1])]+=siz[i+1][id(x)];
-			chkmin(siz[i][id(a[i+1])],MX);
+	rep(i,1,m){
+		cin>>ee[i].u>>ee[i].v>>ee[i].l>>ee[i].c;
+	}
+	sort(ee+1,ee+m+1,cmp);
+	rep(i,1,m){
+		int u=ee[i].u;
+		int v=ee[i].v;
+		int l=ee[i].l;
+		e[u].pb({v,i});
+		e[v].pb({u,i});
+		if(find(u)!=find(v)){
+			f[find(u)]=find(v);
+			ans+=ee[i].c;
+			ee[i].c=0;
 		}
 	}
-	dfs(1,1,l,r);
+	rep(s,1,n){
+		memset(dist[s],0x3f,sizeof(dist[s]));
+		memset(val[s],0x3f,sizeof(val[s]));
+		memset(lst,0,sizeof(lst));
+		dist[s][s]=0;
+		val[s][s]=0;
+		PQG<PI> q;
+		q.push({0,s});
+		while(!q.empty()){
+			int u=q.top().sec;
+			q.pop();
+			if(vis[s][u]) continue;
+			vis[s][u]=1;
+			for(auto edge:e[u]){
+				int v=edge.fir;
+				int id=edge.sec;
+				if(dist[s][u]+ee[id].l<dist[s][v]){
+					lst[v]=id;
+					val[s][v]=val[s][u]+ee[id].c;
+					dist[s][v]=dist[s][u]+ee[id].l;
+					q.push({dist[s][v],v});
+				}
+				else if(dist[s][u]+ee[id].l==dist[s][v]&&val[s][u]+ee[id].c<val[s][v]){
+					lst[v]=id;
+					val[s][v]=val[s][u]+ee[id].c;
+					q.push({dist[s][v],v});
+				}
+			}
+		}
+		rep(i,1,n){
+			if(!lst[i]) continue;
+			ans+=ee[lst[i]].c;
+			ee[lst[i]].c=0;
+		}
+	}
+	cout<<ans<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */

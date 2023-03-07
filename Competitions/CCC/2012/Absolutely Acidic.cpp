@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 1/27/2023 3:14:28 PM
+ * Date: 2/8/2023 11:24:08 PM
  * Problem:
  * Source:
  * Description:
@@ -9,11 +9,11 @@
 /* Configuration */
 //#define MULTICASES
 //#define LOCAL
-#define READLOCAL
+//#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
 #define FASTIO
-#define OPTIMIZE
+//#define OPTIMIZE
 //#define INTTOLL
 
 #ifdef OPTIMIZE
@@ -128,58 +128,55 @@ struct interval_fenwick{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 2e5+10;
-const ll MX = 2e18;
+const int N = 2e6+10;
 
-int n;
-ll l,r,siz[N][30];
-char a[N];
-string b[N];
-
-inline int id(char x){
-	return x-'a'+1;
-}
-
-inline void dfs(int u,int layer,ll l,ll r){
-	if(siz[layer-1][u]==1){
-		cout<<(char)('a'+u-1);
-		return;
-	}
-	ll sum=0;
-	if(u==id(a[layer])){
-		for(char x:b[layer]){
-			if(l<=sum+siz[layer][id(x)]){
-				ll nxt=min(r,sum+siz[layer][id(x)]);
-				dfs(id(x),layer+1,l-sum,nxt-sum);
-				l=nxt+1;
-			}
-			if(l>r) return;
-			sum+=siz[layer][id(x)];
-		}
-	}
-	else{
-		dfs(u,layer+1,l,r);
-	}
-}
+int n,ans1,ans2,a[N],cnt[N],fre[N];
 
 void SOLVE(int Case){
-	cin>>l>>r>>n;
-	b[0]="a";
+	cin>>n;
 	rep(i,1,n){
-		cin>>a[i]>>b[i];
+		cin>>a[i];
+		cnt[a[i]]++;
 	}
-	rep(i,1,26) siz[n][i]=1;
-	per(i,n-1,0){
-		rep(j,1,26){
-			siz[i][j]=siz[i+1][j];
+	sort(a+1,a+n+1);
+	int mx1=0,mx2=0;
+	rep(i,1,1000){
+		if(cnt[i]>mx1){
+			mx2=mx1;
+			mx1=cnt[i];
 		}
-		siz[i][id(a[i+1])]=0;
-		for(char x:b[i+1]){
-			siz[i][id(a[i+1])]+=siz[i+1][id(x)];
-			chkmin(siz[i][id(a[i+1])],MX);
+		else{
+			chkmax(mx2,cnt[i]);
 		}
 	}
-	dfs(1,1,l,r);
+	rep(i,1,n){
+		fre[i]=cnt[a[i]];
+	}
+	rep(i,1,n){
+		if(fre[i]==mx1){
+			ans1-=a[i];
+			break;
+		}
+	}
+	per(i,n,1){
+		if(fre[i]==mx2){
+			ans1+=a[i];
+			break;
+		}
+	}
+	rep(i,1,n){
+		if(fre[i]==mx2){
+			ans2-=a[i];
+			break;
+		}
+	}
+	per(i,n,1){
+		if(fre[i]==mx1){
+			ans2+=a[i];
+			break;
+		}
+	}
+	cout<<max(ans1,ans2)<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */

@@ -14,7 +14,7 @@
 //#define SETMEM
 #define FASTIO
 //#define OPTIMIZE
-//#define INTTOLL
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -131,7 +131,7 @@ struct interval_fenwick{
 const int N = 2010;
 
 int n,m,a[N][N],x[N],y[N];
-set<int> xn,yn;
+set<int> xn,ynn;
 VI xv,yv;
 
 struct rect{
@@ -146,14 +146,14 @@ void SOLVE(int Case){
 		cin>>p[i].val;
 		xn.insert(p[i].x1);
 		xn.insert(p[i].x2);
-		yn.insert(p[i].y1);
-		yn.insert(p[i].y2);
+		ynn.insert(p[i].y1);
+		ynn.insert(p[i].y2);
 	}
 	for(int v:xn){
 		xv.pb(v);
 		x[xv.size()+1]=v;
 	}
-	for(int v:yn){
+	for(int v:ynn){
 		yv.pb(v);
 		y[yv.size()+1]=v;
 	}

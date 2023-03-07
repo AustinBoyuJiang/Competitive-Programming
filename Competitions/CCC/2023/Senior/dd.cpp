@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 1/27/2023 3:14:28 PM
+ * Date: 2/15/2023 3:18:07 PM
  * Problem:
  * Source:
  * Description:
@@ -9,11 +9,11 @@
 /* Configuration */
 //#define MULTICASES
 //#define LOCAL
-#define READLOCAL
+//#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
 #define FASTIO
-#define OPTIMIZE
+//#define OPTIMIZE
 //#define INTTOLL
 
 #ifdef OPTIMIZE
@@ -128,58 +128,25 @@ struct interval_fenwick{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 2e5+10;
-const ll MX = 2e18;
+const int N = 1e6+10;
 
 int n;
-ll l,r,siz[N][30];
-char a[N];
-string b[N];
-
-inline int id(char x){
-	return x-'a'+1;
-}
-
-inline void dfs(int u,int layer,ll l,ll r){
-	if(siz[layer-1][u]==1){
-		cout<<(char)('a'+u-1);
-		return;
-	}
-	ll sum=0;
-	if(u==id(a[layer])){
-		for(char x:b[layer]){
-			if(l<=sum+siz[layer][id(x)]){
-				ll nxt=min(r,sum+siz[layer][id(x)]);
-				dfs(id(x),layer+1,l-sum,nxt-sum);
-				l=nxt+1;
-			}
-			if(l>r) return;
-			sum+=siz[layer][id(x)];
-		}
-	}
-	else{
-		dfs(u,layer+1,l,r);
-	}
-}
+ll ans;
 
 void SOLVE(int Case){
-	cin>>l>>r>>n;
-	b[0]="a";
-	rep(i,1,n){
-		cin>>a[i]>>b[i];
-	}
-	rep(i,1,26) siz[n][i]=1;
-	per(i,n-1,0){
-		rep(j,1,26){
-			siz[i][j]=siz[i+1][j];
+	cin>>n>>m;
+	if(m==n-1){
+		rep(i,1,m){
+			int a,b,c,d;
+			cin>>a>>b>>c>>d;
+			ans+=d;
 		}
-		siz[i][id(a[i+1])]=0;
-		for(char x:b[i+1]){
-			siz[i][id(a[i+1])]+=siz[i+1][id(x)];
-			chkmin(siz[i][id(a[i+1])],MX);
-		}
+		cout<<ans<<endl;
+		return;
 	}
-	dfs(1,1,l,r);
+	else{
+		
+	}
 }
 
 /* =====================================| End of Main Program |===================================== */

@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 2/26/2023 6:08:51 PM
  * Problem:
  * Source:
  * Description:
@@ -13,8 +13,8 @@
 //#define FILESCOMP
 //#define SETMEM
 #define FASTIO
-//#define OPTIMIZE
-//#define INTTOLL
+#define OPTIMIZE
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -62,7 +62,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using VEC = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 namespace FastIO{
@@ -139,13 +139,97 @@ template<class T> struct Fenwick{
 
 /* ========================================| Main Program |======================================== */
 
+dp[u]=sigma(dp[v]+sum[v]*sigma(siz[pre])*2)
+dp[2]=dp[3]+dp[5]+11*2
+dp[2]=dp[3]+dp[5]+10*4
+
 const int N = 1e6+10;
 
-int n;
+int n,t,val[N],fa[N],sum[N],dep[N],siz[N],mxdep[N],dp[N];
+VI e[N];
+
+void init(int u){
+	if(u!=1){
+		dep[u]=dep[fa[u]]+1;
+	}
+	mxdep[u]=dep[u];
+	sum[u]=val[u];
+	siz[u]=1;
+	for(auto v:e[u]){
+		init(v);
+		chkmax(mxdep[u],mxdep[v]);
+		siz[u]+=siz[v];
+		sum[u]+=sum[v];
+	}
+}
+
+void dfs(int u){
+	VI a,b;
+	dp[u]=sum[u];
+	for(int v:e[u]){
+		dfs(v);
+		dp[u]+=dp[v];
+		if(t==0) a.pb(v);
+		else if(mxdep[v]!=mxdep[u]) a.pb(v);
+		else b.pb(v);
+	}
+	int ans=0;
+	if(e[u].size()==3){
+		if(a.size()==0){
+			ans=(siz[b[0]]+siz[b[1]])*2*sum[b[2]]+siz[b[0]]*2*sum[b[1]];
+			chkmin(ans,(siz[b[0]]+siz[b[2]])*2*sum[b[1]]+siz[b[0]]*2*sum[b[2]]);
+			chkmin(ans,(siz[b[0]]+siz[b[1]])*2*sum[b[2]]+siz[b[1]]*2*sum[b[0]]);
+			chkmin(ans,(siz[b[2]]+siz[b[1]])*2*sum[b[0]]+siz[b[1]]*2*sum[b[2]]);
+			chkmin(ans,(siz[b[0]]+siz[b[2]])*2*sum[b[1]]+siz[b[2]]*2*sum[b[0]]);
+			chkmin(ans,(siz[b[2]]+siz[b[1]])*2*sum[b[0]]+siz[b[2]]*2*sum[b[1]]);
+		}
+		else if(a.size()==1){
+			ans=sum[b[0]]*siz[a[0]]*2+sum[b[1]]*(siz[a[0]]+siz[b[0]])*2;
+			chkmin(ans,sum[b[1]]*siz[a[0]]*2+sum[b[0]]*(siz[a[0]]+siz[b[1]])*2);
+		}
+		else if(a.size()==2){
+			ans=sum[b[0]]*(siz[a[0]]+siz[a[1]])*2+sum[a[1]]*siz[a[0]]*2;
+			chkmin(ans,sum[b[0]]*(siz[a[0]]+siz[a[1]])*2+sum[a[0]]*siz[a[1]]*2);
+		}
+		else{
+			ans=(siz[a[0]]+siz[a[1]])*2*sum[a[2]] + siz[a[0]]*2*sum[a[1]];
+			chkmin(ans,(siz[a[0]]+siz[a[2]])*2*sum[a[1]] + siz[a[0]]*2*sum[a[2]]);
+			chkmin(ans,(siz[a[0]]+siz[a[1]])*2*sum[a[2]] + siz[a[1]]*2*sum[a[0]]);
+			chkmin(ans,(siz[a[2]]+siz[a[1]])*2*sum[a[0]] + siz[a[1]]*2*sum[a[2]]);
+			chkmin(ans,(siz[a[0]]+siz[a[2]])*2*sum[a[1]] + siz[a[2]]*2*sum[a[0]]);
+			chkmin(ans,(siz[a[2]]+siz[a[1]])*2*sum[a[0]] + siz[a[2]]*2*sum[a[1]]);
+		}
+	}
+	else if(e[u].size()==2){
+		if(a.size()==0){
+			ans=siz[b[0]]*2*sum[b[1]];
+			chkmin(ans,siz[b[1]]*2*sum[b[0]]);
+		}
+		else if(a.size()==1){
+			ans=siz[a[0]]*2*sum[b[0]];
+		}
+		else{
+			ans=siz[a[0]]*2*sum[a[1]];
+			chkmin(ans,siz[a[1]]*2*sum[a[0]]);
+		}
+	}
+	dp[u]+=ans;
+}
 
 void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>n>>t;
+	rep(i,2,n){
+		cin>>fa[i]>>val[i];
+		e[fa[i]].pb(i);
+	}
+	init(1);
+	dfs(1);
+	if(t==0){
+		cout<<(n-1)*2<<" "<<dp[1]-sum[1]<<endl;
+	}
+	else{
+		cout<<(n-1)*2-mxdep[1]<<" "<<dp[1]-sum[1]<<endl;
+	}
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -186,3 +270,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) duipai
 */
+
