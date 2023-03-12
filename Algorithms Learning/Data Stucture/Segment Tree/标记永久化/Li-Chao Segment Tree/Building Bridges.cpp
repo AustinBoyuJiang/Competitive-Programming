@@ -12,8 +12,8 @@
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
-#define FASTIO
-//#define OPTIMIZE
+//#define FASTIO
+#define OPTIMIZE
 //#define INTTOLL
 
 #ifdef OPTIMIZE
@@ -108,25 +108,6 @@ namespace Comfun{
 	if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false; return true;}
 } using namespace Comfun;
 
-template<class T,class Fun=function<T(const T,const T)>> struct Segtree{ // for maximum and minimum
-	int n; Fun f; VEC<T> st;
-	Segtree(int n,int val,Fun f){this->n=n; this->f=f; st.resize(n+1<<2,val);}
-	T query(int rt,int l,int r,int x,int y){
-		if(l==x&&r==y) return st[rt];
-		int mid=l+r>>1;
-		if(y<=mid) return query(lc,l,mid,x,y);
-		else if(x>mid) return query(rc,mid+1,r,x,y);
-		else return f(query(lc,l,mid,x,mid),query(rc,mid+1,r,mid+1,y));}
-	T ask(int x,int y){return query(1,0,n,x,y);}
-	void update(int rt,int l,int r,int x,int v){
-		if(l==r){st[rt]=f(st[rt],v);return;}
-		int mid=l+r>>1;
-		if(x<=mid) update(lc,l,mid,x,v);
-		else update(rc,mid+1,r,x,v);
-		st[rt]=f(st[lc],st[rc]);}
-	void upd(int x,int y){update(1,0,n,x,y);}
-};
-
 template<class T> struct Fenwick{
 	int n; VEC<array<T,2>> d;
 	Fenwick(int n){d.resize(this->n=n);}
@@ -139,13 +120,64 @@ template<class T> struct Fenwick{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 1e5+10;
+const int H = 1e6+10;
 
-int n;
+int n,h[N],w[N];
+ll sum[N],dp[N];
 
-void SOLVE(int Case){
+struct Segtree{
+	struct node{ll b,k; };
+	VEC<node> seg;
+	VI st;
+	
+	Segtree(int n){
+		seg.resize(n+1);
+		st.resize(H<<3);
+	}
+	
+	inline ll calc(int id,int x){
+		if(!id) return LLINF;
+		return seg[id].k*x+seg[id].b;
+	}
+	
+	inline int chk(int a,int b,int x){
+		if(calc(a,x)<calc(b,x)) return a;
+		return b;
+	}
+	
+	inline ll ask(int x,int rt=1,int l=0,int r=1e6){
+		if(l==r) return calc(st[rt],x);
+		int mid=l+r>>1;
+		if(x<=mid) return min(ask(x,lc,l,mid),calc(st[rt],x));
+		else return min(ask(x,rc,mid+1,r),calc(st[rt],x));
+	}
+	
+	inline void upd(int id,int rt=1,int l=0,int r=1e6){
+		int mid=l+r>>1;
+		int a=chk(st[rt],id,mid),b=st[rt]+id-a; st[rt]=a;
+		if(chk(a,b,l)==b) upd(b,lc,l,mid);
+		if(chk(a,b,r)==b) upd(b,rc,mid+1,r);
+	}
+	
+	inline void add(int id){
+		seg[id].b=dp[id]-sum[id]+1ll*h[id]*h[id];
+		seg[id].k=h[id]*-2;
+		upd(id);
+	}
+};
+
+inline void SOLVE(int Case){
 	cin>>n;
-
+	rep(i,1,n) read(h[i]);
+	rep(i,1,n) sum[i]=sum[i-1]+read(w[i]);
+	Segtree seg(n);
+	seg.add(1);
+	rep(i,2,n){
+		dp[i]=seg.ask(h[i])+1ll*h[i]*h[i]+sum[i-1];
+		seg.add(i);
+	}
+	write(dp[n]);
 }
 
 /* =====================================| End of Main Program |===================================== */
