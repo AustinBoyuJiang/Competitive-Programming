@@ -148,11 +148,21 @@ template<class T> struct Fenwick{
 const int N = 310;
 const int M = 20;
 
-int n,q,a[N],dpA[N][N][M][M],dpB[N][N][M][M];
-ll A,B;
+int n,q;
+char a[N];
+ll A,B,dpA[N][N][M][M][3],dpB[N][N][M][M][3];
 
-void DP(string x,int dp[N][N][M][M]){
-	
+void DP(string x,int dp[N][N][M][M][3]){
+	rep(len,1,n) rep(l,1,n-len+1){
+		int r=l+len-1;
+		rep(i,0,x.size()-1) rep(j,i,x.size()-1){
+			dp[l][r][i][j][0]+=dp[l+1][r][i][j][0];
+			dp[l][r][i][j][0]+=dp[l][r-1][i][j][0];
+			if(a[l]<x[i]) dp[l][r][i][j]+=dp[l+1][r][i+1][j][1];
+			if(a[r]<x[j]) dp[l][r][i][j]+=dp[l][r-1][i][j-1][1];
+			
+		}
+	}
 }
 
 void SOLVE(int Case){
