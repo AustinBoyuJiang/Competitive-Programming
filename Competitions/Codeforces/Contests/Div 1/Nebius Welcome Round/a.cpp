@@ -1,20 +1,20 @@
 /*
  * Author: Austin Jiang
- * Date: 2/26/2023 5:39:12 PM
+ * Date: 3/12/2023 10:22:00 PM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
 #define FASTIO
-#define OPTIMIZE
-#define INTTOLL
+//#define OPTIMIZE
+//#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -54,6 +54,7 @@ using namespace std;
 mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
 #define random(a,b) rng()%(b-a+1)+a
 
+/* Data type */
 using ll = long long;
 using ull = unsigned long long;
 using ld = long double;
@@ -61,10 +62,11 @@ using PI = pair<int,int>;
 using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
-template <class T> using VEC = vector<T>;
+template <class T> using Vec = vector<T>;
 template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
+/* Set up */
 namespace FastIO{
 	inline int read() {int x=0; bool f=0; char ch=0; while(!isdigit(ch)) f=ch=='-',ch=getchar(); while(isdigit(ch)) x=x*10+ch-'0',ch=getchar(); return f?-x:x;}
 	inline ll readLL() {ll x=0; bool f=0; char ch=0; while(!isdigit(ch)) f=ch=='-',ch=getchar(); while(isdigit(ch)) x=x*10+ch-'0',ch=getchar(); return f?-x:x;}
@@ -84,7 +86,7 @@ void SETUP(){
 	srand(time(0));
 }
 
-/* Commonly used constants variables, functions, and data structures */
+/* Constants */
 const ll LLINF = 0x3f3f3f3f3f3f3f3f;
 #ifndef int
 const int INF = 0x3f3f3f3f;
@@ -94,6 +96,8 @@ const ll INF = LLINF;
 const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 const unordered_set<char> vowel = {'a','e','i','o','u'};
+
+/* Common functions and data structures */
 
 namespace Comfun{
 	template<class T> inline T lowbit(T x){return x&-x;}
@@ -108,28 +112,30 @@ namespace Comfun{
 	if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false; return true;}
 } using namespace Comfun;
 
-template<class T,class Fun=function<T(const T,const T)>> struct Segtree{ // for maximum and minimum
-	int n; Fun f; VEC<T> st;
-	Segtree(int n,int val,Fun f){this->n=n; this->f=f; st.resize(n+1<<2,val);}
-	T query(int rt,int l,int r,int x,int y){
+template<class T,class Fun=function<T(const T,const T)>> struct Segtree{
+	int L=0,R=0; Fun F; Vec<T> st;
+	inline Segtree(int L,int R,int val,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,val);}
+	inline Segtree(int L,int R,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2);}
+	inline Segtree(Vec<T> v,Fun F){this->R=v.size()-1,this->F=F;st.resize(v.size()<<2);rep(i,0,this->R) upd(i,v[i],true);}
+	inline T query(int rt,int l,int r,int x,int y){
 		if(l==x&&r==y) return st[rt];
 		int mid=l+r>>1;
 		if(y<=mid) return query(lc,l,mid,x,y);
 		else if(x>mid) return query(rc,mid+1,r,x,y);
-		else return f(query(lc,l,mid,x,mid),query(rc,mid+1,r,mid+1,y));}
-	T ask(int x,int y){return query(1,0,n,x,y);}
-	void update(int rt,int l,int r,int x,int v){
-		if(l==r){st[rt]=f(st[rt],v);return;}
+		else return F(query(lc,l,mid,x,mid),query(rc,mid+1,r,mid+1,y));}
+	inline void update(int rt,int l,int r,int x,int v,bool cover){
+		if(l==r){st[rt]=cover?v:F(st[rt],v);return;}
 		int mid=l+r>>1;
-		if(x<=mid) update(lc,l,mid,x,v);
-		else update(rc,mid+1,r,x,v);
-		st[rt]=f(st[lc],st[rc]);}
-	void upd(int x,int y){update(1,0,n,x,y);}
+		if(x<=mid) update(lc,l,mid,x,v,cover);
+		else update(rc,mid+1,r,x,v,cover);
+		st[rt]=F(st[lc],st[rc]);}
+	inline T ask(int x,int y){return query(1,L,R,x,y);}
+	inline void upd(int x,int y,bool cover=false){update(1,L,R,x,y,cover);}
 };
 
 template<class T> struct Fenwick{
-	int n; VEC<array<T,2>> d;
-	Fenwick(int n){d.resize(this->n=n);}
+	int n; Vec<array<T,2>> d;
+	inline Fenwick(int n){d.resize(this->n=n);}
 	inline T query(int x,int k){int ans=0;for(int i=x;i>0;i-=lowbit(i)) ans+=d[i][k];return ans;}
 	inline T ask(int x,int y){return (y+1)*query(y,0)-query(y,1)-x*query(x-1,0)+query(x-1,1);}
 	inline void update(int x,int v){for(int i=x;i<=n;i+=lowbit(i))d[i][0]+=v,d[i][1]+=v*x;}
@@ -141,33 +147,14 @@ template<class T> struct Fenwick{
 
 const int N = 1e6+10;
 
-int n,a[N],sum[N];
+int n;
 
 void SOLVE(int Case){
-	cin>>n;
-	rep(i,1,n){
-		cin>>a[i];
-		sum[i]=sum[i-1]+a[i];
-	}
-	rep(i,1,n){
-		VI val;
-		rep(l,1,i-1) rep(r,l,i-1){
-			val.pb(sum[r]-sum[l-1]);
-		}
-		rep(l,i+1,n) rep(r,l,n){
-			val.pb(sum[r]-sum[l-1]);
-		}
-		sort(all(val));
-		int ans=INF;
-		rep(l,1,i) rep(r,i,n){
-			int x=sum[r]-sum[l-1];
-			auto a=ub(all(val),x)-1;
-			auto b=lb(all(val),x);
-			if(a>=val.begin())chkmin(ans,abs(val[a-val.begin()]-x));
-			if(b!=val.end()) chkmin(ans,abs(val[b-val.begin()]-x));
-		}
-		cout<<ans<<endl;
-	}
+	int a,b;
+	cin>>a>>b;
+	a=abs(a);
+	b=abs(b);
+	cout<<max(max(a,b)*2-1,a+b)<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */

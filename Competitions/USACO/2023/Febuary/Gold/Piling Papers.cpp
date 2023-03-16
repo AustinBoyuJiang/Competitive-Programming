@@ -1,7 +1,7 @@
 /*
  * Author: Austin Jiang
- * Date: 2/26/2023 6:08:51 PM
- * Problem:
+ * Date: 3/16/2023 3:28:46 PM
+ * Problem: Piling Papers
  * Source:
  * Description:
 */
@@ -13,8 +13,8 @@
 //#define FILESCOMP
 //#define SETMEM
 #define FASTIO
-#define OPTIMIZE
-#define INTTOLL
+//#define OPTIMIZE
+//#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -54,6 +54,7 @@ using namespace std;
 mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
 #define random(a,b) rng()%(b-a+1)+a
 
+/* Data type */
 using ll = long long;
 using ull = unsigned long long;
 using ld = long double;
@@ -61,10 +62,11 @@ using PI = pair<int,int>;
 using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
-template <class T> using VEC = vector<T>;
+template <class T> using Vec = vector<T>;
 template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
+/* Set up */
 namespace FastIO{
 	inline int read() {int x=0; bool f=0; char ch=0; while(!isdigit(ch)) f=ch=='-',ch=getchar(); while(isdigit(ch)) x=x*10+ch-'0',ch=getchar(); return f?-x:x;}
 	inline ll readLL() {ll x=0; bool f=0; char ch=0; while(!isdigit(ch)) f=ch=='-',ch=getchar(); while(isdigit(ch)) x=x*10+ch-'0',ch=getchar(); return f?-x:x;}
@@ -84,7 +86,7 @@ void SETUP(){
 	srand(time(0));
 }
 
-/* Commonly used constants variables, functions, and data structures */
+/* Constants */
 const ll LLINF = 0x3f3f3f3f3f3f3f3f;
 #ifndef int
 const int INF = 0x3f3f3f3f;
@@ -94,6 +96,8 @@ const ll INF = LLINF;
 const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 const unordered_set<char> vowel = {'a','e','i','o','u'};
+
+/* Common functions and data structures */
 
 namespace Comfun{
 	template<class T> inline T lowbit(T x){return x&-x;}
@@ -108,28 +112,30 @@ namespace Comfun{
 	if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false; return true;}
 } using namespace Comfun;
 
-template<class T,class Fun=function<T(const T,const T)>> struct Segtree{ // for maximum and minimum
-	int n; Fun f; VEC<T> st;
-	Segtree(int n,int val,Fun f){this->n=n; this->f=f; st.resize(n+1<<2,val);}
-	T query(int rt,int l,int r,int x,int y){
+template<class T,class Fun=function<T(const T,const T)>> struct Segtree{
+	int L=0,R=0; Fun F; Vec<T> st;
+	inline Segtree(int L,int R,int val,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,val);}
+	inline Segtree(int L,int R,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2);}
+	inline Segtree(Vec<T> v,Fun F){this->R=v.size()-1,this->F=F;st.resize(v.size()<<2);rep(i,0,this->R) upd(i,v[i],true);}
+	inline T query(int rt,int l,int r,int x,int y){
 		if(l==x&&r==y) return st[rt];
 		int mid=l+r>>1;
 		if(y<=mid) return query(lc,l,mid,x,y);
 		else if(x>mid) return query(rc,mid+1,r,x,y);
-		else return f(query(lc,l,mid,x,mid),query(rc,mid+1,r,mid+1,y));}
-	T ask(int x,int y){return query(1,0,n,x,y);}
-	void update(int rt,int l,int r,int x,int v){
-		if(l==r){st[rt]=f(st[rt],v);return;}
+		else return F(query(lc,l,mid,x,mid),query(rc,mid+1,r,mid+1,y));}
+	inline void update(int rt,int l,int r,int x,int v,bool cover){
+		if(l==r){st[rt]=cover?v:F(st[rt],v);return;}
 		int mid=l+r>>1;
-		if(x<=mid) update(lc,l,mid,x,v);
-		else update(rc,mid+1,r,x,v);
-		st[rt]=f(st[lc],st[rc]);}
-	void upd(int x,int y){update(1,0,n,x,y);}
+		if(x<=mid) update(lc,l,mid,x,v,cover);
+		else update(rc,mid+1,r,x,v,cover);
+		st[rt]=F(st[lc],st[rc]);}
+	inline T ask(int x,int y){return query(1,L,R,x,y);}
+	inline void upd(int x,int y,bool cover=false){update(1,L,R,x,y,cover);}
 };
 
 template<class T> struct Fenwick{
-	int n; VEC<array<T,2>> d;
-	Fenwick(int n){d.resize(this->n=n);}
+	int n; Vec<array<T,2>> d;
+	inline Fenwick(int n){d.resize(this->n=n);}
 	inline T query(int x,int k){int ans=0;for(int i=x;i>0;i-=lowbit(i)) ans+=d[i][k];return ans;}
 	inline T ask(int x,int y){return (y+1)*query(y,0)-query(y,1)-x*query(x-1,0)+query(x-1,1);}
 	inline void update(int x,int v){for(int i=x;i<=n;i+=lowbit(i))d[i][0]+=v,d[i][1]+=v*x;}
@@ -139,96 +145,26 @@ template<class T> struct Fenwick{
 
 /* ========================================| Main Program |======================================== */
 
-dp[u]=sigma(dp[v]+sum[v]*sigma(siz[pre])*2)
-dp[2]=dp[3]+dp[5]+11*2
-dp[2]=dp[3]+dp[5]+10*4
+const int N = 310;
+const int M = 20;
 
-const int N = 1e6+10;
+int n,q,a[N],dpA[N][N][M][M],dpB[N][N][M][M];
+ll A,B;
 
-int n,t,val[N],fa[N],sum[N],dep[N],siz[N],mxdep[N],dp[N];
-VI e[N];
-
-void init(int u){
-	if(u!=1){
-		dep[u]=dep[fa[u]]+1;
-	}
-	mxdep[u]=dep[u];
-	sum[u]=val[u];
-	siz[u]=1;
-	for(auto v:e[u]){
-		init(v);
-		chkmax(mxdep[u],mxdep[v]);
-		siz[u]+=siz[v];
-		sum[u]+=sum[v];
-	}
-}
-
-void dfs(int u){
-	VI a,b;
-	dp[u]=sum[u];
-	for(int v:e[u]){
-		dfs(v);
-		dp[u]+=dp[v];
-		if(t==0) a.pb(v);
-		else if(mxdep[v]!=mxdep[u]) a.pb(v);
-		else b.pb(v);
-	}
-	int ans=0;
-	if(e[u].size()==3){
-		if(a.size()==0){
-			ans=(siz[b[0]]+siz[b[1]])*2*sum[b[2]]+siz[b[0]]*2*sum[b[1]];
-			chkmin(ans,(siz[b[0]]+siz[b[2]])*2*sum[b[1]]+siz[b[0]]*2*sum[b[2]]);
-			chkmin(ans,(siz[b[0]]+siz[b[1]])*2*sum[b[2]]+siz[b[1]]*2*sum[b[0]]);
-			chkmin(ans,(siz[b[2]]+siz[b[1]])*2*sum[b[0]]+siz[b[1]]*2*sum[b[2]]);
-			chkmin(ans,(siz[b[0]]+siz[b[2]])*2*sum[b[1]]+siz[b[2]]*2*sum[b[0]]);
-			chkmin(ans,(siz[b[2]]+siz[b[1]])*2*sum[b[0]]+siz[b[2]]*2*sum[b[1]]);
-		}
-		else if(a.size()==1){
-			ans=sum[b[0]]*siz[a[0]]*2+sum[b[1]]*(siz[a[0]]+siz[b[0]])*2;
-			chkmin(ans,sum[b[1]]*siz[a[0]]*2+sum[b[0]]*(siz[a[0]]+siz[b[1]])*2);
-		}
-		else if(a.size()==2){
-			ans=sum[b[0]]*(siz[a[0]]+siz[a[1]])*2+sum[a[1]]*siz[a[0]]*2;
-			chkmin(ans,sum[b[0]]*(siz[a[0]]+siz[a[1]])*2+sum[a[0]]*siz[a[1]]*2);
-		}
-		else{
-			ans=(siz[a[0]]+siz[a[1]])*2*sum[a[2]] + siz[a[0]]*2*sum[a[1]];
-			chkmin(ans,(siz[a[0]]+siz[a[2]])*2*sum[a[1]] + siz[a[0]]*2*sum[a[2]]);
-			chkmin(ans,(siz[a[0]]+siz[a[1]])*2*sum[a[2]] + siz[a[1]]*2*sum[a[0]]);
-			chkmin(ans,(siz[a[2]]+siz[a[1]])*2*sum[a[0]] + siz[a[1]]*2*sum[a[2]]);
-			chkmin(ans,(siz[a[0]]+siz[a[2]])*2*sum[a[1]] + siz[a[2]]*2*sum[a[0]]);
-			chkmin(ans,(siz[a[2]]+siz[a[1]])*2*sum[a[0]] + siz[a[2]]*2*sum[a[1]]);
-		}
-	}
-	else if(e[u].size()==2){
-		if(a.size()==0){
-			ans=siz[b[0]]*2*sum[b[1]];
-			chkmin(ans,siz[b[1]]*2*sum[b[0]]);
-		}
-		else if(a.size()==1){
-			ans=siz[a[0]]*2*sum[b[0]];
-		}
-		else{
-			ans=siz[a[0]]*2*sum[a[1]];
-			chkmin(ans,siz[a[1]]*2*sum[a[0]]);
-		}
-	}
-	dp[u]+=ans;
+void DP(string x,int dp[N][N][M][M]){
+	
 }
 
 void SOLVE(int Case){
-	cin>>n>>t;
-	rep(i,2,n){
-		cin>>fa[i]>>val[i];
-		e[fa[i]].pb(i);
-	}
-	init(1);
-	dfs(1);
-	if(t==0){
-		cout<<(n-1)*2<<" "<<dp[1]-sum[1]<<endl;
-	}
-	else{
-		cout<<(n-1)*2-mxdep[1]<<" "<<dp[1]-sum[1]<<endl;
+	cin>>n>>A>>B;
+	rep(i,1,n) cin>>a[i];
+	DP(to_string(B)),dpB);
+	DP(to_string(A-1),dpA);
+	cin>>q;
+	while(q--){
+		int l,r;
+		cin>>l>>r;
+		
 	}
 }
 
