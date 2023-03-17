@@ -164,12 +164,13 @@ void dfs(int u){
 		dp[u]+=dp[v];
 	}
 	sort(all(e[u]),[](int x,int y){
-		return sum[x]*(siz[fa[x]]-siz[x]-1)>sum[y]*(siz[fa[y]]-siz[y]-1);
+		return siz[x]*sum[y]<siz[y]*sum[x];
 	});
 	if(t==1){
 		per(i,e[u].size()-1,0){
 			if(mxdep[e[u][i]]==mxdep[u]){
-				swap(e[u][i],e[u][e[u].size()-1]);
+				e[u].pb(e[u][i]);
+				e[u][i]=0;
 				break;
 			}
 		}

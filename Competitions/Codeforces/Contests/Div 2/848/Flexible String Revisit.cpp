@@ -156,11 +156,9 @@ void SOLVE(int Case){
 	rep(i,0,n-1){
 		cnt+=a[i]!=b[i];
 	}
-	dp[1]=pow(2,n)-1;
+	dp[1]=(qpow(2ll,n)-1+MOD)%MOD;
 	rep(i,2,cnt){
-		int q=(i-1)*inv(n)%MOD;
-		int p=(n-i+1)*inv(n)%MOD;
-		dp[i]=(dp[i-1]-dp[i-2]*p%MOD-1+MOD)*inv(q)%MOD;
+		dp[i]=(n*dp[i-1]%MOD-(i-1)*dp[i-2]%MOD-n+MOD)%MOD*inv(n-i+1)%MOD;
 	}
 	cout<<dp[cnt]<<endl;
 }
