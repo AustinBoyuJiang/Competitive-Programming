@@ -1,19 +1,19 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 3/26/2023 7:27:41 PM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
 #define FASTIO
-//#define OPTIMIZE
+#define OPTIMIZE
 //#define INTTOLL
 
 #ifdef OPTIMIZE
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -63,7 +63,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -105,23 +105,19 @@ namespace Comfun{
 	template<class T> inline T lcm(T a,T b){return a/gcd(a,b)*b;}
 	template<class T> inline T chkmax(T &a,T b){return a=max(a,b);}
 	template<class T> inline T chkmin(T &a,T b){return a=min(a,b);}
-	template<class T> inline T qpow(T a,T b){T ans=1;while(b){if(b&1) ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
+	template<class T> inline T qpow(T a,T b){
+	T ans=1;while(b){if(b&1) ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
 	template<class T> inline T inv(T x){return qpow(x,MOD-2);}
 	template<class T> inline bool is_prime(T x){
-	if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false;return true;}
+	if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false; return true;}
 } using namespace Comfun;
 
 template<class T,class Fun=function<T(const T,const T)>> struct Segtree{
-	int L=0,R=-1,ini=0; Fun F; Vec<T> st;
-	inline Segtree(){}
-	inline Segtree(int L,int R,int val,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,ini=val);}
+	int L=0,R=0; Fun F; Vec<T> st;
+	inline Segtree(int L,int R,int val,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,val);}
 	inline Segtree(int L,int R,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,0);}
 	inline Segtree(Vec<T> v,Fun F){this->R=v.size()-1,this->F=F;st.resize(v.size()<<2);rep(i,0,this->R) upd(i,v[i],true);}
-	inline void init(int L,int R,int val,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,ini=val);}
-	inline void init(int L,int R,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,0);}
-	inline void init(Vec<T> v,Fun F){this->R=v.size()-1,this->F=F;st.resize(v.size()<<2);rep(i,0,this->R) upd(i,v[i],true);}
 	inline T query(int rt,int l,int r,int x,int y){
-		if(x>y) return ini;
 		if(l==x&&r==y) return st[rt];
 		int mid=l+r>>1;
 		if(y<=mid) return query(lc,l,mid,x,y);
@@ -138,10 +134,8 @@ template<class T,class Fun=function<T(const T,const T)>> struct Segtree{
 };
 
 template<class T> struct Fenwick{
-	int n=0; Vec<array<T,2>> d;
-	inline Fenwick(){}
+	int n; Vec<array<T,2>> d;
 	inline Fenwick(int n){d.resize(this->n=n);}
-	inline resize(int n){d.resize(this->n=n,0);}
 	inline T query(int x,int k){int ans=0;for(int i=x;i>0;i-=lowbit(i)) ans+=d[i][k];return ans;}
 	inline T ask(int x,int y){return (y+2)*query(y+1,0)-query(y+1,1)-(x+1)*query(x,0)+query(x,1);}
 	inline void update(int x,int v){for(int i=x;i<=n;i+=lowbit(i))d[i][0]+=v,d[i][1]+=v*x;}
@@ -151,13 +145,72 @@ template<class T> struct Fenwick{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 1e5+10;
 
-int n;
+int n,m,c[N],s[N],t[N],flag[N],vis[N],vis2[N];
+set<int> pos[N];
+VI e[N],ee[N];
+
+void dfs(int u){
+	vis2[u]=1;
+	for(auto v:ee[u]){
+		if(vis2[v]) continue;
+		dfs(v);
+	}
+}
 
 void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>n>>m;
+	rep(i,1,n){
+		cin>>c[i];
+		flag[i]=0;
+		vis[i]=0;
+		vis2[i]=0;
+		e[i].clear();
+		ee[i].clear();
+		pos[i].clear();
+	}
+	rep(i,1,n) cin>>s[i];
+	rep(i,1,n) cin>>t[i];
+	rep(i,1,m){
+		int u,v;
+		cin>>u>>v;
+		e[u].pb(v);
+		e[v].pb(u);
+	}
+	queue<int> q;
+	q.push(1);
+	while(!q.empty()){
+		int u=q.front();
+		q.pop();
+		vis[u]=1;
+		flag[s[u]]++;
+		for(auto v:pos[s[u]]) q.push(v);
+		pos[s[u]].clear();
+		for(auto v:e[u]){
+			if(vis[v]) continue;
+			if(flag[c[v]]) q.push(v);
+			else pos[c[v]].insert(v);
+		}
+	}
+	map<PI,bool> eeflag;
+	rep(i,1,n){
+		if(s[i]==t[i]) continue;
+		if(eeflag[{c[i],t[i]}]==0){
+			ee[c[i]].pb(t[i]);
+			eeflag[{c[i],t[i]}]=1;
+		}
+	}
+	dfs(c[1]);
+	rep(i,1,n){
+		if(s[i]!=t[i]){
+			if(!vis[i]||(!vis2[c[i]]&&c[i]!=t[i])){
+				cout<<"NO"<<endl;
+				return;
+			}
+		}
+	}
+	cout<<"YES"<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -198,3 +251,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) duipai
 */
+

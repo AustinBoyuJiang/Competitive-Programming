@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 3/21/2023 2:46:26 PM
  * Problem:
  * Source:
  * Description:
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -63,7 +63,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -105,23 +105,19 @@ namespace Comfun{
 	template<class T> inline T lcm(T a,T b){return a/gcd(a,b)*b;}
 	template<class T> inline T chkmax(T &a,T b){return a=max(a,b);}
 	template<class T> inline T chkmin(T &a,T b){return a=min(a,b);}
-	template<class T> inline T qpow(T a,T b){T ans=1;while(b){if(b&1) ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
+	template<class T> inline T qpow(T a,T b){
+	T ans=1;while(b){if(b&1) ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
 	template<class T> inline T inv(T x){return qpow(x,MOD-2);}
 	template<class T> inline bool is_prime(T x){
-	if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false;return true;}
+	if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false; return true;}
 } using namespace Comfun;
 
 template<class T,class Fun=function<T(const T,const T)>> struct Segtree{
-	int L=0,R=-1,ini=0; Fun F; Vec<T> st;
-	inline Segtree(){}
-	inline Segtree(int L,int R,int val,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,ini=val);}
-	inline Segtree(int L,int R,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,0);}
+	int L=0,R=0; Fun F; Vec<T> st;
+	inline Segtree(int L,int R,int val,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,val);}
+	inline Segtree(int L,int R,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2);}
 	inline Segtree(Vec<T> v,Fun F){this->R=v.size()-1,this->F=F;st.resize(v.size()<<2);rep(i,0,this->R) upd(i,v[i],true);}
-	inline void init(int L,int R,int val,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,ini=val);}
-	inline void init(int L,int R,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,0);}
-	inline void init(Vec<T> v,Fun F){this->R=v.size()-1,this->F=F;st.resize(v.size()<<2);rep(i,0,this->R) upd(i,v[i],true);}
 	inline T query(int rt,int l,int r,int x,int y){
-		if(x>y) return ini;
 		if(l==x&&r==y) return st[rt];
 		int mid=l+r>>1;
 		if(y<=mid) return query(lc,l,mid,x,y);
@@ -138,26 +134,30 @@ template<class T,class Fun=function<T(const T,const T)>> struct Segtree{
 };
 
 template<class T> struct Fenwick{
-	int n=0; Vec<array<T,2>> d;
-	inline Fenwick(){}
+	int n; Vec<array<T,2>> d;
 	inline Fenwick(int n){d.resize(this->n=n);}
-	inline resize(int n){d.resize(this->n=n,0);}
 	inline T query(int x,int k){int ans=0;for(int i=x;i>0;i-=lowbit(i)) ans+=d[i][k];return ans;}
-	inline T ask(int x,int y){return (y+2)*query(y+1,0)-query(y+1,1)-(x+1)*query(x,0)+query(x,1);}
+	inline T ask(int x,int y){return (y+1)*query(y,0)-query(y,1)-x*query(x-1,0)+query(x-1,1);}
 	inline void update(int x,int v){for(int i=x;i<=n;i+=lowbit(i))d[i][0]+=v,d[i][1]+=v*x;}
-	inline void add(int x,int y,int v){update(x+1,v),update(y+2,-v);}
+	inline void add(int x,int y,int v){update(x,v),update(y+1,-v);}
 	inline void add(int x,int v){add(x,x,v);}
 };
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 3;
 
-int n;
+bool flag[N];
 
 void SOLVE(int Case){
-	cin>>n;
-	
+	rep(i,0,N-1) flag[i]=1;
+	rep(A,0,1) rep(B,0,1) rep(C,0,1){
+		int ans=0;
+		flag[0]&=ans==(1+1);
+		flag[1]&=ans==(1+0);
+		flag[2]&=ans==(0+0);
+	}
+	rep(i,0,N-1) cout<<flag[i]<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -175,7 +175,7 @@ signed main(){
 	#endif
 	rep(i,1,CASE){
 		#ifdef LOCAL
-		printf("Case #%d: \n",i);
+		cout<<"Case #"<<i<<": "<<endl;
 		#endif
 		SOLVE(i);
 	}
@@ -198,3 +198,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) duipai
 */
+

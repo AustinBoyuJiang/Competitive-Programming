@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 3/26/2023 9:04:27 PM
  * Problem:
  * Source:
  * Description:
@@ -13,7 +13,7 @@
 //#define FILESCOMP
 //#define SETMEM
 #define FASTIO
-//#define OPTIMIZE
+#define OPTIMIZE
 //#define INTTOLL
 
 #ifdef OPTIMIZE
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -63,7 +63,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -105,23 +105,22 @@ namespace Comfun{
 	template<class T> inline T lcm(T a,T b){return a/gcd(a,b)*b;}
 	template<class T> inline T chkmax(T &a,T b){return a=max(a,b);}
 	template<class T> inline T chkmin(T &a,T b){return a=min(a,b);}
-	template<class T> inline T qpow(T a,T b){T ans=1;while(b){if(b&1) ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
+	template<class T> inline T qpow(T a,T b){
+	T ans=1;while(b){if(b&1) ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
 	template<class T> inline T inv(T x){return qpow(x,MOD-2);}
 	template<class T> inline bool is_prime(T x){
-	if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false;return true;}
+	if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false; return true;}
 } using namespace Comfun;
 
 template<class T,class Fun=function<T(const T,const T)>> struct Segtree{
-	int L=0,R=-1,ini=0; Fun F; Vec<T> st;
-	inline Segtree(){}
-	inline Segtree(int L,int R,int val,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,ini=val);}
-	inline Segtree(int L,int R,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,0);}
-	inline Segtree(Vec<T> v,Fun F){this->R=v.size()-1,this->F=F;st.resize(v.size()<<2);rep(i,0,this->R) upd(i,v[i],true);}
-	inline void init(int L,int R,int val,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,ini=val);}
-	inline void init(int L,int R,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,0);}
-	inline void init(Vec<T> v,Fun F){this->R=v.size()-1,this->F=F;st.resize(v.size()<<2);rep(i,0,this->R) upd(i,v[i],true);}
+	int L=0,R=0; Fun F=[](int x,int y){
+		return min(x,y);
+	}; Vec<T> st;
+//	inline Segtree(int L,int R,int val,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,val);}
+//	inline Segtree(int L,int R,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,0);}
+//	inline Segtree(Vec<T> v,Fun F){this->R=v.size()-1,this->F=F;st.resize(v.size()<<2);rep(i,0,this->R) upd(i,v[i],true);}
 	inline T query(int rt,int l,int r,int x,int y){
-		if(x>y) return ini;
+		if(x>y) return INF;
 		if(l==x&&r==y) return st[rt];
 		int mid=l+r>>1;
 		if(y<=mid) return query(lc,l,mid,x,y);
@@ -138,10 +137,8 @@ template<class T,class Fun=function<T(const T,const T)>> struct Segtree{
 };
 
 template<class T> struct Fenwick{
-	int n=0; Vec<array<T,2>> d;
-	inline Fenwick(){}
+	int n; Vec<array<T,2>> d;
 	inline Fenwick(int n){d.resize(this->n=n);}
-	inline resize(int n){d.resize(this->n=n,0);}
 	inline T query(int x,int k){int ans=0;for(int i=x;i>0;i-=lowbit(i)) ans+=d[i][k];return ans;}
 	inline T ask(int x,int y){return (y+2)*query(y+1,0)-query(y+1,1)-(x+1)*query(x,0)+query(x,1);}
 	inline void update(int x,int v){for(int i=x;i<=n;i+=lowbit(i))d[i][0]+=v,d[i][1]+=v*x;}
@@ -153,11 +150,63 @@ template<class T> struct Fenwick{
 
 const int N = 1e6+10;
 
-int n;
+int n,tot,ans=INF,c[N],sum[N],g[N],r[N],flag[N];
+int dp[N][20];
+string s,tar="bessie";
+VI col[N],pos[N];
 
 void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>s;
+	n=s.size();
+	s=" "+s;
+	rep(i,1,n){
+		cin>>c[i];
+		sum[i]=sum[i-1]+c[i];
+	}
+	int cnt=0;
+	rep(i,1,n){
+		rep(j,0,5){
+			if(s[i]==tar[j]){
+				g[i]=cnt/6;
+				break;
+			}
+		}
+		if(s[i]==tar[cnt%6]){
+			cnt++;
+		}
+	}
+	tot=cnt/6;
+	rep(i,1,n){
+		rep(j,1,6){
+			if(s[i]==tar[j-1]){
+				rep(k,max(g[i]-1,0),min(g[i],tot-1)){
+					col[i].pb(k*6+j);
+					pos[k*6+j].pb(i);
+				}
+			}
+		}
+	}
+	pos[0].pb(0);
+	Vec<Segtree<int>> mn(tot*6+1);
+	rep(i,0,tot*6){
+		mn[i].L=0,mn[i].R=pos[i].size()-1;
+		mn[i].st.resize(pos[i].size()*4,INF);
+	}
+	dp[0][0]=0;
+	mn[0].upd(0,0);
+	rep(i,1,n){
+		for(auto j:col[i]){
+			if(s[i]=='b') dp[i][j%20]=mn[j-1].ask(0,lb(all(pos[j-1]),i)-pos[j-1].begin()-1);
+			else dp[i][j%20]=mn[j-1].ask(0,lb(all(pos[j-1]),i)-pos[j-1].begin()-1)+sum[i-1];
+			int p=lb(all(pos[j]),i)-pos[j].begin();
+			if(j%6==0) mn[j].upd(p,dp[i][j%20]);
+			else mn[j].upd(p,dp[i][j%20]-sum[i]);
+		}
+	}
+	for(auto i:pos[tot*6]){
+		chkmin(ans,dp[i][tot*6%20]);
+	}
+	cout<<tot<<endl<<ans<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -198,3 +247,5 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) duipai
 */
+
+

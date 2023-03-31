@@ -1,13 +1,13 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 3/26/2023 11:02:38 PM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -63,7 +63,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -105,23 +105,19 @@ namespace Comfun{
 	template<class T> inline T lcm(T a,T b){return a/gcd(a,b)*b;}
 	template<class T> inline T chkmax(T &a,T b){return a=max(a,b);}
 	template<class T> inline T chkmin(T &a,T b){return a=min(a,b);}
-	template<class T> inline T qpow(T a,T b){T ans=1;while(b){if(b&1) ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
+	template<class T> inline T qpow(T a,T b){
+	T ans=1;while(b){if(b&1) ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
 	template<class T> inline T inv(T x){return qpow(x,MOD-2);}
 	template<class T> inline bool is_prime(T x){
-	if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false;return true;}
+	if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false; return true;}
 } using namespace Comfun;
 
 template<class T,class Fun=function<T(const T,const T)>> struct Segtree{
-	int L=0,R=-1,ini=0; Fun F; Vec<T> st;
-	inline Segtree(){}
-	inline Segtree(int L,int R,int val,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,ini=val);}
+	int L=0,R=0; Fun F; Vec<T> st;
+	inline Segtree(int L,int R,int val,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,val);}
 	inline Segtree(int L,int R,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,0);}
 	inline Segtree(Vec<T> v,Fun F){this->R=v.size()-1,this->F=F;st.resize(v.size()<<2);rep(i,0,this->R) upd(i,v[i],true);}
-	inline void init(int L,int R,int val,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,ini=val);}
-	inline void init(int L,int R,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,0);}
-	inline void init(Vec<T> v,Fun F){this->R=v.size()-1,this->F=F;st.resize(v.size()<<2);rep(i,0,this->R) upd(i,v[i],true);}
 	inline T query(int rt,int l,int r,int x,int y){
-		if(x>y) return ini;
 		if(l==x&&r==y) return st[rt];
 		int mid=l+r>>1;
 		if(y<=mid) return query(lc,l,mid,x,y);
@@ -138,10 +134,8 @@ template<class T,class Fun=function<T(const T,const T)>> struct Segtree{
 };
 
 template<class T> struct Fenwick{
-	int n=0; Vec<array<T,2>> d;
-	inline Fenwick(){}
+	int n; Vec<array<T,2>> d;
 	inline Fenwick(int n){d.resize(this->n=n);}
-	inline resize(int n){d.resize(this->n=n,0);}
 	inline T query(int x,int k){int ans=0;for(int i=x;i>0;i-=lowbit(i)) ans+=d[i][k];return ans;}
 	inline T ask(int x,int y){return (y+2)*query(y+1,0)-query(y+1,1)-(x+1)*query(x,0)+query(x,1);}
 	inline void update(int x,int v){for(int i=x;i<=n;i+=lowbit(i))d[i][0]+=v,d[i][1]+=v*x;}
@@ -151,13 +145,112 @@ template<class T> struct Fenwick{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 1e3+10;
 
-int n;
+int n,m,f[N],ff[N],flag[N];
+VI e[N],ee[N];
+Vec<VI> child[N];
+
+void merge(int x,int y){
+	cout<<x<<" "<<y<<endl;
+	for(auto v:e[x]){
+		e[y].pb(v);
+	}
+	e[x].clear();
+}
+
+bool match(int x,int y){
+	if(child[y].size()<child[x].size()){
+//		cout<<x<<" "<<y<<" "<<child[x].size()<<" "<<child[y].size()<<endl;
+		return false;
+	}
+	rep(i,0,child[x].size()-1){
+		int mx=0,my=0;
+		map<int,bool> vis;
+		for(auto c:child[y][i]){
+			vis[c]=1;
+			chkmax(my,c);
+		}
+		for(auto c:child[x][i]){
+			if(vis[c]){
+				return true;
+			}
+			chkmax(mx,c);
+		}
+		if(mx>my){
+			return false;
+		}
+	}
+	return true;
+}
+
+void dfs(int u){
+	for(auto v:e[u]){
+		if(flag[v]) continue;
+		for(auto vv:ee[u]){
+//			puts("here");
+//			cout<<v<<" "<<v<<endl;
+			if(vv<=v) continue;
+			if(match(v,vv)){
+				merge(v,vv);
+				break;
+			}
+		}
+	}
+	for(auto vv:e[u]){
+		dfs(vv);
+	}
+}
+
+void init(int u,int dep,int x){
+	if(dep+1>=child[x].size()){
+		child[x].resize(dep+2);
+	}
+	child[x][dep].pb(u);
+	if(flag[x]){	
+		for(auto v:ee[u]){
+			init(v,dep+1,x);
+		}
+	}
+	else{
+		for(auto v:e[u]){
+			init(v,dep+1,x);
+		}
+	}
+}
 
 void SOLVE(int Case){
 	cin>>n;
-	
+	rep(i,1,n){
+		e[i].clear();
+		ee[i].clear();
+		child[i].clear();
+		flag[i]=0;
+	}
+	rep(i,1,n-1){
+		int u,v;
+		cin>>u>>v;
+		e[v].pb(u);
+		f[u]=v;
+	}
+	cin>>m;
+	rep(i,1,m-1){
+		int u,v;
+		cin>>u>>v;
+		ee[v].pb(u);
+		ff[u]=v;
+		flag[u]=1;
+		flag[v]=1;
+	}
+	cout<<n-m<<endl;
+	int root=0;
+	rep(i,1,n){
+		init(i,0,i);
+		if(!f[i]&&!ff[i]){
+			root=i;
+		}
+	}
+	dfs(root);
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -198,3 +291,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) duipai
 */
+
