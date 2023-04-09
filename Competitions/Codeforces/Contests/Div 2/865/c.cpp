@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 4/8/2023 7:31:55 AM
+ * Date: 4/9/2023 8:09:54 AM
  * Problem:
  * Source:
  * Description:
@@ -151,90 +151,36 @@ template<class T> struct Fenwick{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 5;
+const int N = 1e6+10;
 
-int n,m,tar_x,tar_y;
-
-int get(int x,int y){
-	return max(abs(tar_x-x),abs(tar_y-y));
-}
-
-void ask(int x,int y,int &k){
-	if(x>n||x<1||y>m||y<1){
-//		cout<<n<<" "<<m<<" "<<tar_x<<" "<<tar_y<<endl;
-		k=1;
-		return;
-	}
-//	k=get(x,y);
-	cout<<"? "<<x<<" "<<y<<endl;
-	cout.flush();
-	cin>>k;
-}
-
-void print(int x,int y){
-	cout<<"! "<<x<<" "<<y<<endl;
-	cout.flush();
-//	if(x!=tar_x || y!=tar_y){
-//		cout<<n<<" "<<m<<" "<<tar_x<<" "<<tar_y<<endl;
-//	}
-}
+int n,a[N];
 
 void SOLVE(int Case){
-//	n=random(1,N);
-//	m=random(1,N);
-//	tar_x=random(1,n);
-//	tar_y=random(1,m);
-	
-	int x,y;
-	cin>>n>>m;
-	if(n==1&&m==1){
-		print(1,1);
-		return;
+	cin>>n;
+	rep(i,1,n){
+		cin>>a[i];
 	}
-	int x1=1,y1=1,k1;
-	ask(x1,y1,k1);
-	//max(x-1,y-1)=k1
-	//1. x=k1+1
-	//2. y=k1+1
-	
-	
-	int x2=n,y2=m,k2;
-	ask(x2,y2,k2);
-	//max(n-x,m-y)=k2
-	//1. x=n-k2
-	//2. y=m-k2
-	
-	//11. k1+1==n-k2
-	//22. k1+1==m-k2
-	//12. x=k1+1, y=m-k2
-	//21. y=k1+1, x=n-k2
-	
-	int k3;
-	if(k1+k2==n-1){
-		x=k1+1;
-		ask(x,1,k3);
-		y=k3+1;
-		print(x,y);
-		return;
+	rep(i,2,n-1){
+		if(a[i]<a[i-1]){
+			int x=a[i-1]-a[i];
+			a[i]+=x;
+			a[i+1]+=x;
+		}
 	}
-	else if(k1+k2==m-1){
-		y=k1+1;
-		ask(1,y,k3);
-		x=k3+1;
-		print(x,y);
-		return;
+	per(i,n-1,2){
+		if(a[i]>a[i+1]){
+			int x=a[i]-a[i+1];
+			a[i]-=x;
+			a[i-1]-=x;
+		}
 	}
-	
-	x=k1+1;
-	y=m-k2;
-	
-	ask(x,y,k3);
-	if(k3){
-		y=k1+1;
-		x=n-k2;
+	rep(i,2,n){
+		if(a[i]<a[i-1]){
+			cout<<"NO"<<endl;
+			return;
+		}
 	}
-	print(x,y);
-	return;
+	cout<<"YES"<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
