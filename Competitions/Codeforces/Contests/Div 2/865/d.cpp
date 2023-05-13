@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 4/9/2023 8:20:37 AM
+ * Date: 4/9/2023 9:35:08 AM
  * Problem:
  * Source:
  * Description:
@@ -153,30 +153,53 @@ template<class T> struct Fenwick{
 
 const int N = 1e6+10;
 
-int n,ans[N];
+int n,dis[N],ans[N],pre[N],nxt[N];
+VI pos[N];
 
 void add(int x){
 	cout<<"+ "<<x<<endl;
 	cout.flush();
 }
 
-void ask(int i,int j){
+int ask(int i,int j){
 	cout<<"? "<<i<<" "<<j<<endl;
-	cout.flush();
-}
-
-void print(){
-	cout<<"! ";
-	rep(i,1,n){
-		cout<<ans[i]<<" ";
-	}
-	cout<<endl;
 	cout.flush();
 }
 
 void SOLVE(int Case){
 	cin>>n;
-	
+	add(n+1);
+	add(n/2+1);
+	add(n*2-1);
+	rep(i,1,n){
+		dis[i]=ask(i,1);
+		pos[dis[i]].pb(i);
+	}
+	int cnt=1;
+	while(pos[tot].size()==2){
+		if(!pos[cnt].size()) break;
+		int d=ask(pos[cnt][0],pos[cnt+1][0]);
+		if(d==1){
+			nxt[pos[cnt][0]]=pos[cnt+1][0];
+			pre[pos[cnt+1][0]]=pos[cnt][0];
+			if(pos[cnt].size()==2){
+				nxt[pos[cnt][1]]=pos[cnt+1][1];
+				pre[pos[cnt+1][1]]=pos[cnt][1];
+			}
+		}
+		else{
+			nxt[pos[cnt][1]]=pos[cnt+1][0];
+			pre[pos[cnt+1][0]]=pos[cnt][1];
+			if(pos[cnt].size()==2){
+				nxt[pos[cnt][0]]=pos[cnt+1][1];
+				pre[pos[cnt+1][1]]=pos[cnt][0];
+			}
+		}
+		cnt++;
+	}
+	cout<<"! ";
+	dfs(pre[])
+	cout.flush();
 }
 
 /* =====================================| End of Main Program |===================================== */
