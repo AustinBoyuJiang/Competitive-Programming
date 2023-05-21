@@ -1,20 +1,20 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 5/18/2023 1:01:19 AM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
 #define FASTIO
 //#define OPTIMIZE
-//#define INTTOLL
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -63,7 +63,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -151,13 +151,47 @@ template<class T> struct Fenwick{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 5e5+10;
 
-int n;
+int n,nxt[N],dp[N],d[N],l[N],r[N];
+string str;
+
+void Manacher(){
+	int l=-1,r=-1;
+	rep(i,0,n-1){
+		d[i]=r>i?min(d[l+r-i-1],r-i):0;
+		while(i+d[i]+1<n&&str[i+d[i]+1]==str[i-d[i]]){
+			d[i]++;
+			if(i+d[i]>r){
+				l=i-d[i]+1;
+				r=i+d[i];
+			}
+		}
+	}
+}
 
 void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>n>>str;
+	Manacher();
+	rep(i,0,n-1){
+		nxt[i]=0;
+		l[i]=i-1;
+		r[i]=i+1;
+	}
+	rep(i,0,n-1){
+		for(int j=i;j>=i-d[i]+1;j=l[j]){
+			nxt[j]=i+i-j+2;
+			r[l[j]]=r[j];
+			l[r[j]]=l[j];
+		}
+	}
+	ll ans=0;
+	dp[n]=0;
+	per(i,n-1,0){
+		dp[i]=nxt[i]?dp[nxt[i]]+1:0;
+		ans+=dp[i];
+	}
+	cout<<ans<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -198,3 +232,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) duipai
 */
+
