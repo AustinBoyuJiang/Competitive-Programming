@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 5/25/2023 12:12:46 AM
+ * Date: 6/16/2023 8:06:02 PM
  * Problem:
  * Source:
  * Description:
@@ -14,7 +14,7 @@
 //#define SETMEM
 //#define FASTIO
 #define OPTIMIZE
-#define INTTOLL
+//#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -55,7 +55,7 @@ mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
 #define random(a,b) rng()%(b-a+1)+a
 
 /* Data type */
-using ll = long long;
+using LL = long long;
 using ull = unsigned long long;
 using ld = long double;
 using PI = pair<int,int>;
@@ -69,7 +69,7 @@ template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 /* Set up */
 namespace FastIO{
 	inline int read() {int x=0; bool f=0; char ch=0; while(!isdigit(ch)) f=ch=='-',ch=getchar(); while(isdigit(ch)) x=x*10+ch-'0',ch=getchar(); return f?-x:x;}
-	inline ll readLL() {ll x=0; bool f=0; char ch=0; while(!isdigit(ch)) f=ch=='-',ch=getchar(); while(isdigit(ch)) x=x*10+ch-'0',ch=getchar(); return f?-x:x;}
+	inline LL readLL() {LL x=0; bool f=0; char ch=0; while(!isdigit(ch)) f=ch=='-',ch=getchar(); while(isdigit(ch)) x=x*10+ch-'0',ch=getchar(); return f?-x:x;}
 	inline int read(int &x) {return x=read();}
     template<class T> inline void write(T x) {if(x<0) x=-x,putchar('-'); if(x>9) write(x/10); putchar(x%10+'0');}
 	template<class T> inline void write(T x,char ch) {write(x),putchar(ch);}
@@ -81,17 +81,17 @@ void SETUP(){
 	#endif
 	#ifdef READLOCAL
 	freopen("in.txt","r",stdin);
-	freopen("stdout.txt","w",stdout);
+//	freopen("stdout.txt","w",stdout);
 	#endif
 	srand(time(0));
 }
 
 /* Constants */
-const ll LLINF = 0x3f3f3f3f3f3f3f3f;
+const LL LLINF = 0x3f3f3f3f3f3f3f3f;
 #ifndef int
 const int INF = 0x3f3f3f3f;
 #else
-const ll INF = LLINF;
+const LL INF = LLINF;
 #endif
 const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
@@ -113,131 +113,141 @@ namespace Comfun{
 	for(T &x:v) x=lb(all(num),x)-num.begin()+st;}
 } using namespace Comfun;
 
-template<class T,class Fun=function<T(const T,const T)>> struct Segtree{
-	int L=0,R=-1,ini=0; Fun F; Vec<T> st;
-	inline Segtree(){}
-	inline Segtree(int L,int R,int val,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,ini=val);}
-	inline Segtree(int L,int R,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,0);}
-	inline Segtree(Vec<T> v,Fun F){this->R=v.size()-1,this->F=F;st.resize(v.size()<<2);rep(i,0,this->R) upd(i,v[i],true);}
-	inline void init(int L,int R,int val,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,ini=val);}
-	inline void init(int L,int R,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,0);}
-	inline void init(Vec<T> v,Fun F){this->R=v.size()-1,this->F=F;st.resize(v.size()<<2);rep(i,0,this->R) upd(i,v[i],true);}
-	inline T query(int rt,int l,int r,int x,int y){
-		if(x>y) return ini;
-		if(l==x&&r==y) return st[rt];
-		int mid=l+r>>1;
-		if(y<=mid) return query(lc,l,mid,x,y);
-		else if(x>mid) return query(rc,mid+1,r,x,y);
-		else return F(query(lc,l,mid,x,mid),query(rc,mid+1,r,mid+1,y));}
-	inline void update(int rt,int l,int r,int x,int v,bool cover){
-		if(l==r){st[rt]=cover?v:F(st[rt],v);return;}
-		int mid=l+r>>1;
-		if(x<=mid) update(lc,l,mid,x,v,cover);
-		else update(rc,mid+1,r,x,v,cover);
-		st[rt]=F(st[lc],st[rc]);}
-	inline T ask(int x,int y){return query(1,L,R,x,y);}
-	inline void upd(int x,int y,bool cover=false){update(1,L,R,x,y,cover);}
-};
-
-template<class T> struct Fenwick{
-	int n=0; Vec<array<T,2>> d;
-	inline Fenwick(){}
-	inline Fenwick(int n){d.resize(this->n=n);}
-	inline void resize(int n){d.resize(this->n=n,0);}
-	inline T query(int x,int k){int ans=0;for(int i=x;i>0;i-=lowbit(i)) ans+=d[i][k];return ans;}
-	inline T ask(int x,int y){return (y+2)*query(y+1,0)-query(y+1,1)-(x+1)*query(x,0)+query(x,1);}
-	inline void update(int x,int v){for(int i=x;i<=n;i+=lowbit(i))d[i][0]+=v,d[i][1]+=v*x;}
-	inline void add(int x,int y,int v){update(x+1,v),update(y+2,-v);}
-	inline void add(int x,int v){add(x,x,v);}
-};
-
 /* ========================================| Main Program |======================================== */
-
-using PDI = pair<long double,int>;
 
 const int N = 5e5+10;
 
-int n,m,x[N],y[N];
-PDI v[N];
+int n,ans,a[N];
+VI pos[N];
 
-struct segtree_interval{
-	PDI mx[N<<2],lazy[N<<2];
+struct SegTree{
+	int sum[N<<2];
 	
-	void add(PDI &a,PDI b){
-		a.fir+=b.fir;
-		a.sec=a.sec*b.sec%MOD;
-	}
-
-	void build(int rt,int l,int r){
-		lazy[rt]={0,1};
-		if(l==r){
-			mx[rt]=v[l];
-			return;
-		}
+	inline void upd(int rt,int l,int r,int x,int y){
+		if(l==r) return (void)(sum[rt]+=y);
 		int mid=l+r>>1;
-		build(lc,l,mid);
-		build(rc,mid+1,r);
-		mx[rt]=max(mx[lc],mx[rc]);
+		if(x<=mid) upd(lc,l,mid,x,y);
+		else upd(rc,mid+1,r,x,y);
+		sum[rt]=sum[lc]+sum[rc];
 	}
 	
-	void push_down(int rt,int l,int mid,int r){
-		if(lazy[rt].fir){
-			add(mx[lc],lazy[rt]);
-			add(mx[rc],lazy[rt]);
-			add(lazy[lc],lazy[rt]);
-			add(lazy[rc],lazy[rt]);
-			lazy[rt]={0,1};
+	inline int qry(int rt,int l,int r,int x,int y){
+		if(x>y) return 0;
+		if(l==x&&r==y) return sum[rt];
+		int mid=l+r>>1;
+		if(y<=mid) return qry(lc,l,mid,x,y);
+		else if(x>mid) return qry(rc,mid+1,r,x,y);
+		else return qry(lc,l,mid,x,mid)+qry(rc,mid+1,r,mid+1,y);
+	}
+	
+	inline void add(int x,int val) {upd(1,1,n,x,val);}
+	inline int ask(int l,int r) {return qry(1,1,n,l,r);}
+	
+} pre,aft;
+
+template<class Func=function<int(const int,const int)>>
+struct SegTree_Interval{
+	int mnx[N<<2],lazy[N<<2];
+	Func F;
+	
+	SegTree_Interval(Func F){
+		this->F=F;
+	}
+	
+	inline void push_down(int rt,int l,int mid,int r){
+		if(lazy[rt]){
+			lazy[lc]+=lazy[rt];
+			lazy[rc]+=lazy[rt];
+			mnx[lc]+=lazy[rt];
+			mnx[rc]+=lazy[rt];
+			lazy[rt]=0;
 		}
 	}
 	
-	void upd(int rt,int l,int r,int x,int y,PDI val){
+	inline void upd(int rt,int l,int r,int x,int y,int val){
 		if(l==x&&r==y){
-			add(mx[rt],val);
-			add(lazy[rt],val);
+			mnx[rt]+=val;
+			lazy[rt]+=val;
 			return;
 		}
 		int mid=l+r>>1;
 		push_down(rt,l,mid,r);
 		if(y<=mid) upd(lc,l,mid,x,y,val);
 		else if(x>mid) upd(rc,mid+1,r,x,y,val);
-		else{
-			upd(lc,l,mid,x,mid,val);
-			upd(rc,mid+1,r,mid+1,y,val);
-		}
-		mx[rt]=max(mx[lc],mx[rc]);
+		else upd(lc,l,mid,x,mid,val),upd(rc,mid+1,r,mid+1,y,val);
+		mnx[rt]=F(mnx[lc],mnx[rc]);
 	}
-} st;
+	
+	inline int qry(int rt,int l,int r,int x,int y){
+		if(x>y) return 0;
+		if(l==x&&r==y) return mnx[rt];
+		int mid=l+r>>1;
+		push_down(rt,l,mid,r);
+		if(y<=mid) return qry(lc,l,mid,x,y);
+		else if(x>mid) return qry(rc,mid+1,r,x,y);
+		else return F(qry(lc,l,mid,x,mid),qry(rc,mid+1,r,mid+1,y));
+	}
+	
+	inline void add(int l,int r,int val) {upd(1,1,n,l,r,val);}
+	inline int ask(int l,int r) {return qry(1,1,n,l,r);}
+	
+};
 
-void SOLVE(int Case){
+auto minFunc=[](int x,int y){return min(x,y);};
+auto maxFunc=[](int x,int y){return max(x,y);};
+SegTree_Interval<> mnl(minFunc),mnr(minFunc),mxl(maxFunc),mxr(maxFunc);
+
+bool check(int x,int i,int j){
+	int l=pos[x][i],r=pos[x][j];
+	int xx=pre.ask(l,r),yy=aft.ask(l,r);
+	if(xx<=0&yy>=0) return true;
+	int ll=i==0?1:pos[x][i-1]+1;
+	int lb=mnl.ask(ll,l)-mnl.ask(l,l)+mnr.ask(r,n)-mnr.ask(r,r);
+	int ub=mxl.ask(ll,l)-mxl.ask(l,l)+mxr.ask(r,n)-mxr.ask(r,r);
+	return xx+lb<=0&&yy+ub>=0;
+}
+
+inline void preupd(int x,int val){
+	pre.add(x,val);
+	mnl.add(1,x,val);
+	mnr.add(x,n,val);
+}
+
+inline void aftupd(int x,int val){
+	aft.add(x,val);
+	mxl.add(1,x,val);
+	mxr.add(x,n,val);
+}
+
+inline int SOLVE(){
+	rep(i,1,n){
+		pos[a[i]].pb(i);
+		preupd(i,1);
+		aftupd(i,1);
+	}
+	rep(x,1,n){
+		for(int p:pos[x]) preupd(p,-2);
+		int j=-1;
+		rep(i,0,(int)pos[x].size()-1){
+			while(j+1<pos[x].size()&&check(x,i,j+1)){
+				j++;
+				chkmax(ans,j-i+1);
+			}
+		}
+		for(int p:pos[x]) aftupd(p,-2);
+	}
+	return ans;
+}
+
+inline void INPUT(){
 	read(n);
-	v[0]={0,1};
-	rep(i,1,n){
-		read(x[i]);
-		v[i].fir=v[i-1].fir+log10(x[i]);
-		v[i].sec=v[i-1].sec*x[i]%MOD;
-	}
-	rep(i,1,n){
-		read(y[i]);
-		v[i].fir+=log10(y[i]);
-		v[i].sec=v[i].sec*y[i]%MOD;
-	}
-	st.build(1,1,n);
-	write(st.mx[1].sec,endl);
-	read(m);
-	rep(i,1,m){
-		int opt=read(),pos=read()+1,val=read();
-		if(opt==1){
-			st.upd(1,1,n,pos,n,{-log10(x[pos]),inv(x[pos])});
-			st.upd(1,1,n,pos,n,{log10(val),val});
-			x[pos]=val;
-		}
-		if(opt==2){
-			st.upd(1,1,n,pos,pos,{-log10(y[pos]),inv(y[pos])});
-			st.upd(1,1,n,pos,pos,{log10(val),val});
-			y[pos]=val;
-		}
-		write(st.mx[1].sec,endl);
-	}
+	rep(i,1,n) read(a[i]);
+}
+
+int sequence(int N,VI A){
+	n=N;
+	rep(i,1,n) a[i]=A[i-1];
+	return SOLVE();
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -257,7 +267,8 @@ signed main(){
 		#ifdef LOCAL
 		printf("Case #%d: \n",i);
 		#endif
-		SOLVE(i);
+		INPUT();
+		write(SOLVE(),endl);
 	}
 	#else
 	system("fc stdout.txt out.txt");
@@ -276,6 +287,6 @@ signed main(){
     * don't stuck on one question for two long (like 30-45 min)
     * Debug: (a) read your code once, check overflow and edge case
     * Debug: (b) create your own test case
-    * Debug: (c) duipai
+    * Debug: (c) Adversarial Testing
 */
 

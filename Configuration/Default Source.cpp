@@ -143,7 +143,7 @@ template<class T> struct Fenwick{
 	int n=0; Vec<array<T,2>> d;
 	inline Fenwick(){}
 	inline Fenwick(int n){d.resize(this->n=n);}
-	inline void resize(int n){d.resize(this->n=n,0);}
+	inline void resize(int n){d.resize(this->n=n,{0,0});}
 	inline T query(int x,int k){int ans=0;for(int i=x;i>0;i-=lowbit(i)) ans+=d[i][k];return ans;}
 	inline T ask(int x,int y){return (y+2)*query(y+1,0)-query(y+1,1)-(x+1)*query(x,0)+query(x,1);}
 	inline void update(int x,int v){for(int i=x;i<=n;i+=lowbit(i))d[i][0]+=v,d[i][1]+=v*x;}
@@ -198,5 +198,5 @@ signed main(){
     * don't stuck on one question for two long (like 30-45 min)
     * Debug: (a) read your code once, check overflow and edge case
     * Debug: (b) create your own test case
-    * Debug: (c) duipai
+    * Debug: (c) Adversarial Testing
 */

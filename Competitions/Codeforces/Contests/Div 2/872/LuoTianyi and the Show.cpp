@@ -165,9 +165,7 @@ void SOLVE(int Case){
 		cin>>x[i];
 		if(x[i]==-1) cnt1++;
 		else if(x[i]==-2) cnt2++;
-		else{
-			num.insert(x[i]);
-		}
+		else num.insert(x[i]);
 	}
 	VI pos;
 	for(int x:num) pos.pb(x);

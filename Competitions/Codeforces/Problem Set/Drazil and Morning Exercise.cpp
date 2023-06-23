@@ -1,9 +1,9 @@
 /*
  * Author: Austin Jiang
- * Date: 5/25/2023 12:12:46 AM
- * Problem:
+ * Date: 6/8/2023 11:35:59 AM
+ * Problem: Drazil and Morning Exercise
  * Source:
- * Description:
+ * Description: O(n*log(n))
 */
 
 /* Configuration */
@@ -14,7 +14,7 @@
 //#define SETMEM
 //#define FASTIO
 #define OPTIMIZE
-#define INTTOLL
+//#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -58,7 +58,7 @@ mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
 using ll = long long;
 using ull = unsigned long long;
 using ld = long double;
-using PI = pair<int,int>;
+using PI = pair<ll,int>;
 using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
@@ -113,130 +113,78 @@ namespace Comfun{
 	for(T &x:v) x=lb(all(num),x)-num.begin()+st;}
 } using namespace Comfun;
 
-template<class T,class Fun=function<T(const T,const T)>> struct Segtree{
-	int L=0,R=-1,ini=0; Fun F; Vec<T> st;
-	inline Segtree(){}
-	inline Segtree(int L,int R,int val,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,ini=val);}
-	inline Segtree(int L,int R,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,0);}
-	inline Segtree(Vec<T> v,Fun F){this->R=v.size()-1,this->F=F;st.resize(v.size()<<2);rep(i,0,this->R) upd(i,v[i],true);}
-	inline void init(int L,int R,int val,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,ini=val);}
-	inline void init(int L,int R,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,0);}
-	inline void init(Vec<T> v,Fun F){this->R=v.size()-1,this->F=F;st.resize(v.size()<<2);rep(i,0,this->R) upd(i,v[i],true);}
-	inline T query(int rt,int l,int r,int x,int y){
-		if(x>y) return ini;
-		if(l==x&&r==y) return st[rt];
-		int mid=l+r>>1;
-		if(y<=mid) return query(lc,l,mid,x,y);
-		else if(x>mid) return query(rc,mid+1,r,x,y);
-		else return F(query(lc,l,mid,x,mid),query(rc,mid+1,r,mid+1,y));}
-	inline void update(int rt,int l,int r,int x,int v,bool cover){
-		if(l==r){st[rt]=cover?v:F(st[rt],v);return;}
-		int mid=l+r>>1;
-		if(x<=mid) update(lc,l,mid,x,v,cover);
-		else update(rc,mid+1,r,x,v,cover);
-		st[rt]=F(st[lc],st[rc]);}
-	inline T ask(int x,int y){return query(1,L,R,x,y);}
-	inline void upd(int x,int y,bool cover=false){update(1,L,R,x,y,cover);}
-};
-
-template<class T> struct Fenwick{
-	int n=0; Vec<array<T,2>> d;
-	inline Fenwick(){}
-	inline Fenwick(int n){d.resize(this->n=n);}
-	inline void resize(int n){d.resize(this->n=n,0);}
-	inline T query(int x,int k){int ans=0;for(int i=x;i>0;i-=lowbit(i)) ans+=d[i][k];return ans;}
-	inline T ask(int x,int y){return (y+2)*query(y+1,0)-query(y+1,1)-(x+1)*query(x,0)+query(x,1);}
-	inline void update(int x,int v){for(int i=x;i<=n;i+=lowbit(i))d[i][0]+=v,d[i][1]+=v*x;}
-	inline void add(int x,int y,int v){update(x+1,v),update(y+2,-v);}
-	inline void add(int x,int v){add(x,x,v);}
-};
-
 /* ========================================| Main Program |======================================== */
 
-using PDI = pair<long double,int>;
+const int N = 1e5+10;
 
-const int N = 5e5+10;
+int n,q,ans,tot,hd1,hd2,root,stk[N],dp[N],fa[N];
+ll lim,val[N],dist[3][N];
+VPI e[N];
 
-int n,m,x[N],y[N];
-PDI v[N];
-
-struct segtree_interval{
-	PDI mx[N<<2],lazy[N<<2];
-	
-	void add(PDI &a,PDI b){
-		a.fir+=b.fir;
-		a.sec=a.sec*b.sec%MOD;
+void diameter(int u,int fa,int w,int &head,int k){
+	dist[k][u]=dist[k][fa]+w;
+	if(k<2&&dist[k][u]>dist[k][head]) head=u;
+	for(PI edge:e[u]){
+		int v=edge.fir;
+		if(v==fa) continue;
+		diameter(v,u,edge.sec,head,k);
 	}
+}
 
-	void build(int rt,int l,int r){
-		lazy[rt]={0,1};
-		if(l==r){
-			mx[rt]=v[l];
-			return;
-		}
+void dfs1(int u,int father){
+	dp[u]=0;
+	fa[u]=father;
+	stk[++tot]=u;
+	int l=1,r=tot,res;
+	while(l<=r){
 		int mid=l+r>>1;
-		build(lc,l,mid);
-		build(rc,mid+1,r);
-		mx[rt]=max(mx[lc],mx[rc]);
-	}
-	
-	void push_down(int rt,int l,int mid,int r){
-		if(lazy[rt].fir){
-			add(mx[lc],lazy[rt]);
-			add(mx[rc],lazy[rt]);
-			add(lazy[lc],lazy[rt]);
-			add(lazy[rc],lazy[rt]);
-			lazy[rt]={0,1};
+		if(val[u]-val[stk[mid]]<=lim){
+			res=stk[mid];
+			r=mid-1;
 		}
+		else l=mid+1;
 	}
-	
-	void upd(int rt,int l,int r,int x,int y,PDI val){
-		if(l==x&&r==y){
-			add(mx[rt],val);
-			add(lazy[rt],val);
-			return;
-		}
-		int mid=l+r>>1;
-		push_down(rt,l,mid,r);
-		if(y<=mid) upd(lc,l,mid,x,y,val);
-		else if(x>mid) upd(rc,mid+1,r,x,y,val);
-		else{
-			upd(lc,l,mid,x,mid,val);
-			upd(rc,mid+1,r,mid+1,y,val);
-		}
-		mx[rt]=max(mx[lc],mx[rc]);
+	dp[u]++;
+	dp[fa[res]]--;
+	for(PI edge:e[u]){
+		int v=edge.fir;
+		if(v==fa[u]) continue;
+		dfs1(v,u);
 	}
-} st;
+	tot--;
+}
+
+void dfs2(int u){
+	for(PI edge:e[u]){
+		int v=edge.fir;
+		if(v==fa[u]) continue;
+		dfs2(v);
+		dp[u]+=dp[v];
+	}
+	chkmax(ans,dp[u]);
+}
 
 void SOLVE(int Case){
 	read(n);
-	v[0]={0,1};
-	rep(i,1,n){
-		read(x[i]);
-		v[i].fir=v[i-1].fir+log10(x[i]);
-		v[i].sec=v[i-1].sec*x[i]%MOD;
+	rep(i,1,n-1){
+		int u=read(),v=read(),w=read();
+		e[u].pb({v,w});
+		e[v].pb({u,w});
 	}
+	diameter(1,0,0,hd1,0);
+	diameter(hd1,0,0,hd2,1);
+	diameter(hd2,0,0,hd2,2);
 	rep(i,1,n){
-		read(y[i]);
-		v[i].fir+=log10(y[i]);
-		v[i].sec=v[i].sec*y[i]%MOD;
+		val[i]=max(dist[1][i],dist[2][i]);
+		if(!root||val[i]<val[root]) root=i;
 	}
-	st.build(1,1,n);
-	write(st.mx[1].sec,endl);
-	read(m);
-	rep(i,1,m){
-		int opt=read(),pos=read()+1,val=read();
-		if(opt==1){
-			st.upd(1,1,n,pos,n,{-log10(x[pos]),inv(x[pos])});
-			st.upd(1,1,n,pos,n,{log10(val),val});
-			x[pos]=val;
-		}
-		if(opt==2){
-			st.upd(1,1,n,pos,pos,{-log10(y[pos]),inv(y[pos])});
-			st.upd(1,1,n,pos,pos,{log10(val),val});
-			y[pos]=val;
-		}
-		write(st.mx[1].sec,endl);
+	read(q);
+	rep(i,1,q){
+		lim=readLL();
+		ans=0;
+		dfs1(root,0);
+		dfs2(root);
+		write(ans,endl);
 	}
 }
 
@@ -244,7 +192,7 @@ void SOLVE(int Case){
 
 signed main(){
 	#ifdef SETMEM
-    int size(512<<20);  //512MB
+    int size(256<<20);  //512MB
     __asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
 	#endif
 	#ifndef FILESCOMP
@@ -276,6 +224,6 @@ signed main(){
     * don't stuck on one question for two long (like 30-45 min)
     * Debug: (a) read your code once, check overflow and edge case
     * Debug: (b) create your own test case
-    * Debug: (c) duipai
+    * Debug: (c) Adversarial Testing
 */
 

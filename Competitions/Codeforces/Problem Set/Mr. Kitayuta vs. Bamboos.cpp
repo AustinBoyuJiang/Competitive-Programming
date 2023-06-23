@@ -1,8 +1,8 @@
 /*
  * Author: Austin Jiang
- * Date: 5/25/2023 12:12:46 AM
- * Problem:
- * Source:
+ * Date: 6/4/2023 11:42:17 PM
+ * Problem: Mr. Kitayuta vs. Bamboos
+ * Source: Codeforces Round 286 (Div. 2)
  * Description:
 */
 
@@ -153,92 +153,83 @@ template<class T> struct Fenwick{
 
 /* ========================================| Main Program |======================================== */
 
-using PDI = pair<long double,int>;
+const int N = 1e5+10;
+const int M = 5e3+10;
 
-const int N = 5e5+10;
+int n,m,k,p,h[N],v[N],t[N],cnt[M];
+VI lim[N];
+//lim[i][j]: 第i个Bamboo，j次beats最少在第几天之后才可以做 
 
-int n,m,x[N],y[N];
-PDI v[N];
+bool ok(int i,int j,int day,int H){
+	return max(0ll,max(0ll,h[i]+v[i]*day-p*j)+v[i]*(m-day-1)-p*(t[i]-j))+v[i]<=H;
+}
 
-struct segtree_interval{
-	PDI mx[N<<2],lazy[N<<2];
-	
-	void add(PDI &a,PDI b){
-		a.fir+=b.fir;
-		a.sec=a.sec*b.sec%MOD;
+bool check(int H){
+	int sum=0;
+	rep(i,1,n){
+		t[i]=(h[i]+v[i]*m-H+p-1)/p;
+		chkmax(t[i],0ll);
+		sum+=t[i];
 	}
-
-	void build(int rt,int l,int r){
-		lazy[rt]={0,1};
-		if(l==r){
-			mx[rt]=v[l];
-			return;
+	if(sum>m*k) return false;
+	memset(cnt,0,sizeof(cnt));
+	rep(i,1,n){
+		lim[i].resize(t[i]+1);
+		rep(j,1,t[i]){
+			lim[i][j]=m;
+			int l=0,r=m;
+			while(l<=r){
+				int mid=l+r>>1;
+				if(ok(i,j,mid,H)){
+					r=mid-1;
+					lim[i][j]=mid;
+				}
+				else{
+					l=mid+1;
+				}
+			}
 		}
-		int mid=l+r>>1;
-		build(lc,l,mid);
-		build(rc,mid+1,r);
-		mx[rt]=max(mx[lc],mx[rc]);
+		rep(j,1,t[i]){
+			cnt[lim[i][j]]++;
+		}
 	}
-	
-	void push_down(int rt,int l,int mid,int r){
-		if(lazy[rt].fir){
-			add(mx[lc],lazy[rt]);
-			add(mx[rc],lazy[rt]);
-			add(lazy[lc],lazy[rt]);
-			add(lazy[rc],lazy[rt]);
-			lazy[rt]={0,1};
-		}
+	if(cnt[m]) return false;
+	int rest=0;
+	per(i,m-1,0){
+		rest+=k;
+		rest-=cnt[i];
+		if(rest<0) return false;
 	}
-	
-	void upd(int rt,int l,int r,int x,int y,PDI val){
-		if(l==x&&r==y){
-			add(mx[rt],val);
-			add(lazy[rt],val);
-			return;
-		}
-		int mid=l+r>>1;
-		push_down(rt,l,mid,r);
-		if(y<=mid) upd(lc,l,mid,x,y,val);
-		else if(x>mid) upd(rc,mid+1,r,x,y,val);
-		else{
-			upd(lc,l,mid,x,mid,val);
-			upd(rc,mid+1,r,mid+1,y,val);
-		}
-		mx[rt]=max(mx[lc],mx[rc]);
-	}
-} st;
+	return true;
+}
 
 void SOLVE(int Case){
-	read(n);
-	v[0]={0,1};
+	cin>>n>>m>>k>>p;
 	rep(i,1,n){
-		read(x[i]);
-		v[i].fir=v[i-1].fir+log10(x[i]);
-		v[i].sec=v[i-1].sec*x[i]%MOD;
+		cin>>h[i]>>v[i];
 	}
-	rep(i,1,n){
-		read(y[i]);
-		v[i].fir+=log10(y[i]);
-		v[i].sec=v[i].sec*y[i]%MOD;
-	}
-	st.build(1,1,n);
-	write(st.mx[1].sec,endl);
-	read(m);
-	rep(i,1,m){
-		int opt=read(),pos=read()+1,val=read();
-		if(opt==1){
-			st.upd(1,1,n,pos,n,{-log10(x[pos]),inv(x[pos])});
-			st.upd(1,1,n,pos,n,{log10(val),val});
-			x[pos]=val;
+	int l=0,r=1e14,ans;
+	while(l<=r){
+		int mid=l+r>>1;
+		if(check(mid)){
+			r=mid-1;
+			ans=mid;
 		}
-		if(opt==2){
-			st.upd(1,1,n,pos,pos,{-log10(y[pos]),inv(y[pos])});
-			st.upd(1,1,n,pos,pos,{log10(val),val});
-			y[pos]=val;
+		else{
+			l=mid+1;
 		}
-		write(st.mx[1].sec,endl);
 	}
+	cout<<ans<<endl;
 }
+
+/*
+input:
+1 2 4 1
+1 5
+
+ans:
+6
+*/
 
 /* =====================================| End of Main Program |===================================== */
 
@@ -276,6 +267,5 @@ signed main(){
     * don't stuck on one question for two long (like 30-45 min)
     * Debug: (a) read your code once, check overflow and edge case
     * Debug: (b) create your own test case
-    * Debug: (c) duipai
+    * Debug: (c) Adversarial Testing
 */
-

@@ -1,20 +1,20 @@
 /*
  * Author: Austin Jiang
- * Date: 5/25/2023 12:12:46 AM
+ * Date: 6/8/2023 4:34:22 PM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
 //#define FASTIO
 #define OPTIMIZE
-#define INTTOLL
+//#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -60,6 +60,7 @@ using ull = unsigned long long;
 using ld = long double;
 using PI = pair<int,int>;
 using PPI = pair<PI,int>;
+using PIP = pair<int,PI>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
@@ -81,7 +82,7 @@ void SETUP(){
 	#endif
 	#ifdef READLOCAL
 	freopen("in.txt","r",stdin);
-	freopen("stdout.txt","w",stdout);
+//	freopen("stdout.txt","w",stdout);
 	#endif
 	srand(time(0));
 }
@@ -153,91 +154,95 @@ template<class T> struct Fenwick{
 
 /* ========================================| Main Program |======================================== */
 
-using PDI = pair<long double,int>;
+const int N = 1e5+10;
+const int K = 105;
+int n,m,k,h,type[N],vis[N][K];
+long double sum,dist[N][K];
+deque<PI> q;
+VPI e[N];
 
-const int N = 5e5+10;
 
-int n,m,x[N],y[N];
-PDI v[N];
+void add(int v,int d){
+	sum+=dist[v][d];
+	if(!q.empty()&&dist[v][d]<=dist[q.front().fir][q.front().sec]){
+		q.push_front({v,d});
+	}
+	else q.pb({v,d});
+}
 
-struct segtree_interval{
-	PDI mx[N<<2],lazy[N<<2];
-	
-	void add(PDI &a,PDI b){
-		a.fir+=b.fir;
-		a.sec=a.sec*b.sec%MOD;
+PI get(){
+	PI res=q.front();
+	q.pop_front();
+	while(dist[res.fir][res.sec]*q.size()>sum){
+		q.pb(res);
+		res=q.front();
+		q.pop_front();
 	}
-
-	void build(int rt,int l,int r){
-		lazy[rt]={0,1};
-		if(l==r){
-			mx[rt]=v[l];
-			return;
-		}
-		int mid=l+r>>1;
-		build(lc,l,mid);
-		build(rc,mid+1,r);
-		mx[rt]=max(mx[lc],mx[rc]);
-	}
-	
-	void push_down(int rt,int l,int mid,int r){
-		if(lazy[rt].fir){
-			add(mx[lc],lazy[rt]);
-			add(mx[rc],lazy[rt]);
-			add(lazy[lc],lazy[rt]);
-			add(lazy[rc],lazy[rt]);
-			lazy[rt]={0,1};
-		}
-	}
-	
-	void upd(int rt,int l,int r,int x,int y,PDI val){
-		if(l==x&&r==y){
-			add(mx[rt],val);
-			add(lazy[rt],val);
-			return;
-		}
-		int mid=l+r>>1;
-		push_down(rt,l,mid,r);
-		if(y<=mid) upd(lc,l,mid,x,y,val);
-		else if(x>mid) upd(rc,mid+1,r,x,y,val);
-		else{
-			upd(lc,l,mid,x,mid,val);
-			upd(rc,mid+1,r,mid+1,y,val);
-		}
-		mx[rt]=max(mx[lc],mx[rc]);
-	}
-} st;
+	sum-=dist[res.fir][res.sec];
+	return res;
+}
 
 void SOLVE(int Case){
-	read(n);
-	v[0]={0,1};
-	rep(i,1,n){
-		read(x[i]);
-		v[i].fir=v[i-1].fir+log10(x[i]);
-		v[i].sec=v[i-1].sec*x[i]%MOD;
+	read(n),read(m),read(k),read(h);
+	chkmin(k,100);
+	rep(i,0,n-1){
+		read(type[i]);
+		e[i].clear();
+		rep(j,0,k){
+			dist[i][j]=LLINF;
+			vis[i][j]=0;
+		}
 	}
-	rep(i,1,n){
-		read(y[i]);
-		v[i].fir+=log10(y[i]);
-		v[i].sec=v[i].sec*y[i]%MOD;
-	}
-	st.build(1,1,n);
-	write(st.mx[1].sec,endl);
-	read(m);
 	rep(i,1,m){
-		int opt=read(),pos=read()+1,val=read();
-		if(opt==1){
-			st.upd(1,1,n,pos,n,{-log10(x[pos]),inv(x[pos])});
-			st.upd(1,1,n,pos,n,{log10(val),val});
-			x[pos]=val;
-		}
-		if(opt==2){
-			st.upd(1,1,n,pos,pos,{-log10(y[pos]),inv(y[pos])});
-			st.upd(1,1,n,pos,pos,{log10(val),val});
-			y[pos]=val;
-		}
-		write(st.mx[1].sec,endl);
+		int u,v,w;
+		read(u),read(v),read(w);
+		e[u].pb({v,w});
+		e[v].pb({u,w});
 	}
+	dist[0][0]=0;
+	q.pb({0,0});
+	vis[0][0]=1;
+	while(!q.empty()){
+		PI node=get();
+		int u=node.fir;
+		int d=node.sec;
+		vis[u][d]=0;
+		for(PI edge:e[u]){
+			int v=edge.fir;
+			int w=edge.sec;
+			if(type[v]==0){
+				if(dist[v][d]>0){
+					dist[v][d]=0;
+					if(!vis[v][d]&&v!=h){
+						add(v,d);
+						vis[v][d]=1;
+					}
+				}
+			}
+			if(type[v]==2&&d<k){
+				if((dist[u][d]+w)/2.0<dist[v][d+1]){
+					dist[v][d+1]=(dist[u][d]+w)/2.0;
+					if(!vis[v][d+1]&&v!=h){
+						add(v,d+1);
+						vis[v][d+1]=1;
+					}
+				}
+			}
+			if(dist[u][d]+w<dist[v][d]){
+				dist[v][d]=dist[u][d]+w;
+				if(!vis[v][d]&&v!=h){
+					add(v,d);
+					vis[v][d]=1;
+				}
+			}
+		}
+	}
+	long double ans=LLINF;
+	rep(i,0,k){
+		chkmin(ans,dist[h][i]);
+	}
+	if(ans==LLINF) puts("-1");
+	else printf("%Lf\n",ans);
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -276,6 +281,6 @@ signed main(){
     * don't stuck on one question for two long (like 30-45 min)
     * Debug: (a) read your code once, check overflow and edge case
     * Debug: (b) create your own test case
-    * Debug: (c) duipai
+    * Debug: (c) Adversarial Testing
 */
 

@@ -1,7 +1,7 @@
 /*
  * Author: Austin Jiang
- * Date: 5/25/2023 12:12:46 AM
- * Problem:
+ * Date: 5/24/2023 1:30:46 AM
+ * Problem: LuoTianyi and XOR-Tree
  * Source:
  * Description:
 */
@@ -14,7 +14,7 @@
 //#define SETMEM
 //#define FASTIO
 #define OPTIMIZE
-#define INTTOLL
+//#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -153,91 +153,36 @@ template<class T> struct Fenwick{
 
 /* ========================================| Main Program |======================================== */
 
-using PDI = pair<long double,int>;
+const int N = 1e6+10;
 
-const int N = 5e5+10;
+int n,val[N];
+set<int> num;
+VI e[N];
 
-int n,m,x[N],y[N];
-PDI v[N];
-
-struct segtree_interval{
-	PDI mx[N<<2],lazy[N<<2];
-	
-	void add(PDI &a,PDI b){
-		a.fir+=b.fir;
-		a.sec=a.sec*b.sec%MOD;
+void dfs(int u,int fa){
+	val[u]^=val[fa];
+	for(int v:e[u]){
+		if(v==fa) continue;
+		dfs(v,u);
 	}
-
-	void build(int rt,int l,int r){
-		lazy[rt]={0,1};
-		if(l==r){
-			mx[rt]=v[l];
-			return;
-		}
-		int mid=l+r>>1;
-		build(lc,l,mid);
-		build(rc,mid+1,r);
-		mx[rt]=max(mx[lc],mx[rc]);
+	if(u!=1&&e[u].size()==1&&val[u]){//min(#val[v]!=0,1+#val[v]!=x) for all subtrees, '#' represents "the number of", x can be any numbers but usually a val[v] that !=0 
+		num.insert(val[u]);
 	}
-	
-	void push_down(int rt,int l,int mid,int r){
-		if(lazy[rt].fir){
-			add(mx[lc],lazy[rt]);
-			add(mx[rc],lazy[rt]);
-			add(lazy[lc],lazy[rt]);
-			add(lazy[rc],lazy[rt]);
-			lazy[rt]={0,1};
-		}
-	}
-	
-	void upd(int rt,int l,int r,int x,int y,PDI val){
-		if(l==x&&r==y){
-			add(mx[rt],val);
-			add(lazy[rt],val);
-			return;
-		}
-		int mid=l+r>>1;
-		push_down(rt,l,mid,r);
-		if(y<=mid) upd(lc,l,mid,x,y,val);
-		else if(x>mid) upd(rc,mid+1,r,x,y,val);
-		else{
-			upd(lc,l,mid,x,mid,val);
-			upd(rc,mid+1,r,mid+1,y,val);
-		}
-		mx[rt]=max(mx[lc],mx[rc]);
-	}
-} st;
+}
 
 void SOLVE(int Case){
-	read(n);
-	v[0]={0,1};
+	cin>>n;
 	rep(i,1,n){
-		read(x[i]);
-		v[i].fir=v[i-1].fir+log10(x[i]);
-		v[i].sec=v[i-1].sec*x[i]%MOD;
+		cin>>val[i];
 	}
-	rep(i,1,n){
-		read(y[i]);
-		v[i].fir+=log10(y[i]);
-		v[i].sec=v[i].sec*y[i]%MOD;
+	rep(i,1,n-1){
+		int u,v;
+		cin>>u>>v;
+		e[u].pb(v);
+		e[v].pb(u);
 	}
-	st.build(1,1,n);
-	write(st.mx[1].sec,endl);
-	read(m);
-	rep(i,1,m){
-		int opt=read(),pos=read()+1,val=read();
-		if(opt==1){
-			st.upd(1,1,n,pos,n,{-log10(x[pos]),inv(x[pos])});
-			st.upd(1,1,n,pos,n,{log10(val),val});
-			x[pos]=val;
-		}
-		if(opt==2){
-			st.upd(1,1,n,pos,pos,{-log10(y[pos]),inv(y[pos])});
-			st.upd(1,1,n,pos,pos,{log10(val),val});
-			y[pos]=val;
-		}
-		write(st.mx[1].sec,endl);
-	}
+	dfs(1,0);
+	cout<<num.size()<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */

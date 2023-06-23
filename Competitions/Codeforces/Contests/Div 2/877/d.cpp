@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 5/25/2023 12:12:46 AM
+ * Date: 6/4/2023 8:36:14 AM
  * Problem:
  * Source:
  * Description:
@@ -14,7 +14,7 @@
 //#define SETMEM
 //#define FASTIO
 #define OPTIMIZE
-#define INTTOLL
+//#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -113,32 +113,6 @@ namespace Comfun{
 	for(T &x:v) x=lb(all(num),x)-num.begin()+st;}
 } using namespace Comfun;
 
-template<class T,class Fun=function<T(const T,const T)>> struct Segtree{
-	int L=0,R=-1,ini=0; Fun F; Vec<T> st;
-	inline Segtree(){}
-	inline Segtree(int L,int R,int val,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,ini=val);}
-	inline Segtree(int L,int R,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,0);}
-	inline Segtree(Vec<T> v,Fun F){this->R=v.size()-1,this->F=F;st.resize(v.size()<<2);rep(i,0,this->R) upd(i,v[i],true);}
-	inline void init(int L,int R,int val,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,ini=val);}
-	inline void init(int L,int R,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,0);}
-	inline void init(Vec<T> v,Fun F){this->R=v.size()-1,this->F=F;st.resize(v.size()<<2);rep(i,0,this->R) upd(i,v[i],true);}
-	inline T query(int rt,int l,int r,int x,int y){
-		if(x>y) return ini;
-		if(l==x&&r==y) return st[rt];
-		int mid=l+r>>1;
-		if(y<=mid) return query(lc,l,mid,x,y);
-		else if(x>mid) return query(rc,mid+1,r,x,y);
-		else return F(query(lc,l,mid,x,mid),query(rc,mid+1,r,mid+1,y));}
-	inline void update(int rt,int l,int r,int x,int v,bool cover){
-		if(l==r){st[rt]=cover?v:F(st[rt],v);return;}
-		int mid=l+r>>1;
-		if(x<=mid) update(lc,l,mid,x,v,cover);
-		else update(rc,mid+1,r,x,v,cover);
-		st[rt]=F(st[lc],st[rc]);}
-	inline T ask(int x,int y){return query(1,L,R,x,y);}
-	inline void upd(int x,int y,bool cover=false){update(1,L,R,x,y,cover);}
-};
-
 template<class T> struct Fenwick{
 	int n=0; Vec<array<T,2>> d;
 	inline Fenwick(){}
@@ -153,90 +127,135 @@ template<class T> struct Fenwick{
 
 /* ========================================| Main Program |======================================== */
 
-using PDI = pair<long double,int>;
+const int N = 2e5+10;
 
-const int N = 5e5+10;
+int n,q,sum;
+string str;
+set<int> flag[2];
 
-int n,m,x[N],y[N];
-PDI v[N];
-
-struct segtree_interval{
-	PDI mx[N<<2],lazy[N<<2];
+struct segtree{
+	int lazy[N<<2];
+	PI st[N<<2];
 	
-	void add(PDI &a,PDI b){
-		a.fir+=b.fir;
-		a.sec=a.sec*b.sec%MOD;
-	}
-
 	void build(int rt,int l,int r){
-		lazy[rt]={0,1};
 		if(l==r){
-			mx[rt]=v[l];
+			st[rt]={0,l};
 			return;
 		}
 		int mid=l+r>>1;
 		build(lc,l,mid);
 		build(rc,mid+1,r);
-		mx[rt]=max(mx[lc],mx[rc]);
 	}
 	
 	void push_down(int rt,int l,int mid,int r){
-		if(lazy[rt].fir){
-			add(mx[lc],lazy[rt]);
-			add(mx[rc],lazy[rt]);
-			add(lazy[lc],lazy[rt]);
-			add(lazy[rc],lazy[rt]);
-			lazy[rt]={0,1};
+		if(lazy[rt]){
+			st[lc].fir+=lazy[rt];
+			lazy[lc]+=lazy[rt];
+			st[rc].fir+=lazy[rt];
+			lazy[rc]+=lazy[rt];
+			lazy[rt]=0;
 		}
 	}
 	
-	void upd(int rt,int l,int r,int x,int y,PDI val){
+	PI merge(PI x,PI y){
+		if(x.fir<=y.fir) return x;
+		else return y;
+	}
+	
+	void update(int rt,int l,int r,int x,int y,int val){
 		if(l==x&&r==y){
-			add(mx[rt],val);
-			add(lazy[rt],val);
+			st[rt].fir+=val;
+			lazy[rt]+=val;
 			return;
 		}
 		int mid=l+r>>1;
 		push_down(rt,l,mid,r);
-		if(y<=mid) upd(lc,l,mid,x,y,val);
-		else if(x>mid) upd(rc,mid+1,r,x,y,val);
+		if(y<=mid) update(lc,l,mid,x,y,val);
+		else if(x>mid) update(rc,mid+1,r,x,y,val);
 		else{
-			upd(lc,l,mid,x,mid,val);
-			upd(rc,mid+1,r,mid+1,y,val);
+			update(lc,l,mid,x,mid,val);
+			update(rc,mid+1,r,mid+1,y,val);
 		}
-		mx[rt]=max(mx[lc],mx[rc]);
+		st[rt]=merge(st[lc],st[rc]);
 	}
-} st;
+	
+	PI query(int rt,int l,int r){
+		if(l==r) return st[rt];
+		int mid=l+r>>1;
+		push_down(rt,l,mid,r);
+		if(st[lc].fir<0) return query(lc,l,mid);
+		else return query(rc,mid+1,r);
+	}
+	
+	void add(int x,int val){
+		update(1,0,n-1,x,n-1,val);
+	}
+	
+	int ask(){
+		if(st[1].fir>=0) return -1;
+		return query(1,0,n-1).sec;
+	}
+} cnt;
+
+void check(int x){
+	if(str[x]!=str[x-1]){
+		if(flag[0].count(x)){
+			flag[0].erase(x);
+		}
+		if(flag[1].count(x)){
+			flag[1].erase(x);
+		}
+	}
+	else{
+		flag[str[x]!='('].insert(x);
+	}
+}
 
 void SOLVE(int Case){
-	read(n);
-	v[0]={0,1};
-	rep(i,1,n){
-		read(x[i]);
-		v[i].fir=v[i-1].fir+log10(x[i]);
-		v[i].sec=v[i-1].sec*x[i]%MOD;
-	}
-	rep(i,1,n){
-		read(y[i]);
-		v[i].fir+=log10(y[i]);
-		v[i].sec=v[i].sec*y[i]%MOD;
-	}
-	st.build(1,1,n);
-	write(st.mx[1].sec,endl);
-	read(m);
-	rep(i,1,m){
-		int opt=read(),pos=read()+1,val=read();
-		if(opt==1){
-			st.upd(1,1,n,pos,n,{-log10(x[pos]),inv(x[pos])});
-			st.upd(1,1,n,pos,n,{log10(val),val});
-			x[pos]=val;
+	cin>>n>>q>>str;
+	cnt.build(1,0,n-1);
+	rep(i,0,n-1){
+		if(str[i]=='('){
+			cnt.add(i,1);
+			sum++;
 		}
-		if(opt==2){
-			st.upd(1,1,n,pos,pos,{-log10(y[pos]),inv(y[pos])});
-			st.upd(1,1,n,pos,pos,{log10(val),val});
-			y[pos]=val;
+		else{
+			cnt.add(i,-1);
+			sum--;
 		}
-		write(st.mx[1].sec,endl);
+		if(i>0&&str[i]==str[i-1]){
+			flag[str[i]!='('].insert(i);
+		}
+	}
+	rep(i,1,q){
+		int pos;
+		cin>>pos;
+		pos--;
+		if(n%2){
+			cout<<"NO"<<endl;
+			continue;
+		}
+		if(str[pos]=='('){
+			str[pos]=')';
+			cnt.add(pos,-2);
+			sum-=2;
+			if(pos>0) check(pos);
+			check(pos+1);
+		}
+		else{
+			str[pos]='(';
+			cnt.add(pos,2);
+			sum+=2;
+			if(pos>0) check(pos);
+			check(pos+1);
+		}
+		bool ans=true;
+		if(str[n-1]=='(') ans=0;
+		if(flag[0].size()&&(!flag[1].size()||*flag[0].rbegin()>*flag[1].rbegin())) ans=0;
+		int lst=cnt.ask();
+		ans&=lst==-1||(flag[0].size()&&lst>*flag[0].begin());
+		if(ans) cout<<"YES"<<endl;
+		else cout<<"NO"<<endl;
 	}
 }
 
@@ -276,6 +295,6 @@ signed main(){
     * don't stuck on one question for two long (like 30-45 min)
     * Debug: (a) read your code once, check overflow and edge case
     * Debug: (b) create your own test case
-    * Debug: (c) duipai
+    * Debug: (c) Adversarial Testing
 */
 

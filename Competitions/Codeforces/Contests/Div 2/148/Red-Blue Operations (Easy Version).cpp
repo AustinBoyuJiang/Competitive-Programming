@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 5/21/2023 1:24:24 PM
+ * Date: 5/24/2023 9:47:43 PM
  * Problem:
  * Source:
  * Description:
@@ -14,7 +14,7 @@
 //#define SETMEM
 //#define FASTIO
 #define OPTIMIZE
-//#define INTTOLL
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -153,13 +153,67 @@ template<class T> struct Fenwick{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 1e3+10;
 
-int n;
+int n,q,a[N],b[N],flag[N],k[N];
+
+bool check(int x,int k){
+	int K=k;
+	rep(i,1,n){
+		b[i]=a[i];
+		flag[i]=0;
+		if(k){
+			flag[i]^=1;
+			b[i]+=k;
+			k--;
+		}
+	}
+	rep(i,1,n){
+		if(b[i]<x) return false;
+	}
+	if(flag[n]){
+		if(k%2==0){
+			int cnt=0;
+			rep(i,1,n) cnt+=b[i]-x;
+			return cnt>=k/2;
+		}
+		else{
+			k++;
+			b[n]-=k;
+			flag[n]^=1;
+			int cnt=0;
+			rep(i,1,n) cnt+=b[i]-x;
+			return cnt>=k/2&&b[n]>=x;
+		}
+	}
+	return true;
+}
+
+int solve(int Case){
+	int l=a[1]-k[Case],r=a[n]+k[Case],ans;
+	while(l<=r){
+		int mid=l+r>>1;
+		if(check(mid,k[Case])){
+			ans=mid;
+			l=mid+1;
+		}
+		else{
+			r=mid-1;
+		}
+	}
+	return ans;
+}
 
 void SOLVE(int Case){
-	cin>>n;
-
+	cin>>n>>q;
+	rep(i,1,n){
+		cin>>a[i];
+	}
+	sort(a+1,a+n+1);
+	rep(i,1,q){
+		cin>>k[i];
+		cout<<solve(i)<<" ";
+	}
 }
 
 /* =====================================| End of Main Program |===================================== */

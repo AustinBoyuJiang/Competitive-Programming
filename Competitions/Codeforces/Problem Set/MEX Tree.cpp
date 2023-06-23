@@ -1,13 +1,13 @@
 /*
  * Author: Austin Jiang
- * Date: 5/25/2023 12:12:46 AM
- * Problem:
+ * Date: 6/1/2023 10:40:22 PM
+ * Problem: MEX Tree
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
@@ -153,91 +153,122 @@ template<class T> struct Fenwick{
 
 /* ========================================| Main Program |======================================== */
 
-using PDI = pair<long double,int>;
+const int N = 2e5+10;
 
-const int N = 5e5+10;
+int n,siz[N],dep[N],f[N][20],ans[N];
+VI e[N];
 
-int n,m,x[N],y[N];
-PDI v[N];
-
-struct segtree_interval{
-	PDI mx[N<<2],lazy[N<<2];
-	
-	void add(PDI &a,PDI b){
-		a.fir+=b.fir;
-		a.sec=a.sec*b.sec%MOD;
-	}
-
-	void build(int rt,int l,int r){
-		lazy[rt]={0,1};
-		if(l==r){
-			mx[rt]=v[l];
-			return;
-		}
-		int mid=l+r>>1;
-		build(lc,l,mid);
-		build(rc,mid+1,r);
-		mx[rt]=max(mx[lc],mx[rc]);
-	}
-	
-	void push_down(int rt,int l,int mid,int r){
-		if(lazy[rt].fir){
-			add(mx[lc],lazy[rt]);
-			add(mx[rc],lazy[rt]);
-			add(lazy[lc],lazy[rt]);
-			add(lazy[rc],lazy[rt]);
-			lazy[rt]={0,1};
+void dfs(int u,int fa){
+	f[u][0]=fa;
+	rep(i,1,19) f[u][i]=f[f[u][i-1]][i-1];
+	dep[u]=dep[fa]+1;
+	siz[u]=1;
+	for(int v:e[u]){
+		if(v==fa) continue;
+		dfs(v,u);
+		siz[u]+=siz[v];
+		if(u==0){
+			ans[0]+=siz[v]*(siz[v]-1)/2;
+			ans[1]-=siz[v]*(siz[v]-1)/2;
 		}
 	}
-	
-	void upd(int rt,int l,int r,int x,int y,PDI val){
-		if(l==x&&r==y){
-			add(mx[rt],val);
-			add(lazy[rt],val);
-			return;
-		}
-		int mid=l+r>>1;
-		push_down(rt,l,mid,r);
-		if(y<=mid) upd(lc,l,mid,x,y,val);
-		else if(x>mid) upd(rc,mid+1,r,x,y,val);
-		else{
-			upd(lc,l,mid,x,mid,val);
-			upd(rc,mid+1,r,mid+1,y,val);
-		}
-		mx[rt]=max(mx[lc],mx[rc]);
+}
+
+int LCA(int x,int y){
+	if(dep[x]<dep[y]) swap(x,y);
+	per(i,19,0){
+		if(dep[f[x][i]]>=dep[y]) x=f[x][i];
+		if(x==y) return x;
 	}
-} st;
+	per(i,19,0){
+		if(f[x][i]!=f[y][i]){
+			x=f[x][i];
+			y=f[y][i];
+		}
+	}
+	return f[x][0];
+}
+
+bool on_path(int a,int b,int c){ // b on the shortest path between a and c inclusive
+	if(LCA(a,c)==b) return true;
+	if(LCA(b,a)==b&&LCA(b,c)==c) return true;
+	if(LCA(b,c)==b&&LCA(b,a)==a) return true;
+	if(LCA(a,b)==b&&LCA(a,c)==LCA(b,c)) return true;
+	if(LCA(c,b)==b&&LCA(c,a)==LCA(b,a)) return true;
+	return false;
+}
 
 void SOLVE(int Case){
-	read(n);
-	v[0]={0,1};
-	rep(i,1,n){
-		read(x[i]);
-		v[i].fir=v[i-1].fir+log10(x[i]);
-		v[i].sec=v[i-1].sec*x[i]%MOD;
+	cin>>n;
+	rep(i,0,n-1) e[i].clear();
+	ans[n]=0;
+	rep(i,1,n-1){
+		int u,v;
+		cin>>u>>v;
+		e[u].pb(v);
+		e[v].pb(u);
 	}
-	rep(i,1,n){
-		read(y[i]);
-		v[i].fir+=log10(y[i]);
-		v[i].sec=v[i].sec*y[i]%MOD;
+	fill(ans,ans+n+1,0);
+	ans[1]=n*(n-1)/2;
+	dfs(0,-1);
+	ans[1]-=siz[1];
+	for(int v:e[0]){
+		if(LCA(v,1)==v) continue;
+		ans[1]-=siz[v]*siz[1];
 	}
-	st.build(1,1,n);
-	write(st.mx[1].sec,endl);
-	read(m);
-	rep(i,1,m){
-		int opt=read(),pos=read()+1,val=read();
-		if(opt==1){
-			st.upd(1,1,n,pos,n,{-log10(x[pos]),inv(x[pos])});
-			st.upd(1,1,n,pos,n,{log10(val),val});
-			x[pos]=val;
+	int l=1,r=0,rv;
+	for(int v:e[r]){
+		if(v==f[r][0]) continue;
+		if(LCA(l,v)==v){
+			rv=v;
+			break;
 		}
-		if(opt==2){
-			st.upd(1,1,n,pos,pos,{-log10(y[pos]),inv(y[pos])});
-			st.upd(1,1,n,pos,pos,{log10(val),val});
-			y[pos]=val;
-		}
-		write(st.mx[1].sec,endl);
 	}
+	rep(k,2,n-1){
+		if(on_path(l,k,r)){
+			ans[k]=0;
+		}
+		else if(on_path(l,r,k)){
+			if(LCA(l,r)==r){
+				if(LCA(r,k)==k) ans[k]=siz[l]*(n-siz[rv]-dep[k]);
+				else ans[k]=siz[l]*(n-siz[rv]-siz[k]);
+			}
+			else ans[k]=siz[l]*(siz[r]-siz[k]);
+			r=k;
+			for(int v:e[r]){
+				if(v==f[r][0]) continue;
+				if(LCA(l,v)==v){
+					rv=v;
+					break;
+				}
+			}
+		}
+		else if(on_path(k,l,r)){
+			if(LCA(l,r)==r) ans[k]=(siz[l]-siz[k])*(n-siz[rv]);
+			else ans[k]=(siz[l]-siz[k])*(siz[r]);
+			l=k;
+		}
+		else{
+			if(LCA(l,r)==r) ans[k]=siz[l]*(n-siz[rv]);
+			else ans[k]=siz[l]*siz[r];
+			break;
+		}
+		if(dep[l]<dep[r]){
+			swap(l,r);
+			for(int v:e[r]){
+				if(v==f[r][0]) continue;
+				if(LCA(l,v)==v){
+					rv=v;
+					break;
+				}
+			}
+		}
+		if(k==n-1) ans[n]=1;
+	}
+	if(n==2) ans[n]=1;
+	rep(i,0,n){
+		cout<<ans[i]<<" ";
+	} cout<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -276,6 +307,6 @@ signed main(){
     * don't stuck on one question for two long (like 30-45 min)
     * Debug: (a) read your code once, check overflow and edge case
     * Debug: (b) create your own test case
-    * Debug: (c) duipai
+    * Debug: (c) Adversarial Testing
 */
 

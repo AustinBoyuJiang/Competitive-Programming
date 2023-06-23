@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 5/25/2023 12:12:46 AM
+ * Date: 5/26/2023 11:14:25 PM
  * Problem:
  * Source:
  * Description:
@@ -14,7 +14,7 @@
 //#define SETMEM
 //#define FASTIO
 #define OPTIMIZE
-#define INTTOLL
+//#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -51,7 +51,6 @@ using namespace std;
 #define all(v) v.begin(), v.end()
 
 /* Random */
-mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
 #define random(a,b) rng()%(b-a+1)+a
 
 /* Data type */
@@ -153,91 +152,70 @@ template<class T> struct Fenwick{
 
 /* ========================================| Main Program |======================================== */
 
-using PDI = pair<long double,int>;
+const int N = 1e6+10;
 
-const int N = 5e5+10;
+int n=7;
+char ans[10];
 
-int n,m,x[N],y[N];
-PDI v[N];
+int LSHIFT(int x,int dis){
+	return (x<<dis)&((1<<n)-1);
+}
 
-struct segtree_interval{
-	PDI mx[N<<2],lazy[N<<2];
-	
-	void add(PDI &a,PDI b){
-		a.fir+=b.fir;
-		a.sec=a.sec*b.sec%MOD;
-	}
+int RSHIFT(int x,int dis){
+	return x>>dis;
+}
 
-	void build(int rt,int l,int r){
-		lazy[rt]={0,1};
-		if(l==r){
-			mx[rt]=v[l];
-			return;
-		}
-		int mid=l+r>>1;
-		build(lc,l,mid);
-		build(rc,mid+1,r);
-		mx[rt]=max(mx[lc],mx[rc]);
+int LCIRC(int x,int dis){
+	return LSHIFT(x,dis)|RSHIFT(x,n-dis);
+}
+
+int RCIRC(int x,int dis){
+	return RSHIFT(x,dis)|LSHIFT(x,n-dis);
+}
+
+int NOT(int x){
+	return (~x)&((1<<n)-1);
+}
+
+int BIT(string x){
+	int ans=0;
+	rep(i,0,n-1){
+		ans<<=1;
+		ans|=x[i]-'0';
 	}
-	
-	void push_down(int rt,int l,int mid,int r){
-		if(lazy[rt].fir){
-			add(mx[lc],lazy[rt]);
-			add(mx[rc],lazy[rt]);
-			add(lazy[lc],lazy[rt]);
-			add(lazy[rc],lazy[rt]);
-			lazy[rt]={0,1};
-		}
+	return ans;
+}
+
+string STR(int x){
+	string ans="";
+	rep(i,1,n){
+		ans+=to_string(x&1);
+		x>>=1;
 	}
-	
-	void upd(int rt,int l,int r,int x,int y,PDI val){
-		if(l==x&&r==y){
-			add(mx[rt],val);
-			add(lazy[rt],val);
-			return;
-		}
-		int mid=l+r>>1;
-		push_down(rt,l,mid,r);
-		if(y<=mid) upd(lc,l,mid,x,y,val);
-		else if(x>mid) upd(rc,mid+1,r,x,y,val);
-		else{
-			upd(lc,l,mid,x,mid,val);
-			upd(rc,mid+1,r,mid+1,y,val);
-		}
-		mx[rt]=max(mx[lc],mx[rc]);
-	}
-} st;
+	reverse(all(ans));
+	return ans;
+}
 
 void SOLVE(int Case){
-	read(n);
-	v[0]={0,1};
-	rep(i,1,n){
-		read(x[i]);
-		v[i].fir=v[i-1].fir+log10(x[i]);
-		v[i].sec=v[i-1].sec*x[i]%MOD;
-	}
-	rep(i,1,n){
-		read(y[i]);
-		v[i].fir+=log10(y[i]);
-		v[i].sec=v[i].sec*y[i]%MOD;
-	}
-	st.build(1,1,n);
-	write(st.mx[1].sec,endl);
-	read(m);
-	rep(i,1,m){
-		int opt=read(),pos=read()+1,val=read();
-		if(opt==1){
-			st.upd(1,1,n,pos,n,{-log10(x[pos]),inv(x[pos])});
-			st.upd(1,1,n,pos,n,{log10(val),val});
-			x[pos]=val;
-		}
-		if(opt==2){
-			st.upd(1,1,n,pos,pos,{-log10(y[pos]),inv(y[pos])});
-			st.upd(1,1,n,pos,pos,{log10(val),val});
-			y[pos]=val;
-		}
-		write(st.mx[1].sec,endl);
-	}
+	int ans=LCIRC(BIT("1101101"),2)|RSHIFT(BIT("1011101"),1)^BIT("1101101")&BIT("1110111");
+	PRINT(STR(ans));
+//	rep(i,0,n-1) ans[i]='?';
+//	rep(X,0,(1<<n)-1){
+//		int left=LSHIFT(BIT("10111"),1)|LCIRC(RSHIFT(X,1),2)&RCIRC(NOT(BIT("01101")),3);
+//		int right=BIT("01110");
+//		
+//		if(left==right){
+//			string strx=STR(X);
+//			rep(i,0,n-1){
+//				if(ans[i]!='?'&&ans[i]!=strx[i]) ans[i]='*';
+//				else ans[i]=strx[i];
+//			}
+//		}
+//	}
+//	cout<<"Answer: ";
+//	rep(i,0,n-1){
+//		cout<<ans[i];
+//	} cout<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -276,6 +254,6 @@ signed main(){
     * don't stuck on one question for two long (like 30-45 min)
     * Debug: (a) read your code once, check overflow and edge case
     * Debug: (b) create your own test case
-    * Debug: (c) duipai
+    * Debug: (c) Adversarial Testing
 */
 

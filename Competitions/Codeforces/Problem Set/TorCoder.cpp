@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 5/25/2023 12:12:46 AM
+ * Date: 5/31/2023 9:08:28 PM
  * Problem:
  * Source:
  * Description:
@@ -9,12 +9,12 @@
 /* Configuration */
 //#define MULTICASES
 //#define LOCAL
-//#define READLOCAL
+#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
 //#define FASTIO
 #define OPTIMIZE
-#define INTTOLL
+//#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -80,8 +80,8 @@ void SETUP(){
 	cin.tie(nullptr)->sync_with_stdio(false);
 	#endif
 	#ifdef READLOCAL
-	freopen("in.txt","r",stdin);
-	freopen("stdout.txt","w",stdout);
+	freopen("input.txt","r",stdin);
+	freopen("output.txt","w",stdout);
 	#endif
 	srand(time(0));
 }
@@ -113,32 +113,6 @@ namespace Comfun{
 	for(T &x:v) x=lb(all(num),x)-num.begin()+st;}
 } using namespace Comfun;
 
-template<class T,class Fun=function<T(const T,const T)>> struct Segtree{
-	int L=0,R=-1,ini=0; Fun F; Vec<T> st;
-	inline Segtree(){}
-	inline Segtree(int L,int R,int val,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,ini=val);}
-	inline Segtree(int L,int R,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,0);}
-	inline Segtree(Vec<T> v,Fun F){this->R=v.size()-1,this->F=F;st.resize(v.size()<<2);rep(i,0,this->R) upd(i,v[i],true);}
-	inline void init(int L,int R,int val,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,ini=val);}
-	inline void init(int L,int R,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,0);}
-	inline void init(Vec<T> v,Fun F){this->R=v.size()-1,this->F=F;st.resize(v.size()<<2);rep(i,0,this->R) upd(i,v[i],true);}
-	inline T query(int rt,int l,int r,int x,int y){
-		if(x>y) return ini;
-		if(l==x&&r==y) return st[rt];
-		int mid=l+r>>1;
-		if(y<=mid) return query(lc,l,mid,x,y);
-		else if(x>mid) return query(rc,mid+1,r,x,y);
-		else return F(query(lc,l,mid,x,mid),query(rc,mid+1,r,mid+1,y));}
-	inline void update(int rt,int l,int r,int x,int v,bool cover){
-		if(l==r){st[rt]=cover?v:F(st[rt],v);return;}
-		int mid=l+r>>1;
-		if(x<=mid) update(lc,l,mid,x,v,cover);
-		else update(rc,mid+1,r,x,v,cover);
-		st[rt]=F(st[lc],st[rc]);}
-	inline T ask(int x,int y){return query(1,L,R,x,y);}
-	inline void upd(int x,int y,bool cover=false){update(1,L,R,x,y,cover);}
-};
-
 template<class T> struct Fenwick{
 	int n=0; Vec<array<T,2>> d;
 	inline Fenwick(){}
@@ -153,47 +127,29 @@ template<class T> struct Fenwick{
 
 /* ========================================| Main Program |======================================== */
 
-using PDI = pair<long double,int>;
+const int N = 1e5+10;
+const int C = 26;
 
-const int N = 5e5+10;
+int n,m,cnt[C];
+char ch[N];
 
-int n,m,x[N],y[N];
-PDI v[N];
-
-struct segtree_interval{
-	PDI mx[N<<2],lazy[N<<2];
-	
-	void add(PDI &a,PDI b){
-		a.fir+=b.fir;
-		a.sec=a.sec*b.sec%MOD;
-	}
-
-	void build(int rt,int l,int r){
-		lazy[rt]={0,1};
-		if(l==r){
-			mx[rt]=v[l];
-			return;
-		}
-		int mid=l+r>>1;
-		build(lc,l,mid);
-		build(rc,mid+1,r);
-		mx[rt]=max(mx[lc],mx[rc]);
-	}
+struct segtree{
+	int st[N<<2],lazy[N<<2];
 	
 	void push_down(int rt,int l,int mid,int r){
-		if(lazy[rt].fir){
-			add(mx[lc],lazy[rt]);
-			add(mx[rc],lazy[rt]);
-			add(lazy[lc],lazy[rt]);
-			add(lazy[rc],lazy[rt]);
-			lazy[rt]={0,1};
-		}
+		if(lazy[rt]==-1) return;
+		lazy[lc]=lazy[rt];
+		lazy[rc]=lazy[rt];
+		st[lc]=(mid-l+1)*lazy[rt];
+		st[rc]=(r-mid)*lazy[rt];
+		lazy[rt]=-1;
 	}
 	
-	void upd(int rt,int l,int r,int x,int y,PDI val){
+	void upd(int rt,int l,int r,int x,int y,int val){
+		if(y<x) return;
 		if(l==x&&r==y){
-			add(mx[rt],val);
-			add(lazy[rt],val);
+			lazy[rt]=val;
+			st[rt]=(r-l+1)*val;
 			return;
 		}
 		int mid=l+r>>1;
@@ -204,39 +160,54 @@ struct segtree_interval{
 			upd(lc,l,mid,x,mid,val);
 			upd(rc,mid+1,r,mid+1,y,val);
 		}
-		mx[rt]=max(mx[lc],mx[rc]);
+		st[rt]=st[lc]+st[rc];	
 	}
-} st;
+	
+	int ask(int rt,int l,int r,int x,int y){
+		if(l==x&&r==y) return st[rt];
+		int mid=l+r>>1;
+		push_down(rt,l,mid,r);
+		if(y<=mid) return ask(lc,l,mid,x,y);
+		else if(x>mid) return ask(rc,mid+1,r,x,y);
+		else return ask(lc,l,mid,x,mid)+ask(rc,mid+1,r,mid+1,y);
+	}
+} st[C];
 
 void SOLVE(int Case){
-	read(n);
-	v[0]={0,1};
+	cin>>n>>m;
 	rep(i,1,n){
-		read(x[i]);
-		v[i].fir=v[i-1].fir+log10(x[i]);
-		v[i].sec=v[i-1].sec*x[i]%MOD;
+		cin>>ch[i];
+		st[ch[i]-'a'].upd(1,1,n,i,i,1);
 	}
-	rep(i,1,n){
-		read(y[i]);
-		v[i].fir+=log10(y[i]);
-		v[i].sec=v[i].sec*y[i]%MOD;
-	}
-	st.build(1,1,n);
-	write(st.mx[1].sec,endl);
-	read(m);
 	rep(i,1,m){
-		int opt=read(),pos=read()+1,val=read();
-		if(opt==1){
-			st.upd(1,1,n,pos,n,{-log10(x[pos]),inv(x[pos])});
-			st.upd(1,1,n,pos,n,{log10(val),val});
-			x[pos]=val;
+		int l,r,mid=-1,midcnt=0;
+		cin>>l>>r;
+		rep(j,0,C-1){
+			cnt[j]=st[j].ask(1,1,n,l,r);
+			if(cnt[j]%2){
+				mid=j;
+				midcnt++;
+			}
 		}
-		if(opt==2){
-			st.upd(1,1,n,pos,pos,{-log10(y[pos]),inv(y[pos])});
-			st.upd(1,1,n,pos,pos,{log10(val),val});
-			y[pos]=val;
+		if((r-l+1)%2==1&&midcnt!=1) continue;
+		if((r-l+1)%2==0&&midcnt!=0) continue;
+		rep(j,0,C-1) st[j].upd(1,1,n,l,r,0);
+		if((r-l+1)%2==1){
+			st[mid].upd(1,1,n,(l+r)/2,(l+r)/2,1);
+			cnt[mid]--;
 		}
-		write(st.mx[1].sec,endl);
+		int sum=0;
+		rep(j,0,C-1){
+			st[j].upd(1,1,n,l+sum/2,l+sum/2+cnt[j]/2-1,1);
+			st[j].upd(1,1,n,r-sum/2-cnt[j]/2+1,r-sum/2,1);
+			sum+=cnt[j];
+		}
+	}
+	rep(i,1,n) rep(j,0,C-1){
+		if(st[j].ask(1,1,n,i,i)){
+			cout<<(char)('a'+j);
+			break;
+		}
 	}
 }
 
@@ -276,6 +247,6 @@ signed main(){
     * don't stuck on one question for two long (like 30-45 min)
     * Debug: (a) read your code once, check overflow and edge case
     * Debug: (b) create your own test case
-    * Debug: (c) duipai
+    * Debug: (c) Adversarial Testing
 */
 

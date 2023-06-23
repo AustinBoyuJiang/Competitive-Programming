@@ -1,7 +1,7 @@
 /*
  * Author: Austin Jiang
- * Date: 5/25/2023 12:12:46 AM
- * Problem:
+ * Date: 5/21/2023 11:43:22 PM
+ * Problem: LuoTianyi and the Floating Islands (Easy Version)
  * Source:
  * Description:
 */
@@ -153,91 +153,62 @@ template<class T> struct Fenwick{
 
 /* ========================================| Main Program |======================================== */
 
-using PDI = pair<long double,int>;
+const int N = 1e6+10;
 
-const int N = 5e5+10;
+int n,k,ans,siz[N],dp[N][2];
+VI e[N];
 
-int n,m,x[N],y[N];
-PDI v[N];
+void dfs1(int u,int fa){
+	siz[u]=1;
+	for(int v:e[u]){
+		if(v==fa) continue;
+		dfs1(v,u);
+		siz[u]+=siz[v];
+	}
+}
 
-struct segtree_interval{
-	PDI mx[N<<2],lazy[N<<2];
-	
-	void add(PDI &a,PDI b){
-		a.fir+=b.fir;
-		a.sec=a.sec*b.sec%MOD;
+void dfs2(int u,int fa){
+	for(int v:e[u]){
+		if(v==fa) continue;
+		dfs2(v,u);
+		dp[u][1]+=dp[v][1]+siz[v];
+		dp[u][1]%=MOD;
 	}
+}
 
-	void build(int rt,int l,int r){
-		lazy[rt]={0,1};
-		if(l==r){
-			mx[rt]=v[l];
-			return;
-		}
-		int mid=l+r>>1;
-		build(lc,l,mid);
-		build(rc,mid+1,r);
-		mx[rt]=max(mx[lc],mx[rc]);
+void dfs3(int u,int fa){
+	if(u!=1){
+		dp[u][0]=dp[fa][0]+dp[fa][1]-dp[u][1]+n-2*siz[u];
+		dp[u][0]%=MOD;
 	}
-	
-	void push_down(int rt,int l,int mid,int r){
-		if(lazy[rt].fir){
-			add(mx[lc],lazy[rt]);
-			add(mx[rc],lazy[rt]);
-			add(lazy[lc],lazy[rt]);
-			add(lazy[rc],lazy[rt]);
-			lazy[rt]={0,1};
-		}
+	for(int v:e[u]){
+		if(v==fa) continue;
+		dfs3(v,u);
 	}
-	
-	void upd(int rt,int l,int r,int x,int y,PDI val){
-		if(l==x&&r==y){
-			add(mx[rt],val);
-			add(lazy[rt],val);
-			return;
-		}
-		int mid=l+r>>1;
-		push_down(rt,l,mid,r);
-		if(y<=mid) upd(lc,l,mid,x,y,val);
-		else if(x>mid) upd(rc,mid+1,r,x,y,val);
-		else{
-			upd(lc,l,mid,x,mid,val);
-			upd(rc,mid+1,r,mid+1,y,val);
-		}
-		mx[rt]=max(mx[lc],mx[rc]);
-	}
-} st;
+}
 
 void SOLVE(int Case){
-	read(n);
-	v[0]={0,1};
+	cin>>n>>k;
+	rep(i,1,n-1){
+		int u,v;
+		cin>>u>>v;
+		e[u].pb(v);
+		e[v].pb(u);
+	}
+	if(k==1||k==3){
+		cout<<1<<endl;
+		return;
+	}
+	dfs1(1,0);
+	dfs2(1,0);
+	dfs3(1,0);
 	rep(i,1,n){
-		read(x[i]);
-		v[i].fir=v[i-1].fir+log10(x[i]);
-		v[i].sec=v[i-1].sec*x[i]%MOD;
+		ans+=dp[i][0]+dp[i][1]+n-1;
+		ans%=MOD;
 	}
-	rep(i,1,n){
-		read(y[i]);
-		v[i].fir+=log10(y[i]);
-		v[i].sec=v[i].sec*y[i]%MOD;
-	}
-	st.build(1,1,n);
-	write(st.mx[1].sec,endl);
-	read(m);
-	rep(i,1,m){
-		int opt=read(),pos=read()+1,val=read();
-		if(opt==1){
-			st.upd(1,1,n,pos,n,{-log10(x[pos]),inv(x[pos])});
-			st.upd(1,1,n,pos,n,{log10(val),val});
-			x[pos]=val;
-		}
-		if(opt==2){
-			st.upd(1,1,n,pos,pos,{-log10(y[pos]),inv(y[pos])});
-			st.upd(1,1,n,pos,pos,{log10(val),val});
-			y[pos]=val;
-		}
-		write(st.mx[1].sec,endl);
-	}
+	ans*=inv(n*(n-1)%MOD);
+	ans%=MOD;
+	cout<<ans<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */

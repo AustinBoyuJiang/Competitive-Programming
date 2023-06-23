@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 5/25/2023 12:12:46 AM
+ * Date: 6/2/2023 2:05:38 PM
  * Problem:
  * Source:
  * Description:
@@ -14,7 +14,7 @@
 //#define SETMEM
 //#define FASTIO
 #define OPTIMIZE
-#define INTTOLL
+//#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -153,91 +153,51 @@ template<class T> struct Fenwick{
 
 /* ========================================| Main Program |======================================== */
 
-using PDI = pair<long double,int>;
+const int N = 1e3+10;
 
-const int N = 5e5+10;
+int n,m,k[N],a[N][2],b[N][2],dp[N][N];
 
-int n,m,x[N],y[N];
-PDI v[N];
+bool okL(int i,int j){
+	return k[i]>=a[j][0]&&k[i]<=a[j][1];
+}
 
-struct segtree_interval{
-	PDI mx[N<<2],lazy[N<<2];
-	
-	void add(PDI &a,PDI b){
-		a.fir+=b.fir;
-		a.sec=a.sec*b.sec%MOD;
-	}
-
-	void build(int rt,int l,int r){
-		lazy[rt]={0,1};
-		if(l==r){
-			mx[rt]=v[l];
-			return;
-		}
-		int mid=l+r>>1;
-		build(lc,l,mid);
-		build(rc,mid+1,r);
-		mx[rt]=max(mx[lc],mx[rc]);
-	}
-	
-	void push_down(int rt,int l,int mid,int r){
-		if(lazy[rt].fir){
-			add(mx[lc],lazy[rt]);
-			add(mx[rc],lazy[rt]);
-			add(lazy[lc],lazy[rt]);
-			add(lazy[rc],lazy[rt]);
-			lazy[rt]={0,1};
-		}
-	}
-	
-	void upd(int rt,int l,int r,int x,int y,PDI val){
-		if(l==x&&r==y){
-			add(mx[rt],val);
-			add(lazy[rt],val);
-			return;
-		}
-		int mid=l+r>>1;
-		push_down(rt,l,mid,r);
-		if(y<=mid) upd(lc,l,mid,x,y,val);
-		else if(x>mid) upd(rc,mid+1,r,x,y,val);
-		else{
-			upd(lc,l,mid,x,mid,val);
-			upd(rc,mid+1,r,mid+1,y,val);
-		}
-		mx[rt]=max(mx[lc],mx[rc]);
-	}
-} st;
+bool okR(int i,int j){
+	return k[i]>=b[j][0]&&k[i]<=b[j][1];
+}
 
 void SOLVE(int Case){
-	read(n);
-	v[0]={0,1};
+	cin>>n>>m;
 	rep(i,1,n){
-		read(x[i]);
-		v[i].fir=v[i-1].fir+log10(x[i]);
-		v[i].sec=v[i-1].sec*x[i]%MOD;
+		cin>>k[i];
+		cin>>a[i][0]>>a[i][1];
+		cin>>b[i][0]>>b[i][1];
 	}
-	rep(i,1,n){
-		read(y[i]);
-		v[i].fir+=log10(y[i]);
-		v[i].sec=v[i].sec*y[i]%MOD;
-	}
-	st.build(1,1,n);
-	write(st.mx[1].sec,endl);
-	read(m);
-	rep(i,1,m){
-		int opt=read(),pos=read()+1,val=read();
-		if(opt==1){
-			st.upd(1,1,n,pos,n,{-log10(x[pos]),inv(x[pos])});
-			st.upd(1,1,n,pos,n,{log10(val),val});
-			x[pos]=val;
+	dp[1][0]=okL(1,1)&okR(0,1);
+	dp[0][0]=okR(1,1)&okL(0,1);
+	rep(i,2,n){
+		dp[i][i-1]=dp[i-1][i-2]&okL(i,i)&okR(i-1,i-1)&okR(i-1,i);
+		dp[i-1][i]=dp[i-2][i-1]&okR(i,i)&okL(i-1,i-1)&okL(i-1,i);
+		rep(j,0,i-2){
+			if(okL(i,i)) dp[i][j]=dp[i-1][j]&okR(j,i);
+			if(okR(i,i)) dp[j][i]=dp[j][i-1]&okL(j,i);
+			if(okL(i,i)){
+				bool ok=true;
+				rep(k,j,i-1) ok&=okL(j,k);
+				dp[i][i-1]|=dp[j][i-1]&ok;
+			}
+			if(okR(i,i)){
+				bool ok=true;
+				rep(k,j,i-1) ok&=okR(j,k);
+				dp[i-1][i]|=dp[i-1][j]&ok;
+			}
 		}
-		if(opt==2){
-			st.upd(1,1,n,pos,pos,{-log10(y[pos]),inv(y[pos])});
-			st.upd(1,1,n,pos,pos,{log10(val),val});
-			y[pos]=val;
-		}
-		write(st.mx[1].sec,endl);
 	}
+	int ans=0;
+	rep(i,0,n-1){
+		ans|=dp[n][i];
+		ans|=dp[i][n];
+	}
+	cout<<(ans?"YES":"NO")<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -276,6 +236,6 @@ signed main(){
     * don't stuck on one question for two long (like 30-45 min)
     * Debug: (a) read your code once, check overflow and edge case
     * Debug: (b) create your own test case
-    * Debug: (c) duipai
+    * Debug: (c) Adversarial Testing
 */
 

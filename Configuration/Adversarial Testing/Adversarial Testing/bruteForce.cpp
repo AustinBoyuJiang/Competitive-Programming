@@ -1,7 +1,7 @@
 /*
  * Author: Austin Jiang
- * Date: 5/25/2023 12:12:46 AM
- * Problem:
+ * Date: 6/8/2023 11:35:59 AM
+ * Problem: Drazil and Morning Exercise
  * Source:
  * Description:
 */
@@ -153,90 +153,102 @@ template<class T> struct Fenwick{
 
 /* ========================================| Main Program |======================================== */
 
-using PDI = pair<long double,int>;
+const int N = 1e5+10;
 
-const int N = 5e5+10;
+int n,q,ans,hd1,hd2,root,lim,res[N],val[N],dist[3][N],fa[N],siz[N],hson[N];
+PQ<PI> *pt[N];
+VPI e[N];
 
-int n,m,x[N],y[N];
-PDI v[N];
-
-struct segtree_interval{
-	PDI mx[N<<2],lazy[N<<2];
-	
-	void add(PDI &a,PDI b){
-		a.fir+=b.fir;
-		a.sec=a.sec*b.sec%MOD;
+void diameter(int u,int fa,int w,int &head,int k){
+	dist[k][u]=dist[k][fa]+w;
+	if(k<2&&dist[k][u]>dist[k][head]) head=u;
+	for(PI edge:e[u]){
+		int v=edge.fir;
+		if(v==fa) continue;
+		diameter(v,u,edge.sec,head,k);
 	}
+}
 
-	void build(int rt,int l,int r){
-		lazy[rt]={0,1};
-		if(l==r){
-			mx[rt]=v[l];
-			return;
-		}
-		int mid=l+r>>1;
-		build(lc,l,mid);
-		build(rc,mid+1,r);
-		mx[rt]=max(mx[lc],mx[rc]);
-	}
-	
-	void push_down(int rt,int l,int mid,int r){
-		if(lazy[rt].fir){
-			add(mx[lc],lazy[rt]);
-			add(mx[rc],lazy[rt]);
-			add(lazy[lc],lazy[rt]);
-			add(lazy[rc],lazy[rt]);
-			lazy[rt]={0,1};
+void init(int u,int father){
+	fa[u]=father;
+	siz[u]=1;
+	for(PI edge:e[u]){
+		int v=edge.fir;
+		if(v==father) continue;
+		init(v,u);
+		siz[u]+=siz[v];
+		if(!hson[u]||siz[v]>siz[hson[u]]){
+			hson[u]=v;
 		}
 	}
-	
-	void upd(int rt,int l,int r,int x,int y,PDI val){
-		if(l==x&&r==y){
-			add(mx[rt],val);
-			add(lazy[rt],val);
-			return;
-		}
-		int mid=l+r>>1;
-		push_down(rt,l,mid,r);
-		if(y<=mid) upd(lc,l,mid,x,y,val);
-		else if(x>mid) upd(rc,mid+1,r,x,y,val);
-		else{
-			upd(lc,l,mid,x,mid,val);
-			upd(rc,mid+1,r,mid+1,y,val);
-		}
-		mx[rt]=max(mx[lc],mx[rc]);
+}
+
+void merge(int x,int y){
+	res[x]+=res[y];
+	while(!(*pt[y]).empty()){
+		(*pt[x]).push((*pt[y]).top());
+		(*pt[y]).pop();
 	}
-} st;
+}
+
+void dfs(int u){
+	if(hson[u]){
+		dfs(hson[u]);
+		pt[u]=pt[hson[u]];
+		res[u]=res[hson[u]]+1;
+	}
+	else{
+		(*pt[u]).push({val[u],u});
+		res[u]=1;
+	}
+	for(PI edge:e[u]){
+		int v=edge.fir;
+		if(v==fa[u]||v==hson[u]) continue;
+		dfs(v);
+		merge(u,v);
+	}
+	while(!(*pt[u]).empty()){
+		PI node=(*pt[u]).top();
+		if(node.fir-val[u]>lim){
+			(*pt[u]).pop();
+			(*pt[u]).push({val[fa[node.sec]],fa[node.sec]});
+			res[u]--;
+		}
+		else break;
+	}
+}
 
 void SOLVE(int Case){
-	read(n);
-	v[0]={0,1};
-	rep(i,1,n){
-		read(x[i]);
-		v[i].fir=v[i-1].fir+log10(x[i]);
-		v[i].sec=v[i-1].sec*x[i]%MOD;
+	cin>>n;
+	rep(i,1,n-1){
+		int u,v,w;
+		cin>>u>>v>>w;
+		e[u].pb({v,w});
+		e[v].pb({u,w});
 	}
+	diameter(1,0,0,hd1,0);
+	diameter(hd1,0,0,hd2,1);
+	diameter(hd2,0,0,hd2,2);
 	rep(i,1,n){
-		read(y[i]);
-		v[i].fir+=log10(y[i]);
-		v[i].sec=v[i].sec*y[i]%MOD;
+		val[i]=max(dist[1][i],dist[2][i]);
+		if(!root||val[i]<val[root]) root=i;
 	}
-	st.build(1,1,n);
-	write(st.mx[1].sec,endl);
-	read(m);
-	rep(i,1,m){
-		int opt=read(),pos=read()+1,val=read();
-		if(opt==1){
-			st.upd(1,1,n,pos,n,{-log10(x[pos]),inv(x[pos])});
-			st.upd(1,1,n,pos,n,{log10(val),val});
-			x[pos]=val;
+	cin>>q;
+	init(root,0);
+	rep(i,1,q){
+		cin>>lim;
+		rep(j,1,n){
+			if(pt[j]!=nullptr) while(!(*pt[j]).empty()){
+				(*pt[j]).pop();
+			}
+			pt[j]=new PQ<PI>();
 		}
-		if(opt==2){
-			st.upd(1,1,n,pos,pos,{-log10(y[pos]),inv(y[pos])});
-			st.upd(1,1,n,pos,pos,{log10(val),val});
-			y[pos]=val;
+		dfs(root);
+		ans=0;
+		rep(j,1,n){
+			chkmax(ans,res[j]);
 		}
-		write(st.mx[1].sec,endl);
+		cout<<ans<<endl;
 	}
 }
 
@@ -276,6 +288,5 @@ signed main(){
     * don't stuck on one question for two long (like 30-45 min)
     * Debug: (a) read your code once, check overflow and edge case
     * Debug: (b) create your own test case
-    * Debug: (c) duipai
+    * Debug: (c) Adversarial Testing
 */
-
