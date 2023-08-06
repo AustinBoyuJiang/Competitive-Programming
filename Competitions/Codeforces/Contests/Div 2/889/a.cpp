@@ -1,13 +1,13 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 8/5/2023 10:18:47 PM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -63,7 +63,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -120,11 +120,33 @@ namespace Comfun{
 
 const int N = 1e6+10;
 
-int n;
+int n,a[N],b[N],c[N];
 
-inline void SOLVE(int Case){
+bool check(int x){
+	rep(i,1,n){
+		c[i]=max(a[i]-x,0);
+	}
+	rep(i,2,n){
+		if(c[i]<c[i-1]){
+			return 0;
+		}
+	}
+	return 1;
+} 
+
+void SOLVE(int Case){
 	cin>>n;
-	
+	rep(i,1,n){
+		cin>>a[i];
+		b[i]=a[i];
+	}
+	sort(b+1,b+n+1);
+	rep(i,0,n){
+		if(check(b[i])){
+			cout<<b[i]<<endl;
+			return;
+		}
+	}
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -165,3 +187,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) Adversarial Testing
 */
+

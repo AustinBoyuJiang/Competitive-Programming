@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 8/1/2023 5:29:45 PM
  * Problem:
  * Source:
  * Description:
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -63,7 +63,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -105,10 +105,7 @@ namespace Comfun{
 	template<class T> inline T lcm(T a,T b){return a/gcd(a,b)*b;}
 	template<class T> inline T chkmax(T &a,T b){return a=max(a,b);}
 	template<class T> inline T chkmin(T &a,T b){return a=min(a,b);}
-	template<class T> inline T qpow(T a,T b){T ans=1;
-	while(b){if(b&1)ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
-	inline int mex(VI s){sort(all(s));int j=0;rep(i,0,s[s.size()]+1){
-	while(j<s.size()&&s[j]<i) j++;if(s[j]!=i) return i;}}
+	template<class T> inline T qpow(T a,T b){T ans=1;while(b){if(b&1)ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
 	template<class T> inline T inv(T x){return qpow(x,MOD-2);}
 	template<class T> inline bool is_prime(T x){
 	if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false;return true;}
@@ -120,11 +117,35 @@ namespace Comfun{
 
 const int N = 1e6+10;
 
-int n;
+int k,n;
+map<PI,int> res;
 
-inline void SOLVE(int Case){
-	cin>>n;
-	
+inline int mex(VI s){sort(all(s));int j=0;rep(i,0,s[s.size()]+1){while(j<s.size()&&s[j]<i) j++;if(s[j]!=i) return i;}}
+
+int solve(int n,int k){
+	if(res.count({n,k})) return res[{n,k}];
+	if(n==0){
+		res[{n,k}]=0;
+		return 0;
+	}
+//	cout<<"Hello "<<n<<" "<<k<<endl;
+	VI s;
+	rep(i,0,n-k) s.pb(solve(i,k)^solve(n-i-k,k));
+	rep(i,1,min(n,k)) s.pb(solve(n-i,k));
+//	cout<<"wocao "<<n<<" "<<k<<endl;
+	res[{n,k}]=mex(s);
+	return res[{n,k}];
+}
+
+void SOLVE(int Case){
+	rep(n,0,100){
+		rep(k,2,100){
+			cout<<(bool)solve(n,k)<<" ";
+		}
+		cout<<endl;
+	}
+//	cin>>k>>n;
+//	cout<<(n%(k+1)?"Alice":"Bob")<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -165,3 +186,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) Adversarial Testing
 */
+

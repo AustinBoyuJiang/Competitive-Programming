@@ -1,20 +1,20 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 8/5/2023 10:49:43 PM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
 //#define FASTIO
 #define OPTIMIZE
-//#define INTTOLL
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -63,7 +63,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -120,11 +120,44 @@ namespace Comfun{
 
 const int N = 1e6+10;
 
-int n;
+int n,t,k,a[N],b[N],sum[N];
 
-inline void SOLVE(int Case){
-	cin>>n;
-	
+void SOLVE(int Case){
+	cin>>n>>t;
+	int ans=0;
+	rep(i,1,n){
+		cin>>a[i];
+		chkmax(ans,a[i]);
+	}
+	rep(l,1,n){
+		k=t;
+		rep(i,1,n){
+			b[i]=a[i]+i;
+		}
+		sum[l-1]=0;
+		rep(r,l,n){
+			sum[r]=sum[r-1]+b[r];
+			if(b[r]>b[l]){
+				int need=b[l]*(r-l)-(sum[r-1]-sum[l-1]);
+				int K=k-need;
+				if(k>=need){
+					if(k>b[r]*(r-l)-(sum[r-1]-sum[l-1])){
+						k-=b[r]*(r-l)-(sum[r-1]-sum[l-1]);
+						chkmax(ans,a[l]+(b[r]-(a[l]+l)));
+						b[l]=b[r];
+						sum[r]=b[r]*(r-l+1);
+					}
+					else{
+						chkmax(ans,b[l]-l+K/(r-l));
+						break;
+					}
+				}
+				else break;
+			}
+			
+		}
+	}
+	cout<<ans<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -165,3 +198,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) Adversarial Testing
 */
+

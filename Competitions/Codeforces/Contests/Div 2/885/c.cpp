@@ -1,13 +1,13 @@
 /*
  * Author: Austin Jiang
- * Date: 6/26/2023 2:38:16 PM
+ * Date: 8/4/2023 3:13:38 PM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
@@ -113,80 +113,44 @@ namespace Comfun{
 	for(T &x:v) x=lb(all(num),x)-num.begin()+st;}
 } using namespace Comfun;
 
-template<class T,class Fun=function<T(const T,const T)>> struct Segtree{
-	int L=0,R=-1,ini=0; Fun F; Vec<T> st;
-	inline Segtree(){}
-	inline Segtree(int L,int R,int val,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,ini=val);}
-	inline Segtree(int L,int R,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,0);}
-	inline Segtree(Vec<T> v,Fun F){this->R=v.size()-1,this->F=F;st.resize(v.size()<<2);rep(i,0,this->R) upd(i,v[i],true);}
-	inline void init(int L,int R,int val,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,ini=val);}
-	inline void init(int L,int R,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,0);}
-	inline void init(Vec<T> v,Fun F){this->R=v.size()-1,this->F=F;st.resize(v.size()<<2);rep(i,0,this->R) upd(i,v[i],true);}
-	inline T query(int rt,int l,int r,int x,int y){
-		if(x>y) return ini;
-		if(l==x&&r==y) return st[rt];
-		int mid=l+r>>1;
-		if(y<=mid) return query(lc,l,mid,x,y);
-		else if(x>mid) return query(rc,mid+1,r,x,y);
-		else return F(query(lc,l,mid,x,mid),query(rc,mid+1,r,mid+1,y));}
-	inline void update(int rt,int l,int r,int x,int v,bool cover){
-		if(l==r){st[rt]=cover?v:F(st[rt],v);return;}
-		int mid=l+r>>1;
-		if(x<=mid) update(lc,l,mid,x,v,cover);
-		else update(rc,mid+1,r,x,v,cover);
-		st[rt]=F(st[lc],st[rc]);}
-	inline T ask(int x,int y){return query(1,L,R,x,y);}
-	inline void upd(int x,int y,bool cover=false){update(1,L,R,x,y,cover);}
-};
-
-template<class T> struct Fenwick{
-	int n=0; Vec<array<T,2>> d;
-	inline Fenwick(){}
-	inline Fenwick(int n){d.resize(this->n=n);}
-	inline void resize(int n){d.resize(this->n=n,{0,0});}
-	inline T query(int x,int k){int ans=0;for(int i=x;i>0;i-=lowbit(i)) ans+=d[i][k];return ans;}
-	inline T ask(int x,int y){return (y+2)*query(y+1,0)-query(y+1,1)-(x+1)*query(x,0)+query(x,1);}
-	inline void update(int x,int v){for(int i=x;i<=n;i+=lowbit(i))d[i][0]+=v,d[i][1]+=v*x;}
-	inline void add(int x,int y,int v){update(x+1,v),update(y+2,-v);}
-	inline void add(int x,int v){add(x,x,v);}
-};
-
 /* ========================================| Main Program |======================================== */
 
 const int N = 1e6+10;
 
-int n,k,A;
-PI ord[N];
-
-struct node{
-	int x,y,cost,dist;
-} p[N];
-
-struct segtree_2D_interval{
-	/* WTF???!!! */
-	
-} st;
+int n,a[N],b[N],t[N];
 
 void SOLVE(int Case){
-	cin>>n>>k>>A;
+	cin>>n;
 	rep(i,1,n){
-		cin>>p[i].x>>p[i].y>>p[i].cost;
-		p[i].dist=(k-p[i].y-p[i].x)*A;
-		ord[i]={p[i].dist-p[i].cost,i};
+		cin>>a[i];
 	}
-	sort(ord+1,ord+n+1);
 	rep(i,1,n){
-		int u=ord[i].sec;
-		if(p[u].dist<st.ask(p[u].x,p[u].y,k,k)){
-			st.upd(p[u].x,p[u].y,k,k,0);
-			st.upd(p[u].x,p[u].y,p[u].x,p[u].y,p[u].dist);
+		cin>>b[i];
+	}
+	int mn=INF;
+	rep(i,1,n){
+		t[i]=0;
+		int aa=a[i],bb=b[i],cc;
+		while(aa!=0){
+			cc=abs(aa-bb);
+			aa=bb;
+			bb=cc;
+			t[i]++;
+		}
+		if(a[i]==0&&b[i]==0) continue;
+		chkmin(mn,t[i]);
+	}
+	rep(i,1,n){
+		cout<<gcd(a[i],b[i])<<endl;
+	} cout<<endl;
+	rep(i,1,n){
+		if(a[i]==0&&b[i]==0) continue;
+		if((t[i]-mn)%3!=0){
+			cout<<"NO"<<endl;
+			return;
 		}
 	}
-	int ans=0;
-	rep(i,1,n){
-		ans+=st.ask(p[i].x,p[i].y,p[i].x,p[i].y);
-	}
-	cout<<ans<<endl;
+	cout<<"YES"<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */

@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 8/5/2023 11:39:09 PM
  * Problem:
  * Source:
  * Description:
@@ -14,7 +14,7 @@
 //#define SETMEM
 //#define FASTIO
 #define OPTIMIZE
-//#define INTTOLL
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -63,7 +63,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -118,13 +118,48 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 5010;
 
-int n;
+int n,ans,fa[N],cnt[N],dp[N][N];//选中的最接近一半 
+VI e[N];
 
-inline void SOLVE(int Case){
+int half(VI v,int tot){
+	tot/=2;
+	dp[0][0]=1;
+	int res=0;
+	rep(i,0,(int)v.size()-1){
+		dp[i+1][0]=1;
+		rep(j,1,tot){
+			dp[i+1][j]=dp[i][j];
+			if(j>=v[i]) dp[i+1][j]|=dp[i][j-v[i]];
+			if(dp[i+1][j]){
+				chkmax(res,j);
+			}
+		}
+	}
+	return res;
+}
+
+void dfs(int u){
+	cnt[u]=1;
+	VI vv;
+	for(int v:e[u]){
+		dfs(v);
+		cnt[u]+=cnt[v];
+		vv.pb(cnt[v]);
+	}
+	int res=half(vv,cnt[u]-1);
+	ans+=res*(cnt[u]-1-res);
+}
+
+void SOLVE(int Case){
 	cin>>n;
-	
+	rep(i,2,n){
+		cin>>fa[i];
+		e[fa[i]].pb(i);
+	}
+	dfs(1);
+	cout<<ans<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -165,3 +200,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) Adversarial Testing
 */
+

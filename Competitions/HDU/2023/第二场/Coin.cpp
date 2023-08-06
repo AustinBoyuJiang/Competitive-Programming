@@ -1,13 +1,13 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 8/6/2023 8:11:03 PM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -63,7 +63,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -118,12 +118,45 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 3010;
 
-int n;
+int n,m,k,cnt,S,T,a[N],u[N],v[N],cnt[N],vis[N][N];
 
-inline void SOLVE(int Case){
-	cin>>n;
+void init(){
+	cnt=0;
+	S=cnt++;
+	T=cnt++;
+	rep(i,1,n){
+		cnt[i]=0;
+		rep(j,1,m){
+			vis[i][j]=-1;
+		}
+	}
+}
+
+int id(int x,int y){
+	if(~vis[x][y]) return vis[x][y];
+	return vis[x][y]=cnt++;
+}
+
+void SOLVE(int Case){
+	cin>>n>>m>>k;
+	init();
+	rep(i,1,n){
+		cin>>a[i];
+		add(S,id(i,0),1);
+	}
+	rep(i,1,n){
+		cin>>u[i]>>v[i];
+		add(id(u[i],cnt[u[i]]),id(u[i],++cnt[u[i]]),a[i]);
+		add(id(v[i],cnt[v[i]]),id(v[i],++cnt[v[i]]),a[i]);
+		add(id(u[i],cnt[u[i]]),id(v[i],cnt[v[i]]),1);
+	}
+	rep(i,1,k){
+		int x;
+		cin>>x;
+		add(id(x,cnt[x]),T,a[i]);
+	}
 	
 }
 
@@ -165,3 +198,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) Adversarial Testing
 */
+

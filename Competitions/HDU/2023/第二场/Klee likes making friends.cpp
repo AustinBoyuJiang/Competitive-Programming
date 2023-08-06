@@ -1,13 +1,13 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 8/5/2023 9:27:13 PM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -63,7 +63,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -118,13 +118,33 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 2e4+10;
+const int M = 2e3+10;
 
-int n;
+int n,m,a[N],dp[M][M],mn[M][M];
 
-inline void SOLVE(int Case){
-	cin>>n;
-	
+void SOLVE(int Case){
+	cin>>n>>m;
+	rep(i,1,n){
+		cin>>a[i];
+	}
+	rep(i,1,n){
+		rep(j,max(i-m+1,1),i-1){
+			if(i<=m) dp[i%m][i-j]=a[i]+a[j];
+			else dp[i%m][i-j]=mn[j%m][j-i+m]+a[i];
+		}
+		mn[i%m][0]=INF;
+		per(j,i-1,max(i-m+1,1)){
+			mn[i%m][i-j]=min(mn[i%m][i-j-1],dp[i%m][i-j]);
+		}
+	}
+	int ans=INF;
+	rep(i,n-m+1,n){
+		rep(j,n-m+1,i-1){
+			chkmin(ans,dp[i%m][i-j]);
+		}
+	}
+	cout<<ans<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -165,3 +185,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) Adversarial Testing
 */
+

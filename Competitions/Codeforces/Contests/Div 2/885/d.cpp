@@ -1,20 +1,20 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 8/4/2023 4:08:31 PM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
 //#define FASTIO
 #define OPTIMIZE
-//#define INTTOLL
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -63,7 +63,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -105,10 +105,7 @@ namespace Comfun{
 	template<class T> inline T lcm(T a,T b){return a/gcd(a,b)*b;}
 	template<class T> inline T chkmax(T &a,T b){return a=max(a,b);}
 	template<class T> inline T chkmin(T &a,T b){return a=min(a,b);}
-	template<class T> inline T qpow(T a,T b){T ans=1;
-	while(b){if(b&1)ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
-	inline int mex(VI s){sort(all(s));int j=0;rep(i,0,s[s.size()]+1){
-	while(j<s.size()&&s[j]<i) j++;if(s[j]!=i) return i;}}
+	template<class T> inline T qpow(T a,T b){T ans=1;while(b){if(b&1)ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
 	template<class T> inline T inv(T x){return qpow(x,MOD-2);}
 	template<class T> inline bool is_prime(T x){
 	if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false;return true;}
@@ -120,11 +117,73 @@ namespace Comfun{
 
 const int N = 1e6+10;
 
-int n;
+int n,k;
+int period[10]={1,4,4,4,4,1,4,4,4,4},
+	pre[10]={0,1,0,1,0,1,0,1,0,1},
+	sum[10]={0,20,20,20,20,0,20,20,20,20};
+VI v[10]={{0},
+{1,2,4,8,6,2},
+{2,4,8,6,2},
+{3,6,2,4,8,6},
+{4,8,6,2,4},
+{5,0},
+{6,2,4,8,6},
+{7,4,8,6,2,4},
+{8,6,2,4,8},
+{9,8,6,2,4,8}};
 
-inline void SOLVE(int Case){
-	cin>>n;
-	
+ll calc(int n,int x){// value of n after x round{
+	int res=n;
+	rep(i,0,min(pre[n%10],x)-1){
+		res+=v[n%10][i];
+	}
+	x-=min(x,pre[n%10]);
+	res+=(x/period[n%10])*sum[n%10];
+	x%=period[n%10];
+	rep(i,pre[n%10],pre[n%10]+x-1){
+		res+=v[n%10][i];
+	}
+	return res;
+}
+
+int check(int x){
+	return calc(n,x)*(k-x);
+}
+
+void SOLVE(int Case){
+	cin>>n>>k;
+	int ans=0,l=0,r=k;
+	while(l<=r){
+		int mid=l+r>>1;
+		int midl=max(0ll,mid-1);
+		int midr=min(k,mid+1);
+		chkmax(ans,check(mid));
+		chkmax(ans,check(midl));
+		chkmax(ans,check(midr));
+		if(check(midr)>check(midl)){
+			l=mid+1;
+		}
+		else{
+			r=mid-1;
+		}
+	}l=0,r=k;
+	while(l<=r){
+		int mid=l+r>>1;
+		int midl=(l+r)/4;
+		int midr=(l+r)*3/4;
+		chkmax(ans,check(mid));
+		chkmax(ans,check(midl));
+		chkmax(ans,check(midr));
+		if(check(midr)>check(midl)){
+			l=mid+1;
+		}
+		else{
+			r=mid-1;
+		}
+	}
+	chkmax(ans,check(0));
+	chkmax(ans,check(k));
+	cout<<ans<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -165,3 +224,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) Adversarial Testing
 */
+

@@ -1,13 +1,13 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 7/4/2023 10:22:09 AM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -63,7 +63,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -105,10 +105,7 @@ namespace Comfun{
 	template<class T> inline T lcm(T a,T b){return a/gcd(a,b)*b;}
 	template<class T> inline T chkmax(T &a,T b){return a=max(a,b);}
 	template<class T> inline T chkmin(T &a,T b){return a=min(a,b);}
-	template<class T> inline T qpow(T a,T b){T ans=1;
-	while(b){if(b&1)ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
-	inline int mex(VI s){sort(all(s));int j=0;rep(i,0,s[s.size()]+1){
-	while(j<s.size()&&s[j]<i) j++;if(s[j]!=i) return i;}}
+	template<class T> inline T qpow(T a,T b){T ans=1;while(b){if(b&1)ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
 	template<class T> inline T inv(T x){return qpow(x,MOD-2);}
 	template<class T> inline bool is_prime(T x){
 	if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false;return true;}
@@ -120,11 +117,34 @@ namespace Comfun{
 
 const int N = 1e6+10;
 
-int n;
+int n,k,x;
 
-inline void SOLVE(int Case){
-	cin>>n;
-	
+void SOLVE(int Case){
+	cin>>n>>k>>x;
+	if(x!=1){
+		cout<<"YES"<<endl;
+		cout<<n<<endl;
+		rep(i,1,n){
+			cout<<1<<" ";
+		} cout<<endl;
+	}
+	else if(n%2==0&&k>=2){
+		cout<<"YES"<<endl;
+		cout<<n/2<<endl;
+		rep(i,1,n/2){
+			cout<<2<<" ";
+		} cout<<endl;
+	}
+	else if(n>=3&&k>=3){
+		cout<<"YES"<<endl;
+		cout<<n/2<<endl;
+		rep(i,1,(n-3)/2){
+			cout<<2<<" ";
+		} cout<<3<<endl;
+	}
+	else{
+		cout<<"NO"<<endl;
+	}
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -165,3 +185,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) Adversarial Testing
 */
+

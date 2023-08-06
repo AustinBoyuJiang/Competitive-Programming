@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 6/28/2023 8:01:53 PM
  * Problem:
  * Source:
  * Description:
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -63,7 +63,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -105,10 +105,7 @@ namespace Comfun{
 	template<class T> inline T lcm(T a,T b){return a/gcd(a,b)*b;}
 	template<class T> inline T chkmax(T &a,T b){return a=max(a,b);}
 	template<class T> inline T chkmin(T &a,T b){return a=min(a,b);}
-	template<class T> inline T qpow(T a,T b){T ans=1;
-	while(b){if(b&1)ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
-	inline int mex(VI s){sort(all(s));int j=0;rep(i,0,s[s.size()]+1){
-	while(j<s.size()&&s[j]<i) j++;if(s[j]!=i) return i;}}
+	template<class T> inline T qpow(T a,T b){T ans=1;while(b){if(b&1)ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
 	template<class T> inline T inv(T x){return qpow(x,MOD-2);}
 	template<class T> inline bool is_prime(T x){
 	if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false;return true;}
@@ -122,9 +119,37 @@ const int N = 1e6+10;
 
 int n;
 
-inline void SOLVE(int Case){
-	cin>>n;
+struct fenwick{
+	int d[N][2];
 	
+	void update(int x,int v){
+		for(int i=x;i<=1e6;i+=lowbit(i)){
+			d[i][0]+=v;
+			d[i][1]+=v*x;
+		}
+	}
+	
+	int query(int x,int k){
+		int ans=0;
+		for(int i=x;i>0;i-=lowbit(i)){
+			ans+=d[i][k];
+		}
+		return ans;
+	}
+	
+	int add(int x,int y,int v){
+		update(x,v);
+		update(y+1,-v);
+	}
+	
+	int ask(int x,int y){
+		return (y+1)*query(y,0)-query(y,1)-x*query(x-1,0)+query(x-1,1);
+	}
+}; 
+
+void SOLVE(int Case){
+	cin>>n;
+
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -165,3 +190,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) Adversarial Testing
 */
+

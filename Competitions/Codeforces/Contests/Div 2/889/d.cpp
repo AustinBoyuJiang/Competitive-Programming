@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 8/6/2023 2:08:55 PM
  * Problem:
  * Source:
  * Description:
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -63,7 +63,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -122,9 +122,16 @@ const int N = 1e6+10;
 
 int n;
 
-inline void SOLVE(int Case){
+void SOLVE(int Case){
 	cin>>n;
-	
+	int ans=0;
+	int x=n,cnt=1;
+	while(x){
+		ans+=(x-1)*(x-1)*cnt;
+		x/=2;
+		cnt*=2;
+	}
+	cout<<5*n*n/ans<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -165,3 +172,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) Adversarial Testing
 */
+
