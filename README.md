@@ -1,7 +1,7 @@
 # Introduction
 This repository is here to share my code and help me to review them.
 
-<br><br>
+<br>
 
 # Codeforces Contests
 | Contest Name                                                            | Division        | Mode    | Problem 1      | Problem 2      | Problem 3      | Problem 4      | Problem 5 | Problem 6 | Problem 7 | Problem 8 | Problem 9 | Ranking | Predict Rating |
@@ -24,7 +24,7 @@ This repository is here to share my code and help me to review them.
 | [Codeforces Round 890](https://codeforces.com/contest/1848)             | Div. 2          | Actual  | AC | 00:05     | AC(+2) | 00:14 | \-1 (√)        | √              | √         |           | \---      | \---      | \---      | 5451    | 1229           |
 | [Codeforces Round 884](https://codeforces.com/contest/1844)             | Div. 1 + Div. 2 | Virtual | AC | 00:02     | AC | 00:12     | AC | 00:20     | AC | 00:40     | √         | √         |           |           |           | 543     | 2179           |
 
-<br><br>
+<br>
 
 # Solved Problems
 | Name                                                                                                | Diffuclty | Description                                                  | Algorithms     | Techniques     | Solution                                                                                                                   |
