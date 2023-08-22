@@ -128,19 +128,18 @@ int solve(int n,int k){
 		res[{n,k}]=0;
 		return 0;
 	}
-//	cout<<"Hello "<<n<<" "<<k<<endl;
 	VI s;
-	rep(i,0,n-k) s.pb(solve(i,k)^solve(n-i-k,k));
+	rep(i,1,n-k-1) s.pb(solve(i,k)^solve(n-i-k,k));
 	rep(i,1,min(n,k)) s.pb(solve(n-i,k));
-//	cout<<"wocao "<<n<<" "<<k<<endl;
 	res[{n,k}]=mex(s);
 	return res[{n,k}];
+	//n%(4k+2)==k+1
 }
 
 void SOLVE(int Case){
 	rep(n,0,100){
 		rep(k,2,100){
-			cout<<(bool)solve(n,k)<<" ";
+			cout<<(n%(4*k+2)!=k+1)+0*(bool)solve(n,k)<<" ";
 		}
 		cout<<endl;
 	}

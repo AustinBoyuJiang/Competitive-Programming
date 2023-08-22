@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 8/4/2023 4:08:31 PM
+ * Date: 8/15/2023 10:38:05 PM
  * Problem:
  * Source:
  * Description:
@@ -105,7 +105,10 @@ namespace Comfun{
 	template<class T> inline T lcm(T a,T b){return a/gcd(a,b)*b;}
 	template<class T> inline T chkmax(T &a,T b){return a=max(a,b);}
 	template<class T> inline T chkmin(T &a,T b){return a=min(a,b);}
-	template<class T> inline T qpow(T a,T b){T ans=1;while(b){if(b&1)ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
+	template<class T> inline T qpow(T a,T b){T ans=1;
+	while(b){if(b&1)ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
+	inline int mex(VI s){sort(all(s));int j=0;rep(i,0,s[s.size()]+1){
+	while(j<s.size()&&s[j]<i) j++;if(s[j]!=i) return i;}}
 	template<class T> inline T inv(T x){return qpow(x,MOD-2);}
 	template<class T> inline bool is_prime(T x){
 	if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false;return true;}
@@ -117,38 +120,58 @@ namespace Comfun{
 
 const int N = 1e6+10;
 
-int n,k;
+int n,m,d,s[N],lst[N],l[N],r[N];
 
-int calc(int a,int b){
-	return -b/(2*a);
+int check(int x){
+	if(x==0){
+		return l[m+1];
+	}
+	return l[x-1]+r[x+1]+(s[x+1]-s[x-1]-1)/d;
 }
 
-void SOLVE(int Case){
-	cin>>n>>k;
-	int ans=n*k;
-	if(n%10==0){
-		cout<<ans<<endl;
-		return;
+inline void SOLVE(int Case){
+	cin>>n>>m>>d;
+	rep(i,0,m+1){
+		s[i]=lst[i]=l[i]=r[i]=0;
 	}
-	if(n%10==5){
-		chkmax(ans,(n+5)*(k-1));
-		cout<<ans<<endl;
-		return;
+	rep(i,1,m){
+		cin>>s[i];
 	}
-	if(n%2==1){
-		n+=n%10;
-		k--;
-		chkmax(ans,n*k);
+	int st=1;
+	if(s[1]==1){
+		m--;
+		rep(i,1,m)
+			s[i]=s[i+1];
+		st--;
 	}
-	int x=calc(-80,20*k-4*n)-5;
-	chkmax(x,0ll);
-	chkmin(x,k);
-	int cur=n+20*x;
-	rep(i,x*4,(x+10)*4){
-		chkmax(ans,cur*(k-i));
-		cur+=cur%10;
+	s[0]=1;
+	s[m+1]=n+1;
+	lst[0]=1;
+	rep(i,1,m){
+		lst[i]=(s[i]-s[i-1]-1)/d+1;
 	}
-	cout<<ans<<endl;
+	lst[m+1]=(n-s[m])/d;
+	l[0]=lst[0];
+	rep(i,1,m+1){
+		l[i]+=l[i-1]+lst[i];
+	}
+	r[m+1]=0;
+	per(i,m,0){
+		r[i]=r[i+1]+(s[i+1]-s[i]-1)/d+1;
+	}
+	int mn=st;
+	rep(i,st+1,m){
+		if(check(mn)>check(i)){
+			mn=i;
+		}
+	}
+	int cnt=0;
+	rep(i,st,m){
+		if(check(i)==check(mn)){
+			cnt++;
+		}
+	}
+	cout<<check(mn)<<" "<<cnt<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */

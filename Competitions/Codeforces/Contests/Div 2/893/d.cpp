@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 8/4/2023 4:08:31 PM
+ * Date: 8/15/2023 11:19:14 PM
  * Problem:
  * Source:
  * Description:
@@ -14,7 +14,7 @@
 //#define SETMEM
 //#define FASTIO
 #define OPTIMIZE
-#define INTTOLL
+//#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -105,7 +105,10 @@ namespace Comfun{
 	template<class T> inline T lcm(T a,T b){return a/gcd(a,b)*b;}
 	template<class T> inline T chkmax(T &a,T b){return a=max(a,b);}
 	template<class T> inline T chkmin(T &a,T b){return a=min(a,b);}
-	template<class T> inline T qpow(T a,T b){T ans=1;while(b){if(b&1)ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
+	template<class T> inline T qpow(T a,T b){T ans=1;
+	while(b){if(b&1)ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
+	inline int mex(VI s){sort(all(s));int j=0;rep(i,0,s[s.size()]+1){
+	while(j<s.size()&&s[j]<i) j++;if(s[j]!=i) return i;}}
 	template<class T> inline T inv(T x){return qpow(x,MOD-2);}
 	template<class T> inline bool is_prime(T x){
 	if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false;return true;}
@@ -115,40 +118,68 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 3e3+10;
 
-int n,k;
+int n,k,a[N],sum[N],l0[N][N],r0[N][N],l1[N][N],r1[N][N],ans[N],mx[N];
 
-int calc(int a,int b){
-	return -b/(2*a);
-}
-
-void SOLVE(int Case){
+inline void SOLVE(int Case){
 	cin>>n>>k;
-	int ans=n*k;
-	if(n%10==0){
-		cout<<ans<<endl;
-		return;
+	rep(i,0,n+1){
+		a[i]=0;
+		sum[i]=0;
+		ans[i]=0;
+		mx[i]=-INF;
+		rep(j,0,n+1){
+			l0[i][j]=0;
+			l1[i][j]=0;
+			r0[i][j]=0;
+			r1[i][j]=0;
+		}
 	}
-	if(n%10==5){
-		chkmax(ans,(n+5)*(k-1));
-		cout<<ans<<endl;
-		return;
+	rep(i,1,n){
+		char ch;
+		cin>>ch;
+		a[i]=ch-'0';
+		sum[i]=sum[i-1]+a[i];
 	}
-	if(n%2==1){
-		n+=n%10;
-		k--;
-		chkmax(ans,n*k);
+	rep(l,1,n+1){
+		rep(r,l-1,n){
+			int cnt1=sum[r]-sum[l-1];
+			int cnt0=r-l+1-cnt1;
+			chkmax(l0[r][cnt1],r-l+1);
+			chkmax(l1[r][cnt0],r-l+1);
+			chkmax(r0[l][cnt1],r-l+1);
+			chkmax(r1[l][cnt0],r-l+1);
+		}
 	}
-	int x=calc(-80,20*k-4*n)-5;
-	chkmax(x,0ll);
-	chkmin(x,k);
-	int cur=n+20*x;
-	rep(i,x*4,(x+10)*4){
-		chkmax(ans,cur*(k-i));
-		cur+=cur%10;
+	rep(i,1,n){
+		rep(j,0,n){
+			chkmax(l0[i][j],l0[i-1][j]);
+			if(j) chkmax(l0[i][j],l0[i][j-1]);
+			chkmax(l1[i][j],l1[i-1][j]);
+			if(j) chkmax(l1[i][j],l1[i][j-1]);
+			
+			chkmax(r0[n+1-i][j],r0[n+1-i+1][j]);
+			if(j) chkmax(r0[n+1-i][j],r0[n+1-i][j-1]);
+			chkmax(r1[n+1-i][j],r1[n+1-i+1][j]);
+			if(j) chkmax(r1[n+1-i][j],r1[n+1-i][j-1]);
+		}
 	}
-	cout<<ans<<endl;
+	rep(l,1,n+1){
+		rep(r,l-1,n){
+			if(sum[r]-sum[l-1]<=k){
+				int spent=sum[r]-sum[l-1];
+				int mx0=r-l+1;
+				int cmx1=max(l1[l-1][k-spent],r1[r+1][k-spent]);
+				chkmax(mx[mx0],cmx1);
+			}
+		}
+	}
+	rep(a,1,n){
+		rep(i,0,n){
+			chkmax(ans[a],a*i+mx[i]);
+		} cout<<ans[a]<<" ";
+	} cout<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -189,4 +220,3 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) Adversarial Testing
 */
-

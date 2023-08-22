@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 8/4/2023 4:08:31 PM
+ * Date: 8/8/2023 10:29:05 PM
  * Problem:
  * Source:
  * Description:
@@ -14,7 +14,7 @@
 //#define SETMEM
 //#define FASTIO
 #define OPTIMIZE
-#define INTTOLL
+//#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -105,7 +105,10 @@ namespace Comfun{
 	template<class T> inline T lcm(T a,T b){return a/gcd(a,b)*b;}
 	template<class T> inline T chkmax(T &a,T b){return a=max(a,b);}
 	template<class T> inline T chkmin(T &a,T b){return a=min(a,b);}
-	template<class T> inline T qpow(T a,T b){T ans=1;while(b){if(b&1)ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
+	template<class T> inline T qpow(T a,T b){T ans=1;
+	while(b){if(b&1)ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
+	inline int mex(VI s){sort(all(s));int j=0;rep(i,0,s[s.size()]+1){
+	while(j<s.size()&&s[j]<i) j++;if(s[j]!=i) return i;}}
 	template<class T> inline T inv(T x){return qpow(x,MOD-2);}
 	template<class T> inline bool is_prime(T x){
 	if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false;return true;}
@@ -115,40 +118,55 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 2e3+10;
 
-int n,k;
+int n,m,k,ans,col[N*2];
+VPI e[N*2];
 
-int calc(int a,int b){
-	return -b/(2*a);
+void dfs(int u){
+	for(PI ee:e[u]){
+		int v=ee.fir,w=ee.sec;
+		if(col[v]!=-1){
+			if(col[v]!=(col[u]^w)){
+				ans=0;
+				return;
+			}
+			continue;
+		}
+		col[v]=col[u]^w;
+		dfs(v);
+	}
 }
 
-void SOLVE(int Case){
-	cin>>n>>k;
-	int ans=n*k;
-	if(n%10==0){
-		cout<<ans<<endl;
-		return;
+inline void SOLVE(int Case){
+	cin>>n>>m>>k;
+	rep(i,1,n+m){
+		col[i]=-1;
+		e[i].clear();
 	}
-	if(n%10==5){
-		chkmax(ans,(n+5)*(k-1));
-		cout<<ans<<endl;
-		return;
+	rep(i,1,k){
+		int x1,y1,x2,y2;
+		cin>>x1>>y1>>x2>>y2;
+		if(y1>y2){
+			swap(x1,x2);
+			swap(y1,y2);
+		}
+		if(x2>x1){
+			e[x1].pb({y1+n,1});
+			e[y1+n].pb({x1,1});
+		}
+		else{
+			e[x2].pb({y1+n,0});
+			e[y1+n].pb({x2,0});
+		}
 	}
-	if(n%2==1){
-		n+=n%10;
-		k--;
-		chkmax(ans,n*k);
+	ans=1;
+	rep(i,1,n+m){
+		if(col[i]!=-1) continue;
+		col[i]=0;
+		dfs(i);
 	}
-	int x=calc(-80,20*k-4*n)-5;
-	chkmax(x,0ll);
-	chkmin(x,k);
-	int cur=n+20*x;
-	rep(i,x*4,(x+10)*4){
-		chkmax(ans,cur*(k-i));
-		cur+=cur%10;
-	}
-	cout<<ans<<endl;
+	cout<<(ans?"YES":"NO")<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */

@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 8/4/2023 4:08:31 PM
+ * Date: 8/12/2023 11:29:49 PM
  * Problem:
  * Source:
  * Description:
@@ -12,7 +12,7 @@
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
-//#define FASTIO
+#define FASTIO
 #define OPTIMIZE
 #define INTTOLL
 
@@ -37,8 +37,8 @@ using namespace std;
 #define sec second
 
 /* Segment Tree */
-#define lc (rt << 1)
-#define rc (rt << 1 | 1)
+//#define lc (rt << 1)
+//#define rc (rt << 1 | 1)
 
 /* STL */
 #define lb lower_bound
@@ -105,7 +105,10 @@ namespace Comfun{
 	template<class T> inline T lcm(T a,T b){return a/gcd(a,b)*b;}
 	template<class T> inline T chkmax(T &a,T b){return a=max(a,b);}
 	template<class T> inline T chkmin(T &a,T b){return a=min(a,b);}
-	template<class T> inline T qpow(T a,T b){T ans=1;while(b){if(b&1)ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
+	template<class T> inline T qpow(T a,T b){T ans=1;
+	while(b){if(b&1)ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
+	inline int mex(VI s){sort(all(s));int j=0;rep(i,0,s[s.size()]+1){
+	while(j<s.size()&&s[j]<i) j++;if(s[j]!=i) return i;}}
 	template<class T> inline T inv(T x){return qpow(x,MOD-2);}
 	template<class T> inline bool is_prime(T x){
 	if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false;return true;}
@@ -117,38 +120,101 @@ namespace Comfun{
 
 const int N = 1e6+10;
 
-int n,k;
+int n,q,ans[N];
 
-int calc(int a,int b){
-	return -b/(2*a);
+struct start{
+	int id,x,ans;
+} s[N];
+
+bool cmp3(start a,start b){
+	return a.x<b.x;
 }
 
-void SOLVE(int Case){
-	cin>>n>>k;
-	int ans=n*k;
-	if(n%10==0){
-		cout<<ans<<endl;
-		return;
+struct Seg{
+	int l,r,a,b,arr;
+} seg[N];
+
+bool cmp(Seg a,Seg b){
+	return a.b<b.b;
+}
+bool cmp2(Seg a,Seg b){
+	return a.r<b.r;
+}
+
+struct segment_tree{
+	int root=0,tot=0,lc[N<<2],rc[N<<2],st[N<<2];
+	
+	void clear(){
+		root=0;
+		rep(i,0,tot){
+			lc[i]=0;
+			rc[i]=0;
+			st[i]=0;
+		}
+		tot=0;
 	}
-	if(n%10==5){
-		chkmax(ans,(n+5)*(k-1));
-		cout<<ans<<endl;
-		return;
+	void update(int &rt,int l,int r,int x,int y){
+		if(!rt) rt=++tot;
+		if(l==r){
+			chkmax(st[rt],y);
+			return;
+		}
+		int mid=l+r>>1;
+		if(x<=mid) update(lc[rt],l,mid,x,y);
+		else update(rc[rt],mid+1,r,x,y);
+		st[rt]=max(st[lc[rt]],st[rc[rt]]);
 	}
-	if(n%2==1){
-		n+=n%10;
-		k--;
-		chkmax(ans,n*k);
+	int query(int &rt,int l,int r,int x,int y){
+		if(!rt||y<x) return 0;
+		if(l==x&&r==y){
+			return st[rt];
+		}
+		int mid=l+r>>1;
+		if(y<=mid) return query(lc[rt],l,mid,x,y);
+		else if(x>mid) return query(rc[rt],mid+1,r,x,y);
+		return max(query(lc[rt],l,mid,x,mid),query(rc[rt],mid+1,r,mid+1,y));
 	}
-	int x=calc(-80,20*k-4*n)-5;
-	chkmax(x,0ll);
-	chkmin(x,k);
-	int cur=n+20*x;
-	rep(i,x*4,(x+10)*4){
-		chkmax(ans,cur*(k-i));
-		cur+=cur%10;
+} st;
+
+inline void SOLVE(int Case){
+	cin>>n;
+	st.clear();
+	rep(i,1,n){
+		cin>>seg[i].l>>seg[i].r>>seg[i].a>>seg[i].b;
 	}
-	cout<<ans<<endl;
+	sort(seg+1,seg+n+1,cmp);
+	int pos=0;
+	per(i,n,1){
+		seg[i].arr=seg[i].b;
+		if(seg[i].b>=seg[pos].l){
+			chkmax(seg[i].arr,seg[pos].arr);
+		}
+		if(pos==0||seg[i].l<seg[pos].l){
+			pos=i;
+		}
+	}
+	cin>>q;
+	rep(i,1,q){
+		cin>>s[i].x;
+		s[i].ans=s[i].x;
+		s[i].id=i;
+	}
+	sort(seg+1,seg+n+1,cmp2);
+	sort(s+1,s+q+1,cmp3);
+	int j=n;
+	per(i,q,1){
+		while(j>=1&&seg[j].r>=s[i].x){
+			st.update(st.root,1,1e9,seg[j].l,seg[j].arr);
+			j--;
+		}
+		chkmax(s[i].ans,st.query(st.root,1,1e9,1,s[i].x));
+	}
+	rep(i,1,q){
+		ans[s[i].id]=s[i].ans;
+	}
+	rep(i,1,q){
+		cout<<ans[i]<<" ";
+	} cout<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */

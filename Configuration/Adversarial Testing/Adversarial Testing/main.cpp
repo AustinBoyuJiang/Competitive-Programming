@@ -19,7 +19,7 @@ signed main(){
         	printf("测试点#%d Wrong Answer\n",i);
         	break;
 		}
-        else if (t>1000) printf("测试点#%d Time Limited Exceeded 用时 %.0lfms\n",i,t);
+        else if (t>10000) printf("测试点#%d Time Limited Exceeded 用时 %.0lfms\n",i,t);
         else printf("测试点#%d Accepted 用时%.0lfms\n",i,t),cnt++;
     }
     printf("\n");

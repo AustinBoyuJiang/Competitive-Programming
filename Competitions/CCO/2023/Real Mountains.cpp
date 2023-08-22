@@ -176,7 +176,8 @@ void SOLVE(int Case){
 	rep(i,1,n){
 		int u=pq[i];
 		if(u==1||u==n) continue;
-		cout<<u<<" "<<ex[u]-h[u]<<endl;
+		cout<<u<<" "<<ex[u]-h[u]<<":"<<endl;
+		cout<<(st.ask(1,1,n,1,u-1)+st.ask(1,1,n,u+1,n))*(ex[u]-h[u])<<endl;
 		ans+=(ll)(h[u]+(ex[u]-1))*(ex[u]-h[u])/2;
 		ans+=st.ask(1,1,n,1,u-1)*(ex[u]-h[u]);
 		ans+=st.ask(1,1,n,u+1,n)*(ex[u]-h[u]);

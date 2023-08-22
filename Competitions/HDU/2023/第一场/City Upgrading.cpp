@@ -1,8 +1,8 @@
 /*
  * Author: Austin Jiang
- * Date: 8/4/2023 4:08:31 PM
- * Problem:
- * Source:
+ * Date: 8/7/2023 12:18:24 AM
+ * Problem: City Upgrading
+ * Source: HDU2023 Contest1 P2
  * Description:
 */
 
@@ -105,7 +105,10 @@ namespace Comfun{
 	template<class T> inline T lcm(T a,T b){return a/gcd(a,b)*b;}
 	template<class T> inline T chkmax(T &a,T b){return a=max(a,b);}
 	template<class T> inline T chkmin(T &a,T b){return a=min(a,b);}
-	template<class T> inline T qpow(T a,T b){T ans=1;while(b){if(b&1)ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
+	template<class T> inline T qpow(T a,T b){T ans=1;
+	while(b){if(b&1)ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
+	inline int mex(VI s){sort(all(s));int j=0;rep(i,0,s[s.size()]+1){
+	while(j<s.size()&&s[j]<i) j++;if(s[j]!=i) return i;}}
 	template<class T> inline T inv(T x){return qpow(x,MOD-2);}
 	template<class T> inline bool is_prime(T x){
 	if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false;return true;}
@@ -115,40 +118,44 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 1e5+10;
 
-int n,k;
+int n,a[N],dp[N][3];
+/*
+dp[u][0]: 自己不选，子树全部覆盖
+dp[u][1]: 自己选，子树全部覆盖
+dp[u][2]: 自己选或不选，子树除了自己全被覆盖 
+*/
+VI e[N];
 
-int calc(int a,int b){
-	return -b/(2*a);
+void dfs(int u,int fa){
+	dp[u][0]=INF;
+	dp[u][1]=a[u];
+	dp[u][2]=0;
+	for(int v:e[u]){
+		if(v==fa) continue;
+		dfs(v,u);
+		chkmin(dp[u][0],dp[v][1]-min({dp[v][0],dp[v][1]}));
+		dp[u][1]+=min({dp[v][0],dp[v][1],dp[v][2]});
+		dp[u][2]+=min(dp[v][0],dp[v][1]);
+	}
+	dp[u][0]+=dp[u][2];
 }
 
-void SOLVE(int Case){
-	cin>>n>>k;
-	int ans=n*k;
-	if(n%10==0){
-		cout<<ans<<endl;
-		return;
+inline void SOLVE(int Case){
+	cin>>n;
+	rep(i,1,n){
+		cin>>a[i];
+		e[i].clear();
 	}
-	if(n%10==5){
-		chkmax(ans,(n+5)*(k-1));
-		cout<<ans<<endl;
-		return;
+	rep(i,1,n-1){
+		int u,v;
+		cin>>u>>v;
+		e[u].pb(v);
+		e[v].pb(u);
 	}
-	if(n%2==1){
-		n+=n%10;
-		k--;
-		chkmax(ans,n*k);
-	}
-	int x=calc(-80,20*k-4*n)-5;
-	chkmax(x,0ll);
-	chkmin(x,k);
-	int cur=n+20*x;
-	rep(i,x*4,(x+10)*4){
-		chkmax(ans,cur*(k-i));
-		cur+=cur%10;
-	}
-	cout<<ans<<endl;
+	dfs(1,0);
+	cout<<min(dp[1][0],dp[1][1])<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */

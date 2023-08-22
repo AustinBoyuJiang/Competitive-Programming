@@ -132,6 +132,9 @@ void SOLVE(int Case){
 		t[i]=0;
 		int aa=a[i],bb=b[i],cc;
 		while(aa!=0){
+			if(bb&&aa>=2*bb){
+				aa%=2*bb;
+			}
 			cc=abs(aa-bb);
 			aa=bb;
 			bb=cc;
@@ -140,9 +143,6 @@ void SOLVE(int Case){
 		if(a[i]==0&&b[i]==0) continue;
 		chkmin(mn,t[i]);
 	}
-	rep(i,1,n){
-		cout<<gcd(a[i],b[i])<<endl;
-	} cout<<endl;
 	rep(i,1,n){
 		if(a[i]==0&&b[i]==0) continue;
 		if((t[i]-mn)%3!=0){

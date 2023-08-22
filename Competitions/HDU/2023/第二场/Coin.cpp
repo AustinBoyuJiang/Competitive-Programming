@@ -7,14 +7,14 @@
 */
 
 /* Configuration */
-#define MULTICASES
+//#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
 //#define FASTIO
 #define OPTIMIZE
-//#define INTTOLL
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -119,24 +119,86 @@ namespace Comfun{
 /* ========================================| Main Program |======================================== */
 
 const int N = 3010;
+const int M = 1e4+10;
 
-int n,m,k,cnt,S,T,a[N],u[N],v[N],cnt[N],vis[N][N];
+int n,m,k,id,a[N],u[N],v[N],cnt[N],vis[N][N];
+int ans,tot,S,T,dep[N],head[N],h[N];
+
+struct edge{
+	int to,flow,nxt;
+} e[M];
 
 void init(){
-	cnt=0;
-	S=cnt++;
-	T=cnt++;
+	memset(head,-1,sizeof(head));
+	id=0;
+	tot=-1;
+	S=id++;
+	T=id++;
 	rep(i,1,n){
 		cnt[i]=0;
-		rep(j,1,m){
+		rep(j,0,m){
 			vis[i][j]=-1;
 		}
 	}
 }
 
-int id(int x,int y){
+int ID(int x,int y){
 	if(~vis[x][y]) return vis[x][y];
-	return vis[x][y]=cnt++;
+	return vis[x][y]=id++;
+}
+
+void addd(int u,int v,int w){ 
+	e[++tot].to=v;
+	e[tot].flow=w;
+	e[tot].nxt=head[u];
+	head[u]=tot;
+}
+
+void add(int u,int v,int w){
+	addd(u,v,w);
+	addd(v,u,0);
+//	cout<<u<<" "<<v<<" "<<w<<endl;
+}
+
+bool BFS(){
+	memcpy(h,head,sizeof(head));
+	memset(dep,0,sizeof(dep));
+	queue<int> q;
+	q.push(S);
+	dep[S]=1;
+	while(!q.empty()){
+		int u=q.front();
+		q.pop();
+		for(int i=head[u];~i;i=e[i].nxt){
+			int v=e[i].to,w=e[i].flow;
+			if(w&&!dep[v]){
+				dep[v]=dep[u]+1;
+				q.push(v);
+			}
+		}
+	} return dep[T];
+}
+
+int DFS(int u,int flow){
+	if(u==T) return flow;
+	int ans=0;
+	for(int &i=h[u];~i;i=e[i].nxt){
+		int v=e[i].to,&w=e[i].flow;
+		if(w&&dep[v]==dep[u]+1){
+			int res=DFS(v,min(flow,w));
+			w-=res,e[i^1].flow+=res;
+			flow-=res,ans+=res;
+			if(!res) dep[v]=0;
+			if(!flow) break;
+		}
+	} return ans;
+}
+
+int Dinic(){
+	int ans=0;
+	while(BFS()){
+		ans+=DFS(S,INF);
+	} return ans;
 }
 
 void SOLVE(int Case){
@@ -144,20 +206,23 @@ void SOLVE(int Case){
 	init();
 	rep(i,1,n){
 		cin>>a[i];
-		add(S,id(i,0),1);
+		add(S,ID(i,0),1);
 	}
-	rep(i,1,n){
+	rep(i,1,m){
 		cin>>u[i]>>v[i];
-		add(id(u[i],cnt[u[i]]),id(u[i],++cnt[u[i]]),a[i]);
-		add(id(v[i],cnt[v[i]]),id(v[i],++cnt[v[i]]),a[i]);
-		add(id(u[i],cnt[u[i]]),id(v[i],cnt[v[i]]),1);
+		add(ID(u[i],cnt[u[i]]),ID(u[i],cnt[u[i]]+1),a[v[i]]);
+		add(ID(v[i],cnt[v[i]]),ID(v[i],cnt[v[i]]+1),a[u[i]]);
+		cnt[u[i]]++;
+		cnt[v[i]]++;
+		add(ID(u[i],cnt[u[i]]),ID(v[i],cnt[v[i]]),1);
+		add(ID(v[i],cnt[v[i]]),ID(u[i],cnt[u[i]]),1);
 	}
 	rep(i,1,k){
 		int x;
 		cin>>x;
-		add(id(x,cnt[x]),T,a[i]);
+		add(ID(x,cnt[x]),T,a[x]);
 	}
-	
+	cout<<Dinic()<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */

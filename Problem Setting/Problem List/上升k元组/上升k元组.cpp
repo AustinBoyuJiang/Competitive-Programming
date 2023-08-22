@@ -1,13 +1,13 @@
 /*
  * Author: Austin Jiang
- * Date: 8/4/2023 4:08:31 PM
+ * Date: 8/8/2023 4:03:39 PM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-#define MULTICASES
+//#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
@@ -105,7 +105,10 @@ namespace Comfun{
 	template<class T> inline T lcm(T a,T b){return a/gcd(a,b)*b;}
 	template<class T> inline T chkmax(T &a,T b){return a=max(a,b);}
 	template<class T> inline T chkmin(T &a,T b){return a=min(a,b);}
-	template<class T> inline T qpow(T a,T b){T ans=1;while(b){if(b&1)ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
+	template<class T> inline T qpow(T a,T b){T ans=1;
+	while(b){if(b&1)ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
+	inline int mex(VI s){sort(all(s));int j=0;rep(i,0,s[s.size()]+1){
+	while(j<s.size()&&s[j]<i) j++;if(s[j]!=i) return i;}}
 	template<class T> inline T inv(T x){return qpow(x,MOD-2);}
 	template<class T> inline bool is_prime(T x){
 	if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false;return true;}
@@ -115,38 +118,64 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 5010;
+const int M = 10;
 
-int n,k;
+int n,m,a[N],dp[N][M];
 
-int calc(int a,int b){
-	return -b/(2*a);
-}
+struct segment_tree{
+	int st[N<<2];
+	
+	void build(int rt,int l,int r){
+		st[rt]=0;
+		if(l==r) return;
+		int mid=l+r>>1;
+		build(lc,l,mid);
+		build(rc,mid+1,r);
+	}
+	
+	void update(int rt,int l,int r,int x,int y){
+		st[rt]+=y;
+		if(l==r) return;
+		int mid=l+r>>1;
+		if(x<=mid) update(lc,l,mid,x,y);
+		else update(rc,mid+1,r,x,y);
+	}
+	
+	int query(int rt,int l,int r,int x,int y){
+		if(l==x&&r==y) return st[rt];
+		int mid=l+r>>1;
+		if(y<=mid) return query(lc,l,mid,x,y);
+		else if(x>mid) return query(rc,mid+1,r,x,y);
+		return query(lc,l,mid,x,mid)+query(rc,mid+1,r,mid+1,y);
+	}
+	
+	void add(int x,int y){
+		update(1,1,n,x,y);
+	}
+	
+	int ask(int x,int y){
+		if(y<x) return 0;
+		return query(1,1,n,x,y);
+	}
+} st;
 
-void SOLVE(int Case){
-	cin>>n>>k;
-	int ans=n*k;
-	if(n%10==0){
-		cout<<ans<<endl;
-		return;
+inline void SOLVE(int Case){
+	cin>>n>>m;
+	rep(i,1,n){
+		cin>>a[i];
+		dp[i][1]=1;
 	}
-	if(n%10==5){
-		chkmax(ans,(n+5)*(k-1));
-		cout<<ans<<endl;
-		return;
+	rep(j,2,m){
+		st.build(1,1,n);
+		rep(i,1,n){
+			dp[i][j]+=st.ask(1,a[i]-1);
+			st.add(a[i],dp[i][j-1]);
+		}
 	}
-	if(n%2==1){
-		n+=n%10;
-		k--;
-		chkmax(ans,n*k);
-	}
-	int x=calc(-80,20*k-4*n)-5;
-	chkmax(x,0ll);
-	chkmin(x,k);
-	int cur=n+20*x;
-	rep(i,x*4,(x+10)*4){
-		chkmax(ans,cur*(k-i));
-		cur+=cur%10;
+	int ans=0;
+	rep(i,1,n){
+		ans+=dp[i][m];
 	}
 	cout<<ans<<endl;
 }

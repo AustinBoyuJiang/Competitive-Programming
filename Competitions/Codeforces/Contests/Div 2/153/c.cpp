@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 8/4/2023 4:08:31 PM
+ * Date: 8/17/2023 11:10:12 PM
  * Problem:
  * Source:
  * Description:
@@ -14,7 +14,7 @@
 //#define SETMEM
 //#define FASTIO
 #define OPTIMIZE
-#define INTTOLL
+//#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -105,7 +105,10 @@ namespace Comfun{
 	template<class T> inline T lcm(T a,T b){return a/gcd(a,b)*b;}
 	template<class T> inline T chkmax(T &a,T b){return a=max(a,b);}
 	template<class T> inline T chkmin(T &a,T b){return a=min(a,b);}
-	template<class T> inline T qpow(T a,T b){T ans=1;while(b){if(b&1)ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
+	template<class T> inline T qpow(T a,T b){T ans=1;
+	while(b){if(b&1)ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
+	inline int mex(VI s){sort(all(s));int j=0;rep(i,0,s[s.size()]+1){
+	while(j<s.size()&&s[j]<i) j++;if(s[j]!=i) return i;}}
 	template<class T> inline T inv(T x){return qpow(x,MOD-2);}
 	template<class T> inline bool is_prime(T x){
 	if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false;return true;}
@@ -115,38 +118,33 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 3e5+10;
 
-int n,k;
+int n,a[N],dp[N];
 
-int calc(int a,int b){
-	return -b/(2*a);
-}
-
-void SOLVE(int Case){
-	cin>>n>>k;
-	int ans=n*k;
-	if(n%10==0){
-		cout<<ans<<endl;
-		return;
+inline void SOLVE(int Case){
+	cin>>n;
+	rep(i,1,n){
+		cin>>a[i];
+		dp[i]=0;
 	}
-	if(n%10==5){
-		chkmax(ans,(n+5)*(k-1));
-		cout<<ans<<endl;
-		return;
+	set<int> num,num2;
+	num2.insert(a[1]);
+	dp[1]=0;
+	rep(i,2,n){
+		if(num2.lb(a[i])==num2.begin()){
+			dp[i]=0;
+		}
+		else if(num.lb(a[i])==num.begin()){
+			dp[i]=1;
+			num.insert(a[i]);
+		}
+		num2.insert(a[i]);
 	}
-	if(n%2==1){
-		n+=n%10;
-		k--;
-		chkmax(ans,n*k);
-	}
-	int x=calc(-80,20*k-4*n)-5;
-	chkmax(x,0ll);
-	chkmin(x,k);
-	int cur=n+20*x;
-	rep(i,x*4,(x+10)*4){
-		chkmax(ans,cur*(k-i));
-		cur+=cur%10;
+	int ans=0;
+	rep(i,1,n){
+//		cout<<dp[i]<<endl;
+		ans+=dp[i];
 	}
 	cout<<ans<<endl;
 }

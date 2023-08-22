@@ -1,20 +1,20 @@
 /*
  * Author: Austin Jiang
- * Date: 8/6/2023 2:08:55 PM
+ * Date: 8/13/2023 12:10:36 AM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
 //#define FASTIO
 #define OPTIMIZE
-//#define INTTOLL
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -120,18 +120,24 @@ namespace Comfun{
 
 const int N = 1e6+10;
 
-int n;
+int n,a[N];
 
-void SOLVE(int Case){
+inline void SOLVE(int Case){
 	cin>>n;
 	int ans=0;
-	int x=n,cnt=1;
-	while(x){
-		ans+=(x-1)*(x-1)*cnt;
-		x/=2;
-		cnt*=2;
+	rep(i,1,n){
+		rep(j,1,n) a[j]=j;
+		reverse(a+i,a+n+1);
+		int sum=0,mx=0;
+		rep(j,1,n){
+			sum+=a[j]*j;
+			chkmax(mx,a[j]*j);
+//			cout<<a[j]<<" ";
+		}
+//		cout<<endl;
+		chkmax(ans,sum-mx);
 	}
-	cout<<5*n*n/ans<<endl;
+	cout<<ans<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */

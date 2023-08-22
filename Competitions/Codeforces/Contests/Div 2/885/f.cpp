@@ -1,20 +1,20 @@
 /*
  * Author: Austin Jiang
- * Date: 8/4/2023 4:08:31 PM
+ * Date: 8/10/2023 7:42:16 PM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-#define MULTICASES
+//#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
-//#define FASTIO
+#define FASTIO
 #define OPTIMIZE
-#define INTTOLL
+//#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -105,7 +105,10 @@ namespace Comfun{
 	template<class T> inline T lcm(T a,T b){return a/gcd(a,b)*b;}
 	template<class T> inline T chkmax(T &a,T b){return a=max(a,b);}
 	template<class T> inline T chkmin(T &a,T b){return a=min(a,b);}
-	template<class T> inline T qpow(T a,T b){T ans=1;while(b){if(b&1)ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
+	template<class T> inline T qpow(T a,T b){T ans=1;
+	while(b){if(b&1)ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
+	inline int mex(VI s){sort(all(s));int j=0;rep(i,0,s[s.size()]+1){
+	while(j<s.size()&&s[j]<i) j++;if(s[j]!=i) return i;}}
 	template<class T> inline T inv(T x){return qpow(x,MOD-2);}
 	template<class T> inline bool is_prime(T x){
 	if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false;return true;}
@@ -115,38 +118,55 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = (1<<20)+10;
 
-int n,k;
+int n,a[N],b[N],vis[N];
 
-int calc(int a,int b){
-	return -b/(2*a);
+void update(int x){
+	b[1]=0;
+	rep(i,1,x) b[1]^=a[i];
+	rep(l,2,n) b[l]=b[l-1]^a[l-1]^a[(l+x-2)%n+1];
+	rep(i,1,n) a[i]=b[i]^b[(i%n)+1];
 }
 
-void SOLVE(int Case){
-	cin>>n>>k;
-	int ans=n*k;
-	if(n%10==0){
-		cout<<ans<<endl;
+bool check(int x){
+	int sum=0;
+	rep(i,1,x) sum^=a[i];
+	int flag=sum;
+	rep(l,2,n){
+		sum^=a[l-1]^a[(l+x-2)%n+1];
+		if(sum!=flag){
+			update(x);
+			return false;
+		}
+	}
+	return true;
+}
+
+inline void SOLVE(int Case){
+	cin>>n;
+	bool flag=1;
+	rep(i,1,n){
+		cin>>a[i];
+		flag&=a[i]==0;
+	}
+	if(flag){
+		cout<<0<<endl;
 		return;
 	}
-	if(n%10==5){
-		chkmax(ans,(n+5)*(k-1));
-		cout<<ans<<endl;
-		return;
-	}
-	if(n%2==1){
-		n+=n%10;
-		k--;
-		chkmax(ans,n*k);
-	}
-	int x=calc(-80,20*k-4*n)-5;
-	chkmax(x,0ll);
-	chkmin(x,k);
-	int cur=n+20*x;
-	rep(i,x*4,(x+10)*4){
-		chkmax(ans,cur*(k-i));
-		cur+=cur%10;
+	int l=1,r=n,lst=0,ans=n;
+	while(l<r){
+		int mid=l+r>>1;
+		if(vis[mid]) break;
+		vis[mid]=1;
+		if(check(mid-lst)){
+			r=mid;
+			ans=mid;
+		}
+		else{
+			l=mid+1;
+			lst=mid;
+		}
 	}
 	cout<<ans<<endl;
 }
