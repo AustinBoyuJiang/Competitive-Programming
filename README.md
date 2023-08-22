@@ -1,41 +1,49 @@
 # Introduction
 This repository is here to share my code and help me to review them.
 
-# Past Contests
-| Contests | Date | Time | Scores | Rank | Reflections |
-| :------- | :--- | :--- | :----- | :--- | :---------- |
-| CodeTON Round 3 (Div.1+Div.2) | Nov/06/2022 | 06:35 | 2300 | 1718 | I know the way to solve the fourth problem, but I thought the time complexity was too high so I didn't try it. What a pity! |
+<br><br>
 
+# Codeforces Contests
+| Contest Name                                                            | Division        | Mode    | Problem 1      | Problem 2      | Problem 3      | Problem 4      | Problem 5 | Problem 6 | Problem 7 | Problem 8 | Problem 9 | Ranking | Predict Rating |
+| ----------------------------------------------------------------------- | --------------- | ------- | -------------- | -------------- | -------------- | -------------- | --------- | --------- | --------- | --------- | --------- | ------- | -------------- |
+| [Educational Codeforces Round 143](https://codeforces.com/contest/1795) | Div. 2          | Virtual | AC | 00:04     | AC(+2) | 00:22 | AC(+2) | 01:04 | AC | 01:35     | √         | √         | √         | \---      | \---      | 2007    | 1568           |
+| [Codeforces Round 852](https://codeforces.com/contest/1793)             | Div. 2          | Virtual | AC | 00:06     | AC | 00:11     | AC | 00:19     | AC(+1) | 01:01 |           | √         | \---      | \---      | \---      | 421     | 2005           |
+| [Codeforces Round 851](https://codeforces.com/contest/1788)             | Div. 2          | Virtual | AC | 00:03     | AC | 00:10     | AC(+2) | 01:14 | AC | 01:23     | √         |           | \---      | \---      | \---      | 654     | 2005           |
+| [Codeforces Round 853](https://codeforces.com/contest/1789)             | Div. 2          | Virtual | AC | 00:10     | AC(+1) | 00:23 | AC(+1) | 01:49 | √              | √         |           | \---      | \---      | \---      | 2477    | 1445           |
+| [Codeforces Round 856](https://codeforces.com/contest/1794)             | Div. 2          | Virtual | AC | 00:05     | AC | 00:10     | AC | 00:33     | √              | √         | \---      | \---      | \---      | \---      | 786     | 1778           |
+| [Nebius Welcome Round](https://codeforces.com/contest/1804)             | Div. 1 + Div. 2 | Virtual | AC | 00:04     | AC | 00:19     | AC | 00:39     | √              | √         |           |           |           | \---      | 1314    | 1805           |
+| [Codeforces Round 848](https://codeforces.com/contest/1778)             | Div. 2          | Virtual | AC | 00:02     | AC | 00:19     | AC | 00:38     | √              |           |           | \---      | \---      | \---      | 787     | 1908           |
+| [Educational Codeforces Round 145](http://codeforces.com/contest/1809)  | Div. 2          | Actual  | AC(+3) | 00:14 | AC(+1) | 01:40 | AC | 01:33     |                |           |           |           | \---      | \---      | 2521    | 1455           |
+| [Codeforces Round 860](https://codeforces.com/contest/1798)             | Div. 2          | Actual  | AC | 00:06     | AC(+1) | 00:20 | AC(+1) | 01:00 | AC(+2) | 01:20 |           |           | \---      | \---      | \---      | 635     | 1866           |
+| [Codeforces Round 862](https://codeforces.com/contest/1805)             | Div. 2          | Actual  | AC | 00:02     | AC(+1) | 00:14 | AC | 00:24     | √              |           |           |           | \---      | \---      | 1161    | 1699           |
+| [Codeforces Round 864](https://codeforces.com/contest/1797)             | Div. 2          | Actual  | AC(+3) | 00:11 | AC(+1) | 00:26 | √              |                |           |           |           |           | \---      | 4184    | 1180           |
+| [Codeforces Round 865](https://codeforces.com/contest/1816)             | Div. 2          | Actual  | AC | 00:06     | AC | 00:24     | AC | 00:35     |                |           |           |           |           | \---      | 310     | 1946           |
+| [Codeforces Round 875](https://codeforces.com/contest/1831)             | Div. 2          | Actual  | AC | 00:02     | √              | AC | 00:34     | √              |           |           | \---      | \---      | \---      | 2984    | 1366           |
+| [Codeforces Round 877](https://codeforces.com/contest/1838)             | Div. 2          | Actual  | AC | 00:05     | AC | 00:29     | AC | 00:50     | √              |           |           | \---      | \---      | \---      | 852     | 1819           |
+| [Codeforces Round 880](https://codeforces.com/contest/1836)             | Div. 2          | Actual  | AC | 00:03     | AC(+1) | 00:38 | AC(+1) | 01:00 |                |           |           | \---      | \---      | \---      | 412     | 1906           |
+| [Codeforces Round 890](https://codeforces.com/contest/1848)             | Div. 2          | Actual  | AC | 00:05     | AC(+2) | 00:14 | \-1 (√)        | √              | √         |           | \---      | \---      | \---      | 5451    | 1229           |
+| [Codeforces Round 884](https://codeforces.com/contest/1844)             | Div. 1 + Div. 2 | Virtual | AC | 00:02     | AC | 00:12     | AC | 00:20     | AC | 00:40     | √         | √         |           |           |           | 543     | 2179           |
+
+<br><br>
 
 # Solved Problems
-## USACO
-| Contests | Problems | Status | Tags | Explains |
-| :------- | :------- | :----- | :--- | :------- |
-
-## CCO
-| Contests | Problems | Status | Tags | Explains |
-| :------- | :------- | :----- | :--- | :------- |
-
-## CCC
-| Contests | Problems | Status | Tags | Explains |
-| :------- | :------- | :----- | :--- | :------- |
-
-## Codeforces
-| Contests | Problems | Status | Tags | Explains |
-| :------- | :------- | :----- | :--- | :------- |
-
-## NOI
-| Contests | Problems | Status | Tags | Explains |
-| :------- | :------- | :----- | :--- | :------- |
-
-## HDU
-| Contests | Problems | Status | Tags | Explains |
-| :------- | :------- | :----- | :--- | :------- |
-
-## CSP
-| Contests | Problems | Status | Tags | Explains |
-| :------- | :------- | :----- | :--- | :------- |
-
-## An Animal Contest
-| Contests | Problems | Status | Tags | Explains |
-| :------- | :------- | :----- | :--- | :------- |
+| Name                                                                                                | Diffuclty | Description                                                  | Algorithms     | Techniques     | Solution                                                                                                                   |
+| --------------------------------------------------------------------------------------------------- | --------- | ------------------------------------------------------------ | -------------- | -------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| [Sum Over Zero](https://codeforces.com/contest/1788/problem/E)                                      | 2200      | 选择一些区间，区间和都要≥0，求最长区间长度和                                      | DP，线段树         |                | dp[i]=max(dp[i-1],max(i-j+dp[j])); (j≤i, sum[i]-sum[j]≥0)，通过 sum[j] 的权值维护 dp[j]-j 的最大值                                     |
+| [Explosions](https://codeforces.com/contest/1795/problem/E)                                         | 2200      | 给定每个位置的高度，找最大面积的严格凸峰                                         | DP，单调队列        |                | 单调栈找到上一个差值>1的位置 (h[j]-j<h[i]-i)，左右各做一次                                                                                     |
+| [Rebrending](https://codeforces.com/contest/1793/problem/F)                                         | 2600      | 每次查询区间内两个位置的数最小的差值                                           | DP，线段树         | 离线，分治          | 更新离i最近，可能会被改变往后最小差的j，其中|a[i]-a[j]|≤|a[i]-a[lst]|/2，lst为上一个更新的位置                                                            |
+| [Serval and Music Game](https://codeforces.com/contest/1789/problem/E)                              | 2500      | 求∑x⋅f(x) for 1≤x≤s[n]。 f(x)为i的数量且s[i]=p⌊s[n]/x⌋+q⌈s[n]/x⌉    | 数论，前缀和         | 分情况讨论          | k=⌊s[n]/x⌋，对于x不是s[n]的因数，s[i]=(p+q)⋅k+q，然后分段前缀和统计s[i] mod k≥⌊s[i]/k⌋，否则 s[i]=(p+q)⋅k                                        |
+| [Labeling the Tree with Distances](https://codeforces.com/contest/1794/problem/E)                   | 2400      | 给定其中n-1个点到根的距离，求哪些点可以当根                                      | DP，哈希          |                | 树上DP换根，用哈希维护所有点到根的距离数量cnt，再和原数组比较                                                                                          |
+| [Blocking Chips](https://codeforces.com/contest/1795/problem/F)                                     | 2400      | 树上k个节点轮流移动，走过的地方不能重复，求总共能移动几次                                | 二分，DP          | 二分答案           | 二分答案，DP和贪心进行维护，优先往子节点移动，不行的话让父亲节点为自己需要走的步数-1                                                                               |
+| [XOR, Tree, and Queries](https://codeforces.com/contest/1788/problem/F)                             | 2500      | 一棵树给每条边一个值，使满足给定u到v异或和为x。答案异或和最小                             | DFS，贪心，树       |                | f[u]为1到u异或和，u到v异或和为f[u]^f[v]。建图，u和v连边，边权x，连通块内每个i给值f[i](f[v]=f[u]^x)。冲突的话没有答案，否则，对于选择一个有单数个单数度的点的连通块，每个值异或sum(边权异或和)，使答案最小 |
+| [Routing](https://codeforces.com/contest/1804/problem/E)                                            | 2400      | 从图中找到一个简单环并且其余的点和环上的点距离最多为1                                  | DP，状压，曼哈顿回路，图论 | 简单环和游离的点       | 状压DP找到组成环的点集后（序号最小的点做起点），判断所有点是否有邻点在环中，如果都有，DFS倒推找到具体路径                                                                    |
+| [LuoTianyi and the Floating Islands (Hard Version)](https://codeforces.com/contest/1825/problem/D2) | 2300      | 树上随机选k个不同的点，求拥有距离这些点最小的距离之和的点的期望数量                           | 数学，组合，树        | 分情况讨论，奇偶性，正难则反 | 分析基偶性以及逆向计算期望数。如果为单数，答案为1；否则，反过来计算每个点由多少种情况会拥有距离和：枚举每条边，有多少组合方式两边可以各选k/2                                                   |
+| [Palindrome Partition](https://codeforces.com/contest/1828/problem/E)                               | 2600      | 定义好的字符串为若干段偶数长度回文字符串拼接，求由多少好的字符串                             | 字符串            | 乘法计数，分解最小单位    | 分情况讨论得知可以把所有偶数长度回文字符串拆分成若干个连续的无可拆分的回文字符串，然后乘法计数                                                                            |
+| [Least Cost Bracket Sequence](https://codeforces.com/problemset/problem/3/D)                        | 2600      | 一个括号序列中有些地方不确定，可以选则左括号或者右括号                                  | 优先队列           | 括号序列，先做后优化，贪心  | 起初全部选择右括号，然后中左向右便利，如果此时右括号的数量比左括号多了，通过优先队列在之前的选择中，选择能减少最多花费的地方，替换成左括号                                                      |
+| [TorCoder](https://codeforces.com/problemset/problem/240/F)                                         | 2600      | 每次查询一个区间，如果可以构成一个回文序列，则将该区间重构成一个字典序最小的回文序列                   | 线段树            | 分别维护26字母       | 建26个线段树对应每个字母，为了字典序最小，每次查询从a开始，区间覆盖从两边开始                                                                                   |
+| [It's a bird! No, it's a plane! No, it's AaParsa!](https://codeforces.com/contest/1528/problem/D)   | 2500      | 每条边每过一秒会从u->v变成u->(v+1)%n，边权不变，求所有点对的最短路                     | 图论，最短路变形       | 构建等价边          | 对于每个点新建一条边从i连向i+1，dijk最短路，第一条走过的边不能是新建的，同时还要内部v要变成(v+dist[u])%n                                                            |
+| [MEX Tree](https://codeforces.com/problemset/problem/1527/D)                                        | 2400      | 一棵树上，对于每个k从0-n，求有多少点对之间的最短路径的序列的mex值为k                       | 树，LCA，乘法计数     | 维护树上的一条路径      | 对于每个k，如果一个最短路径的mex值为k，则该路径必须包括0~k-1，且不包括k，因此从小到大枚举k，然后维护0~k-所形成的路径的两个端点；如果出现分查，则之后的k的答案都为0                                 |
+| [Bracket Walk](https://codeforces.com/contest/1838/problem/D)                                       | 2100      | 括号字符串q次反转单个字符，每次后从判断从1走到n有没有路径是合法序列                          | 数据结构           | 括号序列，奇偶性       | 集合中包含所有单数位置的 ')'以及偶数位置的 '('的位置。对于每次更新，如果最小的位置是单数或者最大的位置是偶数，则答案为NO，反之。                                                      |
+| [Pudding Monsters](https://codeforces.com/contest/526/problem/F)                                    | 3000      | n\*n格子上有n个点，所有点的行和列各不相同。求多少个k\*k的square刚好包含k个点               | 数据结构，单调队列      | 二维映射一维         | 所有点的y坐标映射到对应的x坐标的一维数组之后，对于每个i，寻找有多少个j<=i that max[j~i]-min[j~i]=i-j。用二维线段树维护max-min+j，然后计数多少个最小值=i。用单调队列同时维护更新max and min  |
+| [Drazil and Morning Exercise](https://codeforces.com/contest/516/problem/D)                         | 2800      | 树上每个点的值为到最远的点的距离。询问树上最大的连通块其中max-min<=lim                    | 树的直径，二分，树上差分   | 特殊性质，小根堆的树     | 每个点的最远距离为树的直径两个端点之一。找到最小点权的点作为根，所建成的树的所有点的值必定类似小根堆(val[u]<=val[v])。对于每个点二分自己最远的祖先，差值<=lim。树上差分，自己到该祖先的路径+1                 |
+| [Great Grids](https://codeforces.com/contest/1844/problem/E)                                        | 2400      | n\*m格子里填A,B,C。要求相邻格子不一样，每2\*2四个格子中必须出现A,B,C。给定一些对角字母相等，求是否可行 | 染色图，图论         | 找规律，黑白染色，行列关系  | 用1,2,3代替A,B,C。同一行每个数减去它们上面的数都一样(1or2)，同一列右边减左边的也一样。初始的给定对角线限制可以用于确定该行该列的值是否一样。最后用DFS对行列进行染色，确认可行性，冲突即为No                   |
