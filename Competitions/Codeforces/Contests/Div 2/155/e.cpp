@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 9/24/2023 8:30:17 AM
  * Problem:
  * Source:
  * Description:
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -63,7 +63,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -97,7 +97,7 @@ const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 const unordered_set<char> vowel = {'a','e','i','o','u'};
 
-/* Common functions */
+/* Common functions and data structures */
 
 namespace Comfun{
 	template<class T> inline T lowbit(T x){return x&-x;}
@@ -120,11 +120,65 @@ namespace Comfun{
 
 const int N = 1e6+10;
 
-int n;
+int n,k,fa[N],c[N],r[N];
+VI e[N];
+
+void dfs(int u){
+	for(int v:e[u]){
+		if(e[u].size()==1||c[u]==1) c[v]=c[u]+1;
+		else{
+			c[v]=1;
+		}
+		chkmax(k,c[v]);
+		dfs(v);
+	}
+}
 
 inline void SOLVE(int Case){
 	cin>>n;
-	
+	rep(i,2,n){
+		cin>>fa[i];
+		e[fa[i]].pb(i);
+	}
+	c[1]=0;
+	dfs(1);
+	cout<<k<<endl;
+	rep(i,2,n){
+		cout<<c[i]<<" ";
+	} cout<<endl;
+	cout.flush();
+	while(1){
+		int x;
+		cin>>x;
+		if(x==-1){
+			return;
+		}
+		if(x==1){
+			return;
+		}
+		int ol=0;
+		rep(i,1,k){
+			cin>>r[i];
+			if(r[i]==1) ol++;
+		}
+		if(ol==1){
+			rep(i,1,k){
+				if(r[i]==1){
+					cout<<i<<endl;
+					break;
+				}
+			}
+		}
+		else{
+			rep(i,1,k){
+				if(r[i]){
+					cout<<i<<endl;
+					break;
+				}
+			}
+		}
+		cout.flush();
+	}
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -165,3 +219,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) Adversarial Testing
 */
+

@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 10/16/2023 2:36:40 PM
  * Problem:
  * Source:
  * Description:
@@ -12,7 +12,7 @@
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
-//#define FASTIO
+#define FASTIO
 #define OPTIMIZE
 //#define INTTOLL
 
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -63,7 +63,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -118,13 +118,62 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 2e5+10;
+const int M = 22;
 
-int n;
+int n,m,b[M],to[M][N],dp[1<<M],l[M];
+PI a[N];
 
 inline void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>n>>m;
+	rep(i,0,n-1){
+		cin>>a[i].fir;
+		a[i].sec=i;
+	}
+	rep(i,0,m-1){
+		cin>>b[i];
+	}
+	sort(a,a+n);
+	reverse(a,a+n);
+	rep(i,0,m-1){
+		int j=0;
+		rep(st,0,n-1){
+			while(j<st||(j<n&&a[j].fir*1ll*(j-st+1)<b[i])) j++;
+			to[i][st]=j;
+		}
+		to[i][n]=n;
+		to[i][n+1]=n;
+	}
+	dp[0]=-1;
+	rep(s,1,(1<<m)-1){
+		dp[s]=n;
+		rep(ed,0,m-1){
+			if(((s>>ed)&1)==0) continue;
+			chkmin(dp[s],to[ed][dp[s^(1<<ed)]+1]);
+		}
+	}
+	if(dp[(1<<m)-1]==n){
+		cout<<"NO"<<endl;
+		return;
+	}
+	cout<<"YES"<<endl;
+	int s=(1<<m)-1;
+	rep(i,0,m-1){
+		rep(ed,0,m-1){
+			if(((s>>ed)&1)==0) continue;
+			if(dp[s]==to[ed][dp[s^(1<<ed)]+1]){
+				l[ed]=dp[s^(1<<ed)]+1;
+				s^=(1<<ed);
+			}
+		}
+	}
+	rep(i,0,m-1){
+		cout<<to[i][l[i]]-l[i]+1<<" ";
+		rep(j,l[i],to[i][l[i]]){
+			cout<<a[j].sec+1<<" ";
+		}
+		cout<<endl;
+	}
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -165,3 +214,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) Adversarial Testing
 */
+

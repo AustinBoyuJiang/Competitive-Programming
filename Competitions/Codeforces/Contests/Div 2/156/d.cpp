@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 10/9/2023 8:30:05 AM
  * Problem:
  * Source:
  * Description:
@@ -14,7 +14,7 @@
 //#define SETMEM
 //#define FASTIO
 #define OPTIMIZE
-//#define INTTOLL
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -35,11 +35,7 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
-/* Segment Tree */
-#define lc (rt << 1)
-#define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -63,7 +59,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -93,11 +89,11 @@ const int INF = 0x3f3f3f3f;
 #else
 const ll INF = LLINF;
 #endif
-const int MOD = 1e9+7;
+const int MOD = 998244353;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 const unordered_set<char> vowel = {'a','e','i','o','u'};
 
-/* Common functions */
+/* Common functions and data structures */
 
 namespace Comfun{
 	template<class T> inline T lowbit(T x){return x&-x;}
@@ -120,11 +116,48 @@ namespace Comfun{
 
 const int N = 1e6+10;
 
-int n;
+int n,m,ans,fact[N],infact[N];
+string s;
 
 inline void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>n>>m;
+	cin>>s;
+	s="x"+s;
+	if(n==2){
+		rep(i,1,m){
+			int pos;
+			char x;
+			s[pos]=x;
+			if(s=="?") cout<<0<<endl;
+			else cout<<1<<endl;
+		}
+	}
+	set<int> lo,hi;
+	rep(i,1,n-1){
+		if(s[i]=='<') lo.insert(i);
+		if(s[i]=='>') hi.insert(i);
+	}
+	fact[0]=1;
+	rep(i,1,n) fact[i]=fact[i-1]*i%MOD;
+	infact[n]=inv(fact[n]);
+	per(i,n-1,0) infact[i]=infact[i+1]*(i+1)%MOD;
+	int st=*hi.begin()-*lo.begin()-1;
+	int tt=n-hi.size()-lo.size()-1;
+	rep(i,0,tt-st){
+		ans+=fact[i+st]*infact[i]%MOD;
+		ans%=MOD;
+	}
+	cout<<ans*fact[tt-st]%MOD<<endl;
+	rep(i,1,m){
+		int pos;
+		char x;
+		cin>>pos>>x;
+		if(s[pos]=='<'&&x=='>'){
+			lo.erase(pos);
+			hi.insert(pos);
+			
+		}
+	}
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -165,3 +198,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) Adversarial Testing
 */
+

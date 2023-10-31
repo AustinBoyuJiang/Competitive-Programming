@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 10/11/2023 8:10:55 PM
  * Problem:
  * Source:
  * Description:
@@ -14,7 +14,7 @@
 //#define SETMEM
 //#define FASTIO
 #define OPTIMIZE
-//#define INTTOLL
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -63,7 +63,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -118,13 +118,32 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 20;
 
-int n;
+int n,m,ans,e[N][N],dist[1<<N][N];
 
 inline void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>n>>m;
+	memset(e,-0x3f,sizeof(e));
+	memset(dist,-0x3f,sizeof(dist));
+	rep(i,1,m){
+		int u,v,w;
+		cin>>u>>v>>w;
+		e[u][v]=w;
+	}
+	dist[1][0]=0;
+	rep(s,1,(1<<n)-1){
+		if(s^lowbit(s)){
+			rep(i,0,n-1) rep(j,0,n-1){
+				if(i==j) continue;
+				if(((s>>i)&1)==0) continue;
+				if(((s>>j)&1)==0) continue;
+				chkmax(dist[s][i],dist[s^(1<<i)][j]+e[j][i]);
+				if(i==n-1) chkmax(ans,dist[s][i]);
+			}
+		}
+	}
+	cout<<ans<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -165,3 +184,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) Adversarial Testing
 */
+

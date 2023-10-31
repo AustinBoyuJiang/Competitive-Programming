@@ -1,7 +1,7 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
- * Problem:
+ * Date: 9/17/2023 2:03:15 PM
+ * Problem: Zombie Apocalypse
  * Source:
  * Description:
 */
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -63,7 +63,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -97,7 +97,7 @@ const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 const unordered_set<char> vowel = {'a','e','i','o','u'};
 
-/* Common functions */
+/* Common functions and data structures */
 
 namespace Comfun{
 	template<class T> inline T lowbit(T x){return x&-x;}
@@ -118,13 +118,71 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 8010;
+const int M = 8010;
 
-int n;
+int n,m,k,q,r[N],c[N],xx[N],yy[N];
+int mp[M][M],cnt[M][M];
 
 inline void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>n>>m>>k;
+	rep(i,1,k){
+		cin>>r[i]>>c[i];
+	} cin>>q;
+	if(q==0){
+		cout<<k<<endl;
+		return;
+	}
+	VI dx,dy,x,y;
+	rep(i,1,k){
+		dx.pb(min(c[i]+q,m));
+		dx.pb(max(c[i]-q,0));
+		dy.pb(min(r[i]+q,n));
+		dy.pb(max(r[i]-q,0));
+		dx.pb(min(c[i]+q-1,m));
+		dx.pb(max(c[i]-q-1,0));
+		dy.pb(min(r[i]+q-1,n));
+		dy.pb(max(r[i]-q-1,0));
+	} x=dx,y=dy;
+	disc(dx,1),disc(dy,1);
+	rep(i,0,k*4-1){
+		xx[dx[i]]=x[i];
+		yy[dy[i]]=y[i];
+	}
+	rep(i,1,k){
+		int x2=dx[(i-1)*4];
+		int x1=dx[(i-1)*4+1];
+		int y2=dy[(i-1)*4];
+		int y1=dy[(i-1)*4+1];
+		rep(j,x1,x2){
+			mp[y1][j]=1;
+			mp[y2][j]=1;
+		}
+		rep(j,y1,y2){
+			mp[j][x1]=1;
+			mp[j][x2]=1;
+		}
+	}
+	rep(i,1,k){
+		int x2=dx[(i-1)*4+2];
+		int x1=dx[(i-1)*4+1]+1;
+		int y2=dy[(i-1)*4+2];
+		int y1=dy[(i-1)*4+1]+1;
+		chkmin(x1,x2);
+		chkmin(y1,y2);
+		cnt[y1][x1]++;
+		cnt[y1][x2+1]--;
+		cnt[y2+1][x1]--;
+		cnt[y2+1][x2+1]++;
+	}
+	rep(i,1,k*4) rep(j,1,k*4){
+		cnt[i][j]+=cnt[i-1][j]+cnt[i][j-1]-cnt[i-1][j-1];
+		if(cnt[i][j]) mp[i][j]=0;
+	}
+	ll ans=0;
+	rep(i,1,k*4) rep(j,1,k*4){
+		if(mp[i][j]) ans+=1ll*(xx[j]-xx[j-1])*(yy[i]-yy[i-1]);
+	} cout<<ans<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -165,3 +223,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) Adversarial Testing
 */
+

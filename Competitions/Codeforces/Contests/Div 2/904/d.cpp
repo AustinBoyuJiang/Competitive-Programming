@@ -1,20 +1,20 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 10/22/2023 1:01:11 AM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
-//#define FASTIO
+#define FASTIO
 #define OPTIMIZE
-//#define INTTOLL
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -63,7 +63,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -120,11 +120,39 @@ namespace Comfun{
 
 const int N = 1e6+10;
 
-int n;
+int n,a[N],cnt[N],dp[N],flag[N];
 
 inline void SOLVE(int Case){
 	cin>>n;
-	
+	rep(i,1,n){
+		cnt[i]=0;
+		dp[i]=0;
+		flag[i]=0;
+	}
+	rep(i,1,n){
+		cin>>a[i];
+		cnt[a[i]]++;
+	}
+	per(i,n,1){
+		for(int j=i;j<=n;j+=i){
+			dp[i]+=cnt[j];
+		}
+		dp[i]=dp[i]*(dp[i]-1)/2;
+		for(int j=i*2;j<=n;j+=i){
+			dp[i]-=dp[j];
+		}
+	}
+	rep(i,1,n){
+		if(!cnt[i]) continue;
+		for(int j=i;j<=n;j+=i){
+			flag[j]=1;
+		}
+	}
+	int ans=0;
+	rep(i,1,n){
+		if(!flag[i]) ans+=dp[i];
+	}
+	cout<<ans<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -165,3 +193,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) Adversarial Testing
 */
+

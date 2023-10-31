@@ -1,20 +1,20 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 8/6/2023 8:11:03 PM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
-//#define FASTIO
+#define FASTIO
 #define OPTIMIZE
-//#define INTTOLL
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -63,7 +63,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -97,7 +97,7 @@ const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 const unordered_set<char> vowel = {'a','e','i','o','u'};
 
-/* Common functions */
+/* Common functions and data structures */
 
 namespace Comfun{
 	template<class T> inline T lowbit(T x){return x&-x;}
@@ -107,24 +107,122 @@ namespace Comfun{
 	template<class T> inline T chkmin(T &a,T b){return a=min(a,b);}
 	template<class T> inline T qpow(T a,T b){T ans=1;
 	while(b){if(b&1)ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
-	inline int mex(VI s){sort(all(s));int j=0;rep(i,0,s[s.size()-1]+1){
+	inline int mex(VI s){sort(all(s));int j=0;rep(i,0,s[s.size()]+1){
 	while(j<s.size()&&s[j]<i) j++;if(s[j]!=i) return i;}}
 	template<class T> inline T inv(T x){return qpow(x,MOD-2);}
 	template<class T> inline bool is_prime(T x){
 	if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false;return true;}
-	template<class T> inline void disc(Vec<T> &v,int st=0){set<int> num;Vec<T> pos;
-	for(T x:v)num.insert(x);for(T x:num)pos.pb(x);for(T &x:v) x=lb(all(pos),x)-pos.begin()+st;}
+	template<class T> inline void disc(Vec<T> &v,int st=0) /*discretize*/ {Vec<T> num=v;sort(all(num));
+	for(T &x:v) x=lb(all(num),x)-num.begin()+st;}
 } using namespace Comfun;
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 3010;
+const int M = 30010;
 
-int n;
+int n,m,k,id,a[N],u[N],v[N],cnt[N],vis[N][N];
+int ans,tot,S,T,dep[M],head[M],h[M];
 
-inline void SOLVE(int Case){
-	cin>>n;
-	
+struct edge{
+	int to,flow,nxt;
+} e[N*N];
+
+void init(){
+	memset(head,-1,sizeof(head));
+	memset(cnt,0,sizeof(cnt));
+	memset(vis,-1,sizeof(vis));
+	memset(dep,0,sizeof(dep));
+	memset(h,0,sizeof(h));
+	id=0;
+	tot=-1;
+	S=id++;
+	T=id++;
+}
+
+int ID(int x,int y){
+	if(~vis[x][y]) return vis[x][y];
+	return vis[x][y]=id++;
+}
+
+void addd(int u,int v,int w){ 
+	e[++tot].to=v;
+	e[tot].flow=w;
+	e[tot].nxt=head[u];
+	head[u]=tot;
+}
+
+void add(int u,int v,int w){
+	addd(u,v,w);
+	addd(v,u,0);
+}
+
+bool BFS(){
+	memcpy(h,head,sizeof(h));
+	memset(dep,0,sizeof(dep));
+	queue<int> q;
+	q.push(S);
+	dep[S]=1;
+	while(!q.empty()){
+		int u=q.front();
+		q.pop();
+		for(int i=head[u];~i;i=e[i].nxt){
+			int v=e[i].to,w=e[i].flow;
+			if(w&&!dep[v]){
+				dep[v]=dep[u]+1;
+				q.push(v);
+			}
+		}
+	}
+	return dep[T];
+}
+
+int DFS(int u,int flow){
+	if(u==T) return flow;
+	int ans=0;
+	for(int &i=h[u];~i;i=e[i].nxt){
+		int v=e[i].to,&w=e[i].flow;
+		if(w&&dep[v]==dep[u]+1){
+			int res=DFS(v,min(w,flow));
+			w-=res,e[i^1].flow+=res;
+			flow-=res,ans+=res;
+			if(!res) dep[v]=0;
+			if(!flow) break;
+		}
+	}
+	return ans;
+}
+
+int Dinic(){
+	int ans=0;
+	while(BFS()){
+		ans+=DFS(S,INF);
+	} return ans;
+}
+
+void SOLVE(int Case){
+	cin>>n>>m>>k;
+	init();
+	rep(i,1,n){
+		cin>>a[i];
+		add(S,ID(i,0),1);
+	}
+	rep(i,1,m){
+		cin>>u[i]>>v[i];
+		if(u[i]==v[i]) continue;
+		add(ID(u[i],cnt[u[i]]),ID(u[i],cnt[u[i]]+1),a[u[i]]);
+		add(ID(v[i],cnt[v[i]]),ID(v[i],cnt[v[i]]+1),a[v[i]]);
+		cnt[u[i]]++;
+		cnt[v[i]]++;
+		add(ID(u[i],cnt[u[i]]),ID(v[i],cnt[v[i]]),1);
+		add(ID(v[i],cnt[v[i]]),ID(u[i],cnt[u[i]]),1);
+	}
+	rep(i,1,k){
+		int x;
+		cin>>x;
+		add(ID(x,cnt[x]),T,a[x]);
+	}
+	cout<<Dinic()<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */

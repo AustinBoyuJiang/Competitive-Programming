@@ -1,7 +1,7 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
- * Problem:
+ * Date: 9/17/2023 7:10:27 PM
+ * Problem: Eggscavation
  * Source:
  * Description:
 */
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -63,7 +63,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -97,7 +97,7 @@ const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 const unordered_set<char> vowel = {'a','e','i','o','u'};
 
-/* Common functions */
+/* Common functions and data structures */
 
 namespace Comfun{
 	template<class T> inline T lowbit(T x){return x&-x;}
@@ -118,13 +118,93 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 2510;
 
-int n;
+int n,m,p,q,k,x[4],y[4],cnt[N][N];
+
+struct decomposition{
+	
+} node[N<<2];
+
+struct segtree{
+	
+	void build(int rt,int l,int r){
+		
+	}
+	
+	void  update(int rt,int l,int r,int x1,int x2,int y1,int y2){
+		
+	}
+	
+	int get(int v){
+		
+	}
+} st;
+
+struct square{
+	int x1,x2,y1,y2;
+	
+	void overlap(int x1,int x2,int y1,int y2){
+		chkmax(x1,1);
+		chkmin(x2,n);
+		chkmax(y1,1);
+		chkmin(y2,n);
+		chkmax(this->x1,x1);
+		chkmin(this->x2,x2);
+		chkmax(this->y1,y1);
+		chkmin(this->y2,y2);
+	}
+	
+	void add(int v){
+		if(x1>x2||y1>y2) return;
+		cnt[x1][y1]+=v;
+		cnt[x1][y2+1]-=v;
+		cnt[x2+1][y1]-=v;
+		cnt[x2+1][y2+1]+=v; 
+	}
+};
+
+int bitcount(int x){
+	int cnt=0;
+	while(x){
+		if(x&1) cnt++;
+		x>>=1;
+	}
+	return cnt;
+}
 
 inline void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>n>>m>>p;
+	rep(i,1,p){
+		cin>>k;
+		rep(j,0,k-1) cin>>x[j]>>y[j];		
+		rep(s,1,(1<<k)-1){
+			square sq={1,n,1,n};
+			rep(j,0,k-1) if((s>>j)&1){
+				sq.overlap(x[j]-k+1,x[j],y[j]-k+1,y[j]);
+			} sq.add(bitcount(s)%2?1:-1);
+		}
+	}
+	n-=m-1;
+	rep(i,1,n) rep(j,1,n){
+		cnt[i][j]+=cnt[i][j-1]+cnt[i-1][j]-cnt[i-1][j-1];
+	}
+	st.build(1,1,n);
+	cin>>q;
+	rep(i,1,n){
+		int opt;
+		cin>>opt;
+		if(opt==1){
+			int x,y;
+			cin>>x>>y;
+			st.update(1,1,n,x-k+1,x,y-k+1,y);
+		}
+		else{
+			int v;
+			cin>>v;
+			cout<<st.get(v)<<endl;
+		}
+	}
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -165,3 +245,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) Adversarial Testing
 */
+

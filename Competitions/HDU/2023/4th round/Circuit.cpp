@@ -1,20 +1,20 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 8/27/2023 10:17:53 PM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
-//#define FASTIO
+#define FASTIO
 #define OPTIMIZE
-//#define INTTOLL
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -63,7 +63,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -93,11 +93,11 @@ const int INF = 0x3f3f3f3f;
 #else
 const ll INF = LLINF;
 #endif
-const int MOD = 1e9+7;
+const int MOD = 998244353;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 const unordered_set<char> vowel = {'a','e','i','o','u'};
 
-/* Common functions */
+/* Common functions and data structures */
 
 namespace Comfun{
 	template<class T> inline T lowbit(T x){return x&-x;}
@@ -112,19 +112,59 @@ namespace Comfun{
 	template<class T> inline T inv(T x){return qpow(x,MOD-2);}
 	template<class T> inline bool is_prime(T x){
 	if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false;return true;}
-	template<class T> inline void disc(Vec<T> &v,int st=0){set<int> num;Vec<T> pos;
-	for(T x:v)num.insert(x);for(T x:num)pos.pb(x);for(T &x:v) x=lb(all(pos),x)-pos.begin()+st;}
+	template<class T> inline void disc(Vec<T> &v,int st=0) /*discretize*/ {Vec<T> num=v;sort(all(num));
+	for(T &x:v) x=lb(all(num),x)-num.begin()+st;}
 } using namespace Comfun;
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 510;
 
-int n;
+int n,m,edge[N][N];
+int dist[N][N],cnt[N][N];
 
 inline void SOLVE(int Case){
-	cin>>n;
-	
+	read(n),read(m);
+	rep(i,1,n){
+		rep(j,1,n){
+			dist[i][j]=INF;
+			cnt[i][j]=0;
+			edge[i][j]=0;
+		}
+	}
+	rep(i,1,m){
+		int u=read();
+		int v=read();
+		int w=read();
+		dist[u][v]=w;
+		edge[u][v]=w;
+		cnt[u][v]=1;
+	}
+	int ans1=INF,ans2;
+	rep(k,1,n){
+		rep(i,1,n) rep(j,1,n){
+			if(dist[i][k]+dist[k][j]==dist[i][j]){
+				cnt[i][j]+=cnt[i][k]*cnt[k][j];
+				cnt[i][j]%=MOD;
+			}
+			if(dist[i][k]+dist[k][j]<dist[i][j]){
+				dist[i][j]=dist[i][k]+dist[k][j];
+				cnt[i][j]=cnt[i][k]*cnt[k][j];
+				cnt[i][j]%=MOD;
+			}
+		}
+		if(dist[k][k]==ans1){
+			ans2+=cnt[k][k];
+			ans2%=MOD;
+		}
+		if(dist[k][k]<ans1){
+			ans1=dist[k][k];
+			ans2=cnt[k][k];
+			ans2%=MOD;
+		}
+	}
+	if(ans1==INF) puts("-1 -1");
+	else write(ans1,' '),write(ans2,endl);
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -138,7 +178,7 @@ signed main(){
 	SETUP();
 	int CASE=1;
 	#ifdef MULTICASES
-	cin>>CASE;
+	read(CASE);
 	#endif
 	rep(i,1,CASE){
 		#ifdef LOCAL
@@ -165,3 +205,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) Adversarial Testing
 */
+

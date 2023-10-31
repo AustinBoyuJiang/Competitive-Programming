@@ -1,20 +1,20 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
- * Problem:
+ * Date: 10/29/2023 11:39:11 PM
+ * Problem: Travel Plan
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
 //#define FASTIO
 #define OPTIMIZE
-//#define INTTOLL
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -63,7 +63,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -93,7 +93,7 @@ const int INF = 0x3f3f3f3f;
 #else
 const ll INF = LLINF;
 #endif
-const int MOD = 1e9+7;
+const int MOD = 998244353;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 const unordered_set<char> vowel = {'a','e','i','o','u'};
 
@@ -118,13 +118,71 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 200;
 
-int n;
+int n,m,d,cnt[N];
+map<int,bool> vis;
+
+int get(int siz,int len){
+	int depth=log2(siz)+1;
+	if(len<depth) return 1<<(len-1);
+	return siz-(1<<depth-1)+1;
+}
+
+void dfs(int n,int fa){
+	if(n==0) return;
+	if(vis[n]) return;
+	vis[n]=1;
+	int depth=log2(n)+1;
+	if(n+1-lowbit(n+1)==0){
+		rep(dep,1,depth){
+			rep(len,1,dep){
+				rep(lenl,0,len-1){
+					int lenr=len-1-lenl;
+					cnt[len]+=get(sizl,lenl)*get(sizr,lenr)%MOD*(1<<depth-dep)%MOD;
+					cnt[len]%=MOD;
+				}
+			}
+		}
+		return;
+	}
+	int sizl,sizr;
+	if(n-1-((1<<depth-1)-1)>=(1<<depth-2)*1){
+		sizl=(1<<depth-1)-1;
+		sizr=n-1-lc;
+	}
+	else{
+		sizr=(1<<depth-2)*1;
+		sizl=n-1-rc;
+	}
+	rep(len,1,depth){
+		rep(lenl,0,len-1){
+			int lenr=len-1-lenl;
+			cnt[len]+=get(sizl,lenl)*get(sizr,lenr)%MOD;
+			cnt[len]%=MOD;
+		}
+	}
+	dfs(sizl,n);
+	dfs(sizr,n);
+}
 
 inline void SOLVE(int Case){
-	cin>>n;
-	
+	memset(cnt,0,sizeof(cnt));
+	vis.clear();
+	cin>>n>>m;
+	d=log(n)*2+1;
+	dfs(n,0);
+	int ans=0;
+	rep(len,1,d){
+		int tot=0;
+		rep(c,1,m){
+			tot+=qpow(c,len)-qpow(c-1,len);
+			tot%=MOD;
+		}
+		ans+=cnt[len][n]*tot%MOD;
+		ans%=MOD;
+	}
+	cout<<ans<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -165,3 +223,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) Adversarial Testing
 */
+

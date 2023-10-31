@@ -1,13 +1,13 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 10/9/2023 7:23:16 AM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -63,7 +63,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -97,7 +97,7 @@ const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 const unordered_set<char> vowel = {'a','e','i','o','u'};
 
-/* Common functions */
+/* Common functions and data structures */
 
 namespace Comfun{
 	template<class T> inline T lowbit(T x){return x&-x;}
@@ -124,7 +124,22 @@ int n;
 
 inline void SOLVE(int Case){
 	cin>>n;
-	
+	if(n<=5){
+		cout<<"NO"<<endl;
+		return;
+	}
+	if(n%3!=0){
+		cout<<"YES"<<endl;
+		cout<<1<<" "<<2<<" "<<n-3<<endl;
+	}
+	else{
+		if(n-5==4||n-5==1){
+			cout<<"NO"<<endl;
+			return;
+		}
+		cout<<"YES"<<endl;
+		cout<<1<<" "<<4<<" "<<n-5<<endl;
+	}
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -165,3 +180,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) Adversarial Testing
 */
+

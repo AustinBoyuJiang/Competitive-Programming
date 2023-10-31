@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 10/12/2023 1:53:16 PM
  * Problem:
  * Source:
  * Description:
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -63,7 +63,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -120,11 +120,57 @@ namespace Comfun{
 
 const int N = 1e6+10;
 
-int n;
+int n,m,k,ans1,ans2,vis[N];
+VI e[N];
+
+void dfs(int u,int cnt){
+	vis[u]=1;
+	if(cnt==k) ans1++;
+	for(int v:e[u]){
+		if(vis[v]) continue;
+		if(cnt==k){
+			dfs(v,1);
+			ans2++;
+		}
+		else dfs(v,cnt+1);
+	}
+}
+
+int dfs2(int u){
+	vis[u]=1;
+	int res=1;
+	for(int v:e[u]){
+		if(vis[v]) continue;
+		res+=dfs2(v);
+	}
+	return res;
+}
 
 inline void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>n>>m>>k;
+	rep(i,1,m){
+		int u,v;
+		cin>>u>>v;
+		e[u].pb(v);
+		e[v].pb(u);
+	}
+	if(k==1){
+		cout<<n<<" "<<m<<endl;
+		return;
+	}
+	rep(i,1,n){
+		if(vis[i]) continue;
+		if(e[i].size()==1){
+			dfs(i,1);
+		}
+	}
+	rep(i,1,n){
+		if(vis[i]) continue;
+		int res=dfs2(i);
+		ans1+=res/k;
+		if(res>=k) ans2+=(res+k-1)/k;
+	}
+	cout<<ans1*k<<" "<<ans2<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -165,3 +211,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) Adversarial Testing
 */
+

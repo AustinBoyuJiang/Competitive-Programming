@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 8/1/2023 5:29:45 PM
  * Problem:
  * Source:
  * Description:
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -63,7 +63,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -97,7 +97,7 @@ const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 const unordered_set<char> vowel = {'a','e','i','o','u'};
 
-/* Common functions */
+/* Common functions and data structures */
 
 namespace Comfun{
 	template<class T> inline T lowbit(T x){return x&-x;}
@@ -105,26 +105,85 @@ namespace Comfun{
 	template<class T> inline T lcm(T a,T b){return a/gcd(a,b)*b;}
 	template<class T> inline T chkmax(T &a,T b){return a=max(a,b);}
 	template<class T> inline T chkmin(T &a,T b){return a=min(a,b);}
-	template<class T> inline T qpow(T a,T b){T ans=1;
-	while(b){if(b&1)ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
-	inline int mex(VI s){sort(all(s));int j=0;rep(i,0,s[s.size()-1]+1){
-	while(j<s.size()&&s[j]<i) j++;if(s[j]!=i) return i;}}
+	template<class T> inline T qpow(T a,T b){T ans=1;while(b){if(b&1)ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
 	template<class T> inline T inv(T x){return qpow(x,MOD-2);}
 	template<class T> inline bool is_prime(T x){
 	if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false;return true;}
-	template<class T> inline void disc(Vec<T> &v,int st=0){set<int> num;Vec<T> pos;
-	for(T x:v)num.insert(x);for(T x:num)pos.pb(x);for(T &x:v) x=lb(all(pos),x)-pos.begin()+st;}
+	template<class T> inline void disc(Vec<T> &v,int st=0) /*discretize*/ {Vec<T> num=v;sort(all(num));
+	for(T &x:v) x=lb(all(num),x)-num.begin()+st;}
 } using namespace Comfun;
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 3010;
 
-int n;
+int k,n,res[N][N];
 
-inline void SOLVE(int Case){
-	cin>>n;
-	
+int ans(int n,int k){
+	return n%(4*k+2)!=k+1;
+}
+
+inline int mex(VI num){
+	set<int> s;
+	for(int x:num) s.insert(x);
+	int i=0;
+	while(s.count(i)) i++;
+	return i;
+}
+
+int solve(int n,int k){
+//	if(!(n==8&&k==3)){
+//		return ans(n,k);
+//	}
+	if(res[n][k]!=-1) return res[n][k];
+	if(n==0){
+		res[n][k]=0;
+		return 0;
+	}
+	if(n<=k){
+		res[n][k]=1;
+		return 1;
+	}
+	VI s;
+	rep(i,1,n-k-1) s.pb(solve(i,k)^solve(n-i-k,k));
+	res[n][k]=mex(s);
+//	if(n==8&&k==3){
+//		for(int x:s){
+//			cout<<x<<"-";
+//		} cout<<endl;
+//	}
+	return res[n][k];
+}
+
+bool test(int n,int k){
+	int d=1;
+	rep(i,1,100){
+		if(n%k==0&&n/k==d) return 0;
+		d+=4;
+	}
+	return 1;
+}
+
+void SOLVE(int Case){
+//	cin>>k>>n;
+//	cout<<(ans(n,k)?"Alice":"Bob")<<endl;
+	memset(res,-1,sizeof(res));
+	rep(n,1,20){
+		rep(k,2,20){
+			if(solve(n,k)==0){
+				cout<<"("<<n<<","<<k<<"),";
+			}
+//			cout<<(!solve(n,k)?'#':'.')<<" ";
+		}
+//		cout<<endl;
+	}
+	puts("====================================");
+	rep(n,0,100){
+		rep(k,2,100){
+//			cout<<(!test(n,k)?'#':'.')<<" ";
+		}
+		cout<<endl;
+	}
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -165,3 +224,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) Adversarial Testing
 */
+

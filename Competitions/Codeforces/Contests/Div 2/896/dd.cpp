@@ -1,20 +1,20 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 9/10/2023 8:15:02 AM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
 //#define FASTIO
 #define OPTIMIZE
-//#define INTTOLL
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -63,7 +63,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -97,7 +97,7 @@ const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 const unordered_set<char> vowel = {'a','e','i','o','u'};
 
-/* Common functions */
+/* Common functions and data structures */
 
 namespace Comfun{
 	template<class T> inline T lowbit(T x){return x&-x;}
@@ -112,19 +112,69 @@ namespace Comfun{
 	template<class T> inline T inv(T x){return qpow(x,MOD-2);}
 	template<class T> inline bool is_prime(T x){
 	if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false;return true;}
-	template<class T> inline void disc(Vec<T> &v,int st=0){set<int> num;Vec<T> pos;
-	for(T x:v)num.insert(x);for(T x:num)pos.pb(x);for(T &x:v) x=lb(all(pos),x)-pos.begin()+st;}
+	template<class T> inline void disc(Vec<T> &v,int st=0) /*discretize*/ {Vec<T> num=v;sort(all(num));
+	for(T &x:v) x=lb(all(num),x)-num.begin()+st;}
 } using namespace Comfun;
 
 /* ========================================| Main Program |======================================== */
 
 const int N = 1e6+10;
 
-int n;
+int n,a[N],cnt[35],p[35];
+map<int,int> flag;
+
+bool pure(int x){
+	while(x>1){
+		if(x&1){
+			return 0;
+		}
+		x>>=1;
+	}
+	return 1;
+}
 
 inline void SOLVE(int Case){
 	cin>>n;
-	
+	int tar=0;
+	rep(i,1,n){
+		cin>>a[i];
+		tar+=a[i];
+	}
+	if(tar%n){
+		cout<<"No"<<endl;
+		return;
+	}
+	tar/=n;
+	rep(i,1,n){
+		if(pure(abs(tar-a[i]))){
+			flag[tar-a[i]]++;
+		}
+	}
+	rep(i,0,32){
+		p[i]=qpow(2ll,i);
+		cnt[i]=0;
+	}
+	rep(i,0,32){
+		rep(j,0,32){
+			int res=p[i]-p[j];
+			cnt[i]+=flag[res];
+			cnt[j]-=flag[res];
+			flag[res]=0;
+		}
+	}
+	rep(i,1,n){
+		if(flag[tar-a[i]]){
+			cout<<"No"<<endl;
+			return;
+		}
+	}
+	rep(i,0,32){
+		if(cnt[i]){
+			cout<<"No"<<endl;
+			return;
+		}
+	}
+	cout<<"Yes"<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -165,3 +215,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) Adversarial Testing
 */
+

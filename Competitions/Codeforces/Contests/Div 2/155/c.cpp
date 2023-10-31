@@ -1,20 +1,20 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 9/24/2023 7:45:26 AM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
-//#define FASTIO
+#define FASTIO
 #define OPTIMIZE
-//#define INTTOLL
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -63,7 +63,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -93,11 +93,11 @@ const int INF = 0x3f3f3f3f;
 #else
 const ll INF = LLINF;
 #endif
-const int MOD = 1e9+7;
+const int MOD = 998244353;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 const unordered_set<char> vowel = {'a','e','i','o','u'};
 
-/* Common functions */
+/* Common functions and data structures */
 
 namespace Comfun{
 	template<class T> inline T lowbit(T x){return x&-x;}
@@ -120,11 +120,39 @@ namespace Comfun{
 
 const int N = 1e6+10;
 
-int n;
+int n,a[N],p[N];
+string s;
 
 inline void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>s;
+	n=s.size();
+	int ans1=0,ans2=1;
+	rep(i,1,n){
+		a[i]=s[i-1]-'0';
+	}
+	p[0]=1;
+	p[1]=1;
+	rep(i,2,n){
+		p[i]=p[i-1]*i;
+		p[i]%=MOD;
+	}
+	int cnt=0;
+	rep(i,1,n){
+		if(i==1||a[i]!=a[i-1]){
+			cnt=1;
+		}
+		else{
+			cnt++;
+		}
+		if(i==n||a[i]!=a[i+1]){
+			ans1+=cnt-1;
+			ans2*=cnt;
+			ans2%=MOD;
+		}
+	}
+	ans2*=p[ans1];
+	ans2%=MOD;
+	cout<<ans1<<" "<<ans2<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -165,3 +193,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) Adversarial Testing
 */
+

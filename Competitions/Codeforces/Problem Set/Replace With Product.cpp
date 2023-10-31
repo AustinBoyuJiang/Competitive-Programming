@@ -1,20 +1,20 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
- * Problem:
+ * Date: 10/21/2023 10:44:06 PM
+ * Problem: Replace With Product
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
 //#define FASTIO
 #define OPTIMIZE
-//#define INTTOLL
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -63,7 +63,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -118,13 +118,45 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 2e5+10;
 
-int n;
+int n,a[N],p[N],s[N];
 
 inline void SOLVE(int Case){
 	cin>>n;
-	
+	int flag=1;
+	rep(i,1,n){
+		cin>>a[i];
+		s[i]=s[i-1]+a[i];
+		if(a[i]!=1) flag=0;
+	}
+	if(flag){
+		cout<<1<<" "<<1<<endl;
+		return;
+	}
+	int l=1;
+	while(a[l]==1) l++;
+	int r=n;
+	while(a[r]==1) r--;
+	int sum=1;
+	p[l-1]=1;
+	VI pos;
+	rep(i,l,r){
+		sum*=a[i];
+		p[i]=p[i-1]*a[i];
+		if(a[i]>1) pos.pb(i);
+		if(sum>=N*2){
+			cout<<l<<" "<<r<<endl;
+			return;
+		}
+	}
+	sum+=l-1+n-r;
+	rep(i,0,pos.size()-1) rep(j,i,pos.size()-1){
+		int x=pos[i],y=pos[j];
+		int res=p[y]/p[x-1]+s[x-1]+s[n]-s[y];
+		if(res>sum) l=x,r=y,sum=res;
+	}
+	cout<<l<<" "<<r<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -165,3 +197,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) Adversarial Testing
 */
+

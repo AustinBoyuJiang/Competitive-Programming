@@ -1,8 +1,8 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
- * Problem:
- * Source:
+ * Date: 9/20/2023 9:21:05 PM
+ * Problem: Beautiful League
+ * Source: https://codeforces.com/contest/1264/problem/E
  * Description:
 */
 
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -63,7 +63,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -97,7 +97,7 @@ const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 const unordered_set<char> vowel = {'a','e','i','o','u'};
 
-/* Common functions */
+/* Common functions and data structures */
 
 namespace Comfun{
 	template<class T> inline T lowbit(T x){return x&-x;}
@@ -118,13 +118,65 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 55;
 
-int n;
+int n,m,ans,tot=1,S,T,id[N][N],win[i][j],ans[N][N],flag[N][N];
+double a[N*N],b[N*N],c[N*N][N*N];
+
+struct MaxFlowWithBounds{
+	
+} fn;
 
 inline void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>n>>m;
+	S=0,T=1;
+	rep(i,1,n) rep(j,i+1,n){
+		id[i][j]=++tot;
+	}
+	rep(i,1,n) rep(j,i+1,n) rep(k,j+1,n){
+		a[id[i][j]]++,a[id[j][k]]++,a[id[i][k]]++;
+		b[id[i][j]]++,b[id[j][k]]++,b[id[i][k]]++;
+		c[id[i][j]][id[j][k]]+=1.5;
+		c[id[j][k]][id[i][j]]+=1.5;
+		c[id[j][k]][id[i][k]]+=1.5;
+		c[id[i][k]][id[j][k]]+=1.5;
+		c[id[i][j]][id[i][k]]+=1.5;
+		c[id[i][k]][id[i][j]]+=1.5;
+		ans+=3;
+	}
+	rep(i,1,m){
+		int u,v;
+		cin>>u>>v;
+		win[u][v]=1;
+	}
+	rep(i,1,n) rep(j,i+1,n){
+		if(win[i][j]){
+			flag[i][j]=fn.add(S,id[i][j],0,a[id[i][j]]);
+			fn.add(id[i][j],T,b[id[i][j]],b[id[i][j]]);
+		}
+		else if(win[j][i]){
+			flag[i][j]=fn.add(S,id[i][j],a[id[i][j]],a[id[i][j]]);
+			fn.add(id[i][j],T,0,b[id[i][j]]);
+		}
+		else{
+			flag[i][j]=fn.add(S,id[i][j],0,a[id[i][j]]);
+			fn.add(id[i][j],T,0,b[id[i][j]]);
+		}
+	}
+	rep(i,2,tot) rep(j,2,tot){
+		fn.add(i,j,0,c[i][j]);
+		fn.add(j,i,0,c[i][j]);
+	}
+	fn.Dinic();
+	ans-=fn.Dinic();
+	rep(i,1,n) rep(j,1,n){
+		if(fn.flow(flag[i][j])==a[id[i][j]]) a[i][j]=1;
+		else a[j][i]=1;
+	}
+	rep(i,1,n){
+		rep(j,1,n) cout<<ans[i][j];
+		cout<<endl;
+	}
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -165,3 +217,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) Adversarial Testing
 */
+

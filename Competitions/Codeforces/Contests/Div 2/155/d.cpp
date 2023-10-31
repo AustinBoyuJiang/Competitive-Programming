@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 9/24/2023 8:06:17 AM
  * Problem:
  * Source:
  * Description:
@@ -12,9 +12,9 @@
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
-//#define FASTIO
+#define FASTIO
 #define OPTIMIZE
-//#define INTTOLL
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -63,7 +63,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -93,11 +93,11 @@ const int INF = 0x3f3f3f3f;
 #else
 const ll INF = LLINF;
 #endif
-const int MOD = 1e9+7;
+const int MOD = 998244353;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 const unordered_set<char> vowel = {'a','e','i','o','u'};
 
-/* Common functions */
+/* Common functions and data structures */
 
 namespace Comfun{
 	template<class T> inline T lowbit(T x){return x&-x;}
@@ -120,11 +120,53 @@ namespace Comfun{
 
 const int N = 1e6+10;
 
-int n;
+int n,a[N],d[N],sum[N],cnt[N][2],tot[N][2];
+
+int solve(int p){
+	tot[0][0]=tot[0][1]=0;
+	rep(i,1,n){
+		d[i]=(a[i]>>p)&1;
+		sum[i]=sum[i-1]^d[i];
+		tot[i][0]=tot[i-1][0];
+		tot[i][1]=tot[i-1][1];
+		tot[i][sum[i]]+=i;
+	}
+	cnt[n][0]=cnt[n][1]=0;
+	cnt[n][sum[n]]++;
+	per(i,n-1,1){
+		cnt[i][0]=cnt[i+1][0];
+		cnt[i][1]=cnt[i+1][1];
+		cnt[i][sum[i]]++;
+	}
+	int ans=0;
+	rep(i,1,n){
+		if(sum[i-1]==0){
+			ans+=(tot[n][1]-tot[i-1][1]-cnt[i][1]*(i-1)%MOD+MOD)%MOD;
+			ans%=MOD;
+		}
+		else{
+			ans+=(tot[n][0]-tot[i-1][0]-cnt[i][0]*(i-1)%MOD+MOD)%MOD;
+//			if(p==0){
+//				cout<<",,,"<<(tot[0]-cnt[i][0]*(i-1)%MOD+MOD)%MOD<<endl;
+//			}
+			ans%=MOD;
+		}
+	}
+	return ans;
+}
 
 inline void SOLVE(int Case){
 	cin>>n;
-	
+	rep(i,1,n){
+		cin>>a[i];
+	}
+	int ans=0;
+	rep(i,0,31){
+//		cout<<solve(i)<<endl;
+		ans+=solve(i)*qpow(2ll,i)%MOD;
+		ans%=MOD;
+	}
+	cout<<ans<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -165,3 +207,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) Adversarial Testing
 */
+

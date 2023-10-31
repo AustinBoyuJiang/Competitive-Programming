@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 10/8/2023 2:38:32 AM
  * Problem:
  * Source:
  * Description:
@@ -14,7 +14,7 @@
 //#define SETMEM
 //#define FASTIO
 #define OPTIMIZE
-//#define INTTOLL
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -63,7 +63,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -93,11 +93,11 @@ const int INF = 0x3f3f3f3f;
 #else
 const ll INF = LLINF;
 #endif
-const int MOD = 1e9+7;
+const int MOD = 998244353;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 const unordered_set<char> vowel = {'a','e','i','o','u'};
 
-/* Common functions */
+/* Common functions and data structures */
 
 namespace Comfun{
 	template<class T> inline T lowbit(T x){return x&-x;}
@@ -120,11 +120,107 @@ namespace Comfun{
 
 const int N = 1e6+10;
 
-int n;
+int n,ans,a[N],r[N],cnt[N],ck[N],sum[N];
+PI num[N];
+
+struct Segtree{
+	int st[N<<2],lazy[N<<2];
+	
+	void push_down(int rt,int l,int mid,int r){
+		if(lazy[rt]){
+			lazy[lc]+=lazy[rt];
+			lazy[rc]+=lazy[rt];
+			st[lc]+=lazy[rt];
+			st[rc]+=lazy[rt];
+			lazy[rt]=0;
+		}
+	}
+	
+	void update(int rt,int l,int r,int x,int y,int val){
+		if(l==x&&r==y){
+			st[rt]+=val;
+			lazy[rt]+=val;
+			return;
+		}
+		int mid=l+r>>1;
+		push_down(rt,l,mid,r);
+		if(y<=mid) update(lc,l,mid,x,y,val);
+		else if(x>mid) update(rc,mid+1,r,x,y,val);
+		else update(lc,l,mid,x,mid,val),update(rc,mid+1,r,mid+1,y,val);
+		st[rt]=max(st[lc],st[rc]);
+	}
+	
+	int query(int rt,int l,int r,int x,int y){
+		if(l==x&&r==y) return st[rt];
+		int mid=l+r>>1;
+		push_down(rt,l,mid,r);
+		if(y<=mid) return query(lc,l,mid,x,y);
+		else if(x>mid) return query(rc,mid+1,r,x,y);
+		else return max(query(lc,l,mid,x,mid),query(rc,mid+1,r,mid+1,y));
+	}
+	
+	void add(int l,int r,int val){update(1,1,n,l,r,val);}
+	void add(int x,int val){add(x,x,val);}
+	int ask(int l,int r){return query(1,1,n,l,r);}
+} st;
+
+int check(int i){
+	int res=r[i];
+	for(int j=i*2;j<=n;j+=i){
+		if(r[j]>r[i]) chkmax(res,r[j]);
+	}
+	return res;
+}
+
+int Count(int x){
+	int res=0;
+	for(int i=1;i*i<=x;i++){
+		if(x%i==0){
+			if(r[i]<r[x]&&ck[i]<=r[x]) res++;
+			if(x!=i*i&&r[x/i]<r[x]&&ck[x/i]<=r[x]) res++;
+		}
+	}
+	return res;
+}
 
 inline void SOLVE(int Case){
 	cin>>n;
-	
+	rep(i,1,n){
+		cin>>a[i];
+		num[i].fir=a[i];
+		num[i].sec=i;
+	}
+	sort(num+1,num+n+1);
+	rep(i,1,n){
+		r[num[i].sec]=i;
+	}
+	rep(i,1,n){
+		ck[i]=check(i);
+	}
+	rep(i,1,n){
+		int u=num[i].sec;
+		cnt[u]=st.ask(i,i);
+		st.add(ck[u],n,1);
+//		rep(j,ck[u],n){
+//			sum[j]++;
+//		}
+	}
+//	rep(i,1,n){
+//		rep(j,1,n){
+//			if(r[j]<r[i]&&ck[j]<=r[i])
+//				cnt[i]++;
+//		}
+//	}
+	rep(i,1,n){
+		if(check(i)<=r[i]) ans+=a[i]*qpow(2ll,cnt[i])%MOD;
+		ans%=MOD;
+	}
+	rep(i,1,n){
+		int c=Count(i);
+		ans+=a[i]*(qpow(2ll,c)-1)%MOD*qpow(2ll,cnt[i]-c)%MOD;
+		ans%=MOD;
+	}
+	cout<<ans<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -165,3 +261,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) Adversarial Testing
 */
+

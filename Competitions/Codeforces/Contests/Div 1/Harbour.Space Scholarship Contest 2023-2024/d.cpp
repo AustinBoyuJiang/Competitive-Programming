@@ -1,13 +1,13 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 8/26/2023 11:20:34 PM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -63,7 +63,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -97,7 +97,7 @@ const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 const unordered_set<char> vowel = {'a','e','i','o','u'};
 
-/* Common functions */
+/* Common functions and data structures */
 
 namespace Comfun{
 	template<class T> inline T lowbit(T x){return x&-x;}
@@ -112,19 +112,54 @@ namespace Comfun{
 	template<class T> inline T inv(T x){return qpow(x,MOD-2);}
 	template<class T> inline bool is_prime(T x){
 	if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false;return true;}
-	template<class T> inline void disc(Vec<T> &v,int st=0){set<int> num;Vec<T> pos;
-	for(T x:v)num.insert(x);for(T x:num)pos.pb(x);for(T &x:v) x=lb(all(pos),x)-pos.begin()+st;}
+	template<class T> inline void disc(Vec<T> &v,int st=0) /*discretize*/ {Vec<T> num=v;sort(all(num));
+	for(T &x:v) x=lb(all(num),x)-num.begin()+st;}
 } using namespace Comfun;
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 3e3+10;
 
-int n;
+int n,ans,a[N][N],sum[N][N],cl[N][N];
 
 inline void SOLVE(int Case){
 	cin>>n;
-	
+	rep(i,1,n){
+		cl[i][0]=cl[i][n+1]=sum[i][0]=sum[i][n+1]=0;
+		rep(j,1,n){
+			char x;
+			cin>>x;
+			a[i][j]=x-'0';
+			sum[i][j]=0;
+			cl[i][j]=0;
+		}
+	}
+	ans=0;
+	rep(i,1,n) rep(j,1,n){
+		int res=0;
+		if(j==1){
+			if(i==2) res=cl[i-1][j]+cl[i-1][j+1];
+			else if(i>2) res=sum[i-1][j+1]+cl[i-1][j];
+		}
+		else if(j==n){
+			if(i==2) res=cl[i-1][j]+cl[i-1][j-1];
+			else if(i>2) res=sum[i-1][j-1]+cl[i-1][j];
+		}
+		else{
+			if(i>2) res=sum[i-1][j-1]+sum[i-1][j+1]-sum[i-2][j]+cl[i-1][j];
+			else if(i==2) res=cl[i-1][j-1]+cl[i-1][j]+cl[i-1][j+1];
+		}
+		if((a[i][j]+res)%2==0) cl[i][j]=0;
+		else cl[i][j]=1;
+		ans+=cl[i][j];
+		sum[i][j]=cl[i][j]+res;
+	}
+	cout<<ans<<endl;
+//	rep(i,1,n){
+//		rep(j,1,n){
+//			cout<<cl[i][j];
+//		} cout<<endl;
+//	}
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -165,3 +200,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) Adversarial Testing
 */
+

@@ -1,20 +1,20 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 10/22/2023 12:15:32 AM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
 //#define FASTIO
 #define OPTIMIZE
-//#define INTTOLL
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -63,7 +63,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -120,11 +120,42 @@ namespace Comfun{
 
 const int N = 1e6+10;
 
-int n;
+int n,a[N],cnt[N],tot[N],cnt0[N],tot0[N],ans[N];
 
 inline void SOLVE(int Case){
 	cin>>n;
-	
+	rep(i,1,n){
+		char x;
+		cin>>x;
+		a[i]=x-'0';
+	}
+	rep(i,1,n){
+		tot[i]=tot[i-1]+a[n-i+1]*i;
+		cnt[i]=cnt[i-1]+a[n-i+1];
+	}
+	rep(i,1,n){
+		cnt0[i]=cnt0[i-1]+1-a[i];
+		tot0[i]=tot0[i-1]+(1-a[i])*(n-i+1);
+	}
+	rep(i,1,n){
+		int l=0;
+		int r=n-i;
+		int pos=-1;
+		while(l<=r){
+			int mid=l+r>>1;
+			if(cnt0[n-i]-cnt0[mid]>=cnt[i]){
+				l=mid+1;
+				pos=mid;
+			}
+			else r=mid-1;
+		}
+		if(pos==-1) ans[i]=-1;
+		else ans[i]=tot0[n-i]-tot0[pos]-tot[i];
+	}
+	rep(i,1,n){
+		cout<<ans[i]<<" ";
+	}
+	cout<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -165,3 +196,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) Adversarial Testing
 */
+

@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 8/26/2023 5:11:14 PM
  * Problem:
  * Source:
  * Description:
@@ -14,7 +14,7 @@
 //#define SETMEM
 //#define FASTIO
 #define OPTIMIZE
-//#define INTTOLL
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -63,8 +63,6 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
-template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
 namespace FastIO{
@@ -97,7 +95,7 @@ const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 const unordered_set<char> vowel = {'a','e','i','o','u'};
 
-/* Common functions */
+/* Common functions and data structures */
 
 namespace Comfun{
 	template<class T> inline T lowbit(T x){return x&-x;}
@@ -112,19 +110,64 @@ namespace Comfun{
 	template<class T> inline T inv(T x){return qpow(x,MOD-2);}
 	template<class T> inline bool is_prime(T x){
 	if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false;return true;}
-	template<class T> inline void disc(Vec<T> &v,int st=0){set<int> num;Vec<T> pos;
-	for(T x:v)num.insert(x);for(T x:num)pos.pb(x);for(T &x:v) x=lb(all(pos),x)-pos.begin()+st;}
+	template<class T> inline void disc(Vec<T> &v,int st=0) /*discretize*/ {Vec<T> num=v;sort(all(num));
+	for(T &x:v) x=lb(all(num),x)-num.begin()+st;}
 } using namespace Comfun;
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 1e5+10;
 
-int n;
+int n,m,s,t,vis[N][2],dist[N][2];
+VPI e[N];
+
+struct node{
+	int dis,to,tp;
+};
+
+bool operator > (const node &a,const node &b){
+	return a.dis>b.dis;
+}
 
 inline void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>n>>m>>s>>t;
+	rep(i,1,m){
+		int u,v,w;
+		cin>>u>>v>>w;
+		e[u].pb({v,w});
+	}
+	priority_queue<node,vector<node>,greater<node>> q;
+	memset(dist,0x3f,sizeof(dist));
+	dist[s][0]=0;
+	q.push({0,s,0});
+	while(!q.empty()){
+		int u=q.top().to;
+		int d=q.top().tp;
+		q.pop();
+		if(u==t) continue;
+		if(vis[u][d]) continue;
+		vis[u][d]=true;
+		for(PI edge:e[u]){
+			int v=edge.fir;
+			int w=edge.sec;
+			if(dist[u][d]+w<dist[v][0]){
+				dist[v][1]=dist[v][0];
+//				cout<<v<<"_0: "<<dist[v][0]<<" "<<dist[v][1]<<" "<<dist[u][d]+w<<endl;
+				dist[v][0]=dist[u][d]+w;
+				q.push({dist[v][1],v,1});
+				q.push({dist[v][0],v,0});
+			}
+			else if(dist[u][d]+w>dist[v][0]){
+				if(dist[u][d]+w<dist[v][1]){
+					dist[v][1]=dist[u][d]+w;
+//					cout<<v<<"_1: "<<dist[v][0]<<" "<<dist[v][1]<<endl;
+					q.push({dist[v][1],v,1});
+				}
+			}
+		}
+	}
+	if(dist[t][1]==INF) cout<<-1<<endl;
+	else cout<<dist[t][1]<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -165,3 +208,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) Adversarial Testing
 */
+

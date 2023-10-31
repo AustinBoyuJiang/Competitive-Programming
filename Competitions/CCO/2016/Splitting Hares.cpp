@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 10/12/2023 2:31:57 PM
  * Problem:
  * Source:
  * Description:
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -63,7 +63,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -118,13 +118,26 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 4010;
 
 int n;
 
+struct node{
+	int x,y,val;
+} p[N];
+
 inline void SOLVE(int Case){
 	cin>>n;
-	
+	rep(i,1,n){
+		cin>>p[i].x>>p[i].y>>p[i].val;
+	}
+	rep(i,1,n){
+		VI a,b,c,d;
+		rep(j,1,n){
+			if(i==j) continue;
+			if(p[i].x==p[j].x) 
+		}
+	}	
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -165,3 +178,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) Adversarial Testing
 */
+

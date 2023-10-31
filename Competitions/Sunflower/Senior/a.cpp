@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 8/26/2023 4:51:48 PM
  * Problem:
  * Source:
  * Description:
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -63,7 +63,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -97,7 +97,7 @@ const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 const unordered_set<char> vowel = {'a','e','i','o','u'};
 
-/* Common functions */
+/* Common functions and data structures */
 
 namespace Comfun{
 	template<class T> inline T lowbit(T x){return x&-x;}
@@ -112,19 +112,59 @@ namespace Comfun{
 	template<class T> inline T inv(T x){return qpow(x,MOD-2);}
 	template<class T> inline bool is_prime(T x){
 	if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false;return true;}
-	template<class T> inline void disc(Vec<T> &v,int st=0){set<int> num;Vec<T> pos;
-	for(T x:v)num.insert(x);for(T x:num)pos.pb(x);for(T &x:v) x=lb(all(pos),x)-pos.begin()+st;}
+	template<class T> inline void disc(Vec<T> &v,int st=0) /*discretize*/ {Vec<T> num=v;sort(all(num));
+	for(T &x:v) x=lb(all(num),x)-num.begin()+st;}
 } using namespace Comfun;
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 2e3+10;
 
-int n;
+int n,m,a[N][N],dist[N][N];
+PI s,t,d;
+
+int min_dist(int x,int y){
+	queue<PI> q;
+	q.push({x,y});
+	memset(dist,0x3f,sizeof(dist));
+	dist[x][y]=0;
+	while(!q.empty()){
+		int ux=q.front().fir;
+		int uy=q.front().sec;
+		q.pop();
+		rep(i,0,3){
+			int nx=ux+dir[i][0];
+			int ny=uy+dir[i][1];
+			if(nx<1||nx>n||ny<1||ny>m||!a[nx][ny]) continue;
+			if(dist[nx][ny]==INF){
+				dist[nx][ny]=dist[ux][uy]+1;
+				q.push({nx,ny});
+			}
+		}
+	}
+}
 
 inline void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>n>>m;
+	rep(i,1,n){
+		rep(j,1,m){
+			char x;
+			cin>>x;
+			if(x!='X'){
+				a[i][j]=1;
+			}
+			else{
+				a[i][j]=0;
+			}
+			if(x=='A') s={i,j};
+			if(x=='B') t={i,j};
+			if(x=='F') d={i,j};
+		}
+	}
+	min_dist(d.fir,d.sec);
+	int res=dist[s.fir][s.sec]+dist[t.fir][t.sec];
+	if(res>=INF) cout<<-1<<endl;
+	else cout<<res<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -165,3 +205,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) Adversarial Testing
 */
+

@@ -1,13 +1,13 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 8/30/2023 11:54:45 PM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -63,7 +63,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -97,7 +97,7 @@ const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 const unordered_set<char> vowel = {'a','e','i','o','u'};
 
-/* Common functions */
+/* Common functions and data structures */
 
 namespace Comfun{
 	template<class T> inline T lowbit(T x){return x&-x;}
@@ -112,19 +112,100 @@ namespace Comfun{
 	template<class T> inline T inv(T x){return qpow(x,MOD-2);}
 	template<class T> inline bool is_prime(T x){
 	if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false;return true;}
-	template<class T> inline void disc(Vec<T> &v,int st=0){set<int> num;Vec<T> pos;
-	for(T x:v)num.insert(x);for(T x:num)pos.pb(x);for(T &x:v) x=lb(all(pos),x)-pos.begin()+st;}
+	template<class T> inline void disc(Vec<T> &v,int st=0) /*discretize*/ {Vec<T> num=v;sort(all(num));
+	for(T &x:v) x=lb(all(num),x)-num.begin()+st;}
 } using namespace Comfun;
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 510;
 
-int n;
+int n,m,row[N],col[N],ans[N][N];
+PI a[N][N],b[N][N],lstrow[N],lstcol[N];
+
+void Set(PI pos,int x){
+	int i=pos.fir;
+	int j=pos.sec;
+	if(ans[i][j]!=-1) return;
+	ans[i][j]=x;
+}
 
 inline void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>n>>m;
+	rep(i,1,n){
+		row[i]=0;
+		lstcol[i]={0,0};
+	}
+	rep(i,1,m){
+		col[i]=0;
+		lstrow[i]={0,0};
+	}
+	rep(i,1,n){
+		rep(j,1,m){
+			ans[i][j]=-1;
+			char x;
+			cin>>x;
+			b[i][j]=make_pair(0,0);
+			if(x=='.'){
+				a[i][j]=make_pair(0,0);
+				continue;
+			}
+			if(x=='L'){
+				a[i][j]={i,j+1}; 
+				if(lstrow[j]==make_pair(0,0)){
+					lstrow[j]=make_pair(i,j);
+				}
+				else{
+					b[i][j]=lstrow[j];
+					b[lstrow[j].fir][lstrow[j].sec]={i,j};
+					lstrow[j]=make_pair(0,0);
+				}
+			}
+			else if(x=='R') a[i][j]={i,j-1};
+			else if(x=='U'){
+				a[i][j]={i+1,j};
+				if(lstcol[i]==make_pair(0,0)){
+					lstcol[i]=make_pair(i,j);
+				}
+				else{
+					b[i][j]=lstcol[i];
+					b[lstcol[i].fir][lstcol[i].sec]={i,j};
+					lstcol[i]=make_pair(0,0);
+				}
+			}
+			else if(x=='D') a[i][j]={i-1,j};
+			row[i]++;
+			col[j]++;
+		}
+	}
+	rep(i,1,n){
+		if(row[i]%2==1){
+			cout<<-1<<endl;
+			return;
+		}
+	}
+	rep(i,1,m){
+		if(col[i]%2==1){
+			cout<<-1<<endl;
+			return;
+		}
+	}
+	rep(i,1,n){
+		rep(j,1,m){
+			if(a[i][j]==make_pair(0,0)) continue;
+			if(ans[i][j]!=-1) continue;
+			ans[i][j]=0;
+			Set(a[i][j],ans[i][j]^1);
+			if(b[i][j]!=make_pair(0,0)){
+				Set(b[i][j],ans[i][j]^1);
+			}
+		}
+	}
+	rep(i,1,n){
+		rep(j,1,m){
+			cout<<(ans[i][j]==-1?'.':(ans[i][j]?'B':'W'));
+		} cout<<endl;
+	}
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -165,3 +246,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) Adversarial Testing
 */
+

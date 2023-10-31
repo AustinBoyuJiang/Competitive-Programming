@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 10/22/2023 2:18:34 PM
  * Problem:
  * Source:
  * Description:
@@ -12,9 +12,9 @@
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
-//#define FASTIO
+#define FASTIO
 #define OPTIMIZE
-//#define INTTOLL
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -35,11 +35,7 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
-/* Segment Tree */
-#define lc (rt << 1)
-#define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -63,7 +59,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -100,31 +96,96 @@ const unordered_set<char> vowel = {'a','e','i','o','u'};
 /* Common functions */
 
 namespace Comfun{
-	template<class T> inline T lowbit(T x){return x&-x;}
-	template<class T> inline T gcd(T a,T b){return b?gcd(b,a%b):a;}
-	template<class T> inline T lcm(T a,T b){return a/gcd(a,b)*b;}
 	template<class T> inline T chkmax(T &a,T b){return a=max(a,b);}
 	template<class T> inline T chkmin(T &a,T b){return a=min(a,b);}
-	template<class T> inline T qpow(T a,T b){T ans=1;
-	while(b){if(b&1)ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
-	inline int mex(VI s){sort(all(s));int j=0;rep(i,0,s[s.size()-1]+1){
-	while(j<s.size()&&s[j]<i) j++;if(s[j]!=i) return i;}}
-	template<class T> inline T inv(T x){return qpow(x,MOD-2);}
-	template<class T> inline bool is_prime(T x){
-	if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false;return true;}
-	template<class T> inline void disc(Vec<T> &v,int st=0){set<int> num;Vec<T> pos;
-	for(T x:v)num.insert(x);for(T x:num)pos.pb(x);for(T &x:v) x=lb(all(pos),x)-pos.begin()+st;}
 } using namespace Comfun;
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 2010;
+const int Q = 1e6;
 
-int n;
+int x,k,n,q,tot,a[N],b[N],c[N];
+
+struct node{
+	int mx,lazy,lc,rc;
+} st[Q*20];
+
+struct Segtree{
+	int root=0;
+	
+	void push_down(int rt,int l,int mid,int r){
+		if(!st[rt].lc) st[rt].lc=++tot;
+		if(!st[rt].rc) st[rt].rc=++tot;
+		if(st[rt].lazy){
+			st[st[rt].lc].lazy+=st[rt].lazy;
+			st[st[rt].rc].lazy+=st[rt].lazy;
+			st[st[rt].lc].mx+=st[rt].lazy;
+			st[st[rt].rc].mx+=st[rt].lazy;
+			st[rt].lazy=0;
+		}
+	}
+	
+	void update(int &rt,int l,int r,int x,int y,int v){
+		if(!rt) rt=++tot;
+		if(l==x&&r==y){
+			st[rt].mx+=v;
+			st[rt].lazy+=v;
+			return;
+		}
+		int mid=l+r>>1;
+		push_down(rt,l,mid,r);
+		if(y<=mid) update(st[rt].lc,l,mid,x,y,v);
+		else if(x>mid) update(st[rt].rc,mid+1,r,x,y,v);
+		else update(st[rt].lc,l,mid,x,mid,v),update(st[rt].rc,mid+1,r,mid+1,y,v);
+		st[rt].mx=max(st[st[rt].lc].mx,st[st[rt].rc].mx);
+	}
+	
+	int query(int rt,int l,int r,int x,int y){
+		if(!rt) return 0;
+		if(l==x&&r==y) return st[rt].mx;
+		int mid=l+r>>1;
+		push_down(rt,l,mid,r);
+		if(y<=mid) return query(st[rt].lc,l,mid,x,y);
+		else if(x>mid) return query(st[rt].rc,mid+1,r,x,y);
+		else return max(query(st[rt].lc,l,mid,x,mid),query(st[rt].rc,mid+1,r,mid+1,y));
+	}
+	
+	int ask(int l,int r){
+		return query(root,0,x,l,r);
+	}
+	
+	void add(int l,int r,int v){
+		if(r<l) return;
+		chkmin(r,x);
+		chkmax(l,0ll);
+		update(root,0,x,l,r,v);
+	}
+} mx[N];
 
 inline void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>x>>k>>n>>q;
+	rep(i,1,n){
+		cin>>a[i]>>b[i]>>c[i];
+	}
+	rep(i,1,n){
+		rep(j,1,n){
+			if(i==j) continue;
+			if(b[i]-a[i]<b[j]-a[j]){
+				int pos=((a[j]-a[i])*x)/(b[i]-a[i]-b[j]+a[j])+1;
+				mx[i].add(pos,x,c[j]);
+			}
+			else if(b[i]-a[i]>b[j]-a[j]){
+				int pos=((a[j]-a[i])*x+b[i]-a[i]-b[j]+a[j]-1)/(b[i]-a[i]-b[j]+a[j])-1;
+				mx[i].add(0,pos,c[j]);
+			}
+		}
+	}
+	rep(i,1,q){
+		int p,s;
+		cin>>p>>s;
+		cout<<mx[p].ask(s,s+k)<<endl;
+	}
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -165,3 +226,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) Adversarial Testing
 */
+

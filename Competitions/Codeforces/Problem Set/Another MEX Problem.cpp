@@ -1,13 +1,13 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 10/29/2023 7:32:14 PM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -63,7 +63,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -107,8 +107,6 @@ namespace Comfun{
 	template<class T> inline T chkmin(T &a,T b){return a=min(a,b);}
 	template<class T> inline T qpow(T a,T b){T ans=1;
 	while(b){if(b&1)ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
-	inline int mex(VI s){sort(all(s));int j=0;rep(i,0,s[s.size()-1]+1){
-	while(j<s.size()&&s[j]<i) j++;if(s[j]!=i) return i;}}
 	template<class T> inline T inv(T x){return qpow(x,MOD-2);}
 	template<class T> inline bool is_prime(T x){
 	if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false;return true;}
@@ -118,13 +116,48 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 5010;
 
-int n;
+int n,a[N],cnt[N],mex[N][N];
+bool dp[N][N*2];
 
 inline void SOLVE(int Case){
 	cin>>n;
-	
+	rep(i,1,n){
+		cin>>a[i];
+	}
+	rep(l,1,n){
+		rep(i,0,n) cnt[i]=0;
+		int ans=0;
+		rep(r,l,n){
+			cnt[a[r]]++;
+			while(cnt[ans]) ans++;
+			mex[l][r]=ans;
+		}
+	}
+	dp[0][0]=1;
+	rep(i,1,n){
+		rep(k,0,n){
+			dp[i][k]|=dp[i-1][k];
+		}
+		rep(j,1,i){
+			if(j!=i) if(mex[j][i]==mex[j+1][i]||mex[j][i]==mex[j][i-1]) continue;
+			rep(k,0,n){
+				dp[i][k]|=dp[j-1][k^mex[j][i]];
+			}
+		}
+	}
+	int ans;
+	per(i,n,0){
+		if(dp[n][i]){
+			ans=i;
+			break;
+		}
+	}
+	cout<<ans<<endl;
+	rep(i,1,n) rep(j,0,n){
+		dp[i][j]=0;
+	}
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -165,3 +198,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) Adversarial Testing
 */
+

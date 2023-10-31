@@ -1,7 +1,7 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
- * Problem:
+ * Date: 10/11/2023 11:19:04 PM
+ * Problem: Cars on Ice
  * Source:
  * Description:
 */
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -63,7 +63,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -118,13 +118,67 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 2010;
+const int C = N*N;
 
-int n;
+int n,m,id,u[C],d[C],l[C],r[C],instk[C];
+VI row[N],col[N];
+char Map[N][N];
+PI pos[C];
+
+void remove(int x){
+	if(u[x]) d[u[x]]=d[x];
+	if(d[x]) u[d[x]]=u[x];
+	if(l[x]) r[l[x]]=r[x];
+	if(r[x]) l[r[x]]=l[x];
+	cout<<"("<<pos[x].fir-1<<","<<pos[x].sec-1<<")"<<endl;
+}
+
+bool ok(int x){
+	if(instk[x]) return 0;
+	if(Map[pos[x].fir][pos[x].sec]=='N'&&!u[x]) return 1;
+	if(Map[pos[x].fir][pos[x].sec]=='S'&&!d[x]) return 1;
+	if(Map[pos[x].fir][pos[x].sec]=='W'&&!l[x]) return 1;
+	if(Map[pos[x].fir][pos[x].sec]=='E'&&!r[x]) return 1;
+	return 0;
+}
 
 inline void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>n>>m;
+	rep(i,1,n){
+		rep(j,1,m){
+			cin>>Map[i][j];
+			if(Map[i][j]!='.'){
+				pos[++id]={i,j};
+				if(!row[i].empty()){
+					l[id]=row[i][row[i].size()-1];
+					r[row[i][row[i].size()-1]]=id;
+				}
+				if(!col[j].empty()){
+					u[id]=col[j][col[j].size()-1];
+					d[col[j][col[j].size()-1]]=id;
+				}
+				row[i].pb(id);
+				col[j].pb(id);
+			}
+		}
+	}
+	queue<int> q;
+	rep(i,1,id){
+		if(ok(i)){
+			q.push(i),
+			instk[i]=1;
+		}
+	}
+	while(!q.empty()){
+		int cur=q.front();
+		q.pop();
+		remove(cur);
+		if(u[cur]&&ok(u[cur])) q.push(u[cur]);
+		if(d[cur]&&ok(d[cur])) q.push(d[cur]);
+		if(l[cur]&&ok(l[cur])) q.push(l[cur]);
+		if(r[cur]&&ok(r[cur])) q.push(r[cur]);
+	}
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -165,3 +219,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) Adversarial Testing
 */
+

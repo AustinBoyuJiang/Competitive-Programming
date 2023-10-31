@@ -1,20 +1,20 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
- * Problem:
+ * Date: 8/7/2023 1:13:56 AM
+ * Problem: Mr. Liang play Card Game
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
 //#define FASTIO
 #define OPTIMIZE
-//#define INTTOLL
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -63,7 +63,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -97,7 +97,7 @@ const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 const unordered_set<char> vowel = {'a','e','i','o','u'};
 
-/* Common functions */
+/* Common functions and data structures */
 
 namespace Comfun{
 	template<class T> inline T lowbit(T x){return x&-x;}
@@ -107,24 +107,55 @@ namespace Comfun{
 	template<class T> inline T chkmin(T &a,T b){return a=min(a,b);}
 	template<class T> inline T qpow(T a,T b){T ans=1;
 	while(b){if(b&1)ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
-	inline int mex(VI s){sort(all(s));int j=0;rep(i,0,s[s.size()-1]+1){
+	inline int mex(VI s){sort(all(s));int j=0;rep(i,0,s[s.size()]+1){
 	while(j<s.size()&&s[j]<i) j++;if(s[j]!=i) return i;}}
 	template<class T> inline T inv(T x){return qpow(x,MOD-2);}
 	template<class T> inline bool is_prime(T x){
 	if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false;return true;}
-	template<class T> inline void disc(Vec<T> &v,int st=0){set<int> num;Vec<T> pos;
-	for(T x:v)num.insert(x);for(T x:num)pos.pb(x);for(T &x:v) x=lb(all(pos),x)-pos.begin()+st;}
+	template<class T> inline void disc(Vec<T> &v,int st=0) /*discretize*/ {Vec<T> num=v;sort(all(num));
+	for(T &x:v) x=lb(all(num),x)-num.begin()+st;}
 } using namespace Comfun;
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 110;
+const int M = 30;
 
-int n;
+int n,m,R,P,a[N],v[N][M],dp[N][N][M][M],mx[N][N];
+//区间[l,r]，最后一段同一类型的长度为rlen，类型为type，等级为lvl 的最大值 
 
 inline void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>n>>m>>R>>P;
+	rep(i,1,n){
+		cin>>a[i];
+	}
+	rep(i,1,m){
+		cin>>v[i][1];
+		rep(j,2,R) v[i][j]=v[i][j-1]*P;
+	}
+	rep(l,1,n){
+		rep(r,l,n){
+			rep(i,1,m) rep(j,1,R){
+				dp[l][r][i][j]=-INF;
+			} mx[l][r]=-INF;
+		}
+		dp[l][l][a[l]][1]=mx[l][l]=v[a[l]][1];
+	}
+	rep(len,2,n) rep(l,1,n-len+1){
+		int r=l+len-1;
+		rep(i,1,m) rep(j,1,R){
+			if(i==a[r]&&j==1) dp[l][r][i][j]=mx[l][r-1]+mx[r][r];
+			else if(j>1) rep(k,l,r-1){
+				if(k-l+1<(1<<j-2)||r-k<(1<<j-2)) continue;
+				chkmax(dp[l][r][i][j],dp[l][k][i][j-1]+dp[k+1][r][i][j-1]+v[i][j]-v[i][j-1]*2);
+			} rep(k,l,r-1) chkmax(dp[l][r][i][j],dp[l][k][i][j]+mx[k+1][r]);
+			chkmax(mx[l][r],dp[l][r][i][j]);
+		}
+	}
+	int ans=-INF;
+	rep(i,1,m) rep(j,1,R){
+		chkmax(ans,dp[1][n][i][j]);
+	} cout<<ans<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -165,3 +196,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) Adversarial Testing
 */
+

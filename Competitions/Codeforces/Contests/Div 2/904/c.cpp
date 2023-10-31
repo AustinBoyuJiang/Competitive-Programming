@@ -1,18 +1,18 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 10/22/2023 12:35:00 AM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
-//#define FASTIO
+#define FASTIO
 #define OPTIMIZE
 //#define INTTOLL
 
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -63,7 +63,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -120,11 +120,89 @@ namespace Comfun{
 
 const int N = 1e6+10;
 
-int n;
+int n,m,l[N],r[N];
+PI seg[N],segr[N];
+
+struct Segtree{
+	int st[N<<2],lazy[N<<2];
+	
+	void push_down(int rt,int l,int mid,int r){
+		if(lazy[rt]){
+			lazy[lc]+=lazy[rt];
+			lazy[rc]+=lazy[rt];
+			st[lc]+=lazy[rt]*(mid-l+1);
+			st[rc]+=lazy[rt]*(r-mid);
+			lazy[rt]=0;
+		}
+	}
+	
+	void update(int rt,int l,int r,int x,int y,int val){
+		if(l==x&&r==y){
+			st[rt]+=val*(r-l+1);
+			lazy[rt]+=val;
+			return;
+		}
+		int mid=l+r>>1;
+		push_down(rt,l,mid,r);
+		if(y<=mid) update(lc,l,mid,x,y,val);
+		else if(x>mid) update(rc,mid+1,r,x,y,val);
+		else update(lc,l,mid,x,mid,val),update(rc,mid+1,r,mid+1,y,val);
+		st[rt]=st[lc]+st[rc];
+	}
+	
+	int query(int rt,int l,int r,int x,int y){
+		if(l==x&&r==y) return st[rt];
+		int mid=l+r>>1;
+		push_down(rt,l,mid,r);
+		if(y<=mid) return query(lc,l,mid,x,y);
+		else if(x>mid) return query(rc,mid+1,r,x,y);
+		else return query(lc,l,mid,x,mid)+query(rc,mid+1,r,mid+1,y);
+	}
+	
+	void add(int l,int r,int val){update(1,1,m,l,r,val);}
+	void add(int x,int val){add(x,x,val);}
+	int ask(int l,int r){return query(1,1,m,l,r);}
+} st;
 
 inline void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>n>>m;
+	VI num;
+	rep(i,1,n){
+		int x,y;
+		cin>>x>>y;
+		num.pb(x);
+		num.pb(y);
+	}
+	num.pb(1);
+	num.pb(m);
+	disc(num,1);
+	m=num[num.size()-1];
+	rep(i,1,n){
+		seg[i].fir=num[(i-1)*2];
+		seg[i].sec=num[(i-1)*2+1];
+	}
+	rep(i,1,n) segr[i]=seg[i];
+	sort(seg+1,seg+n+1);
+	sort(segr+1,segr+n+1,[](PI a,PI b){
+		return a.sec<b.sec;
+	});
+	int j=0,k=0,ans=0;
+	rep(i,1,m){
+		st.add(i,-st.ask(i,i));
+	}
+	rep(i,1,m){
+		while(j<n&&seg[j+1].fir<=i){
+			j++;
+			st.add(seg[j].fir,seg[j].sec,1);
+		}
+		while(k<n&&segr[k+1].sec<i){
+			k++;
+			st.add(segr[k].fir,segr[k].sec,-1);
+		}
+		chkmax(ans,st.ask(i,i)-st.ask(1,1));
+		chkmax(ans,st.ask(i,i)-st.ask(m,m));
+	}
+	cout<<ans<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -165,3 +243,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) Adversarial Testing
 */
+

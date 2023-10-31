@@ -1,20 +1,20 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 8/31/2023 12:05:22 AM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
 //#define FASTIO
 #define OPTIMIZE
-//#define INTTOLL
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -63,7 +63,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -97,7 +97,7 @@ const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 const unordered_set<char> vowel = {'a','e','i','o','u'};
 
-/* Common functions */
+/* Common functions and data structures */
 
 namespace Comfun{
 	template<class T> inline T lowbit(T x){return x&-x;}
@@ -112,19 +112,118 @@ namespace Comfun{
 	template<class T> inline T inv(T x){return qpow(x,MOD-2);}
 	template<class T> inline bool is_prime(T x){
 	if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false;return true;}
-	template<class T> inline void disc(Vec<T> &v,int st=0){set<int> num;Vec<T> pos;
-	for(T x:v)num.insert(x);for(T x:num)pos.pb(x);for(T &x:v) x=lb(all(pos),x)-pos.begin()+st;}
+	template<class T> inline void disc(Vec<T> &v,int st=0) /*discretize*/ {Vec<T> num=v;sort(all(num));
+	for(T &x:v) x=lb(all(num),x)-num.begin()+st;}
 } using namespace Comfun;
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 2e5+10;
 
-int n;
+int n,m,k,cnt,h[N],f[N],in[N],day[N],id[N];
+PI tv[N],dp[N][2];
+VI e[N];
+
+int find(int x){
+	if(f[x]==x) return x;
+	return f[x]=find(f[x]);
+}
+
+void merge(int x,int y){
+	if(find(x)==find(y)) return;
+	f[find(x)]=find(y);
+}
+
+int check(int l,int r,PI p){
+	return max(p.sec,r)-min(p.fir,l);
+}
 
 inline void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>n>>m>>k;
+	cnt=0;
+	rep(i,1,n){
+		cin>>h[i];
+		in[i]=0;
+		day[i]=0;
+		e[i].clear();
+		f[i]=i;
+		tv[i].fir=INF;
+		tv[i].sec=-INF;
+		id[i]=0;
+	}
+	rep(i,1,m){
+		int u,v;
+		cin>>u>>v;
+		merge(u,v);
+		in[v]++;
+		e[u].pb(v);
+	}
+	queue<int> q;
+	rep(i,1,n){
+		if(!in[i]){
+			q.push(i);
+		}
+	}
+	while(!q.empty()){
+		int u=q.front();
+		q.pop();
+		for(int v:e[u]){
+			if(h[v]>=h[u]){
+				chkmax(day[v],day[u]);
+			}
+			else{
+				chkmax(day[v],day[u]+1);
+			}
+			in[v]--;
+			if(!in[v]){
+				q.push(v);
+			}
+		}
+	}
+	rep(i,1,n){
+		if(!id[find(i)]) id[find(i)]=++cnt;
+		chkmax(tv[id[find(i)]].sec,day[i]*k+h[i]);
+		chkmin(tv[id[find(i)]].fir,day[i]*k+h[i]);
+	}
+	int ans=INF;
+	rep(j,1,cnt){
+		int x=tv[j].fir;
+		int mn=INF,mx=-INF;
+		rep(i,1,cnt){
+			if(tv[i].fir<x){
+				chkmax(mx,tv[i].sec+k);
+				chkmin(mn,tv[i].fir+k);
+			}
+			else{
+				chkmax(mx,tv[i].sec);
+				chkmin(mn,tv[i].fir);
+			}
+		}
+		chkmin(ans,mx-mn);
+	}
+	cout<<ans<<endl;
+//	sort(tv+1,tv+cnt+1);
+//	dp[0][0]={INF,-INF};
+//	dp[0][1]={INF,-INF};
+//	rep(i,1,cnt){
+//		if(check(tv[i].fir,tv[i].sec,dp[i-1][0])<check(tv[i].fir,tv[i].sec,dp[i-1][1])){
+//			dp[i][0].fir=min(tv[i].fir,dp[i-1][0].fir);
+//			dp[i][0].sec=max(tv[i].sec,dp[i-1][0].sec);
+//		}
+//		else{
+//			dp[i][0].fir=min(tv[i].fir,dp[i-1][1].fir);
+//			dp[i][0].sec=max(tv[i].sec,dp[i-1][1].sec);
+//		}
+//		if(check(tv[i].fir+k,tv[i].sec+k,dp[i-1][0])<check(tv[i].fir,tv[i].sec,dp[i-1][1])){
+//			dp[i][1].fir=min(tv[i].fir+k,dp[i-1][0].fir);
+//			dp[i][1].sec=max(tv[i].sec+k,dp[i-1][0].sec);
+//		}
+//		else{
+//			dp[i][1].fir=min(tv[i].fir+k,dp[i-1][1].fir);
+//			dp[i][1].sec=max(tv[i].sec+k,dp[i-1][1].sec);
+//		}
+//	}
+//	cout<<min(dp[cnt][0].sec-dp[cnt][0].fir,dp[cnt][1].sec-dp[cnt][1].fir)<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -165,3 +264,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) Adversarial Testing
 */
+

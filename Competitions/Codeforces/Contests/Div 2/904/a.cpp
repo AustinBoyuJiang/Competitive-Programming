@@ -1,13 +1,13 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 10/21/2023 11:53:39 PM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -63,7 +63,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -120,11 +120,25 @@ namespace Comfun{
 
 const int N = 1e6+10;
 
-int n;
+int k,x;
+
+bool check(int x){
+	int sum=0;
+	while(x){
+		sum+=x%10;
+		x/=10;
+	}
+	return sum%k==0;
+}
 
 inline void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>x>>k;
+	rep(i,x,x+1000){
+		if(check(i)){
+			cout<<i<<endl;
+			return;
+		}
+	}
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -165,3 +179,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) Adversarial Testing
 */
+

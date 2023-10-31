@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 10/11/2023 7:07:37 PM
  * Problem:
  * Source:
  * Description:
@@ -14,7 +14,7 @@
 //#define SETMEM
 //#define FASTIO
 #define OPTIMIZE
-//#define INTTOLL
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -63,7 +63,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -118,13 +118,52 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 1e5+10;
 
-int n;
+int n,m,ans1,ans2,a[N];
+
+int check(int x,int y){
+	return max(abs(m-a[y]),abs(a[x]-a[y]));
+}
 
 inline void SOLVE(int Case){
-	cin>>n;
+	cin>>n>>m;
+	rep(i,1,n){
+		cin>>a[i];
+	}
+	sort(a+1,a+n+1);
+	ans1=max({a[n]-a[1],m-a[1],a[n]-m});
+	int l,r,res;
 	
+	l=r=(n+1)/2;
+	res=abs(m-a[l]);
+	rep(i,2,n){
+		if(i%2==0) ans2+=check(l,++r);
+		else ans2+=check(r,--l);
+	} chkmax(ans2,res);
+	
+	l=r=n/2+1;
+	res=abs(m-a[l]);
+	rep(i,2,n){
+		if(i%2==1) res+=check(l,++r);
+		else res+=check(r,--l);
+	} chkmax(ans2,res);
+	
+	l=1,r=n;
+	res=abs(m-a[l]);
+	rep(i,2,n){
+		if(i%2==0) res+=check(l,r),l++;
+		else res+=check(r,l),r--;
+	} chkmax(ans2,res);
+	
+	l=1,r=n;
+	res=abs(m-a[r]);
+	rep(i,2,n){
+		if(i%2==1) res+=check(l,r),l++;
+		else res+=check(r,l),r--;
+	} chkmax(ans2,res);
+	
+	cout<<ans1<<" "<<ans2<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -165,3 +204,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) Adversarial Testing
 */
+

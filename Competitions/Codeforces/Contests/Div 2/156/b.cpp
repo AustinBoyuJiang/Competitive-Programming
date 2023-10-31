@@ -1,13 +1,13 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 10/9/2023 7:45:26 AM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -63,7 +63,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -97,7 +97,7 @@ const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 const unordered_set<char> vowel = {'a','e','i','o','u'};
 
-/* Common functions */
+/* Common functions and data structures */
 
 namespace Comfun{
 	template<class T> inline T lowbit(T x){return x&-x;}
@@ -122,9 +122,22 @@ const int N = 1e6+10;
 
 int n;
 
+double dis(double a,double b,double c,double d){
+	return sqrt((c-a)*(c-a)+(d-b)*(d-b));
+}
+
 inline void SOLVE(int Case){
-	cin>>n;
-	
+	double px,py;
+	double ax,ay;
+	double bx,by;
+	cin>>px>>py>>ax>>ay>>bx>>by;
+	double ee=dis(ax,ay,bx,by)/2;
+	double aa=max(max(dis(ax,ay,0,0),dis(bx,by,px,py)),ee);
+	double bb=max(max(dis(ax,ay,px,py),dis(bx,by,0,0)),ee);
+	double cc=max(dis(ax,ay,px,py),dis(ax,ay,0,0));
+	double dd=max(dis(bx,by,px,py),dis(bx,by,0,0));
+	double ans=min(min(min(aa,bb),cc),dd);
+	printf("%.10lf\n",ans);
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -165,3 +178,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) Adversarial Testing
 */
+

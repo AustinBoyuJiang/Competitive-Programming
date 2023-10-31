@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 9/5/2023 9:49:28 PM
  * Problem:
  * Source:
  * Description:
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -63,7 +63,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -97,7 +97,7 @@ const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 const unordered_set<char> vowel = {'a','e','i','o','u'};
 
-/* Common functions */
+/* Common functions and data structures */
 
 namespace Comfun{
 	template<class T> inline T lowbit(T x){return x&-x;}
@@ -112,19 +112,71 @@ namespace Comfun{
 	template<class T> inline T inv(T x){return qpow(x,MOD-2);}
 	template<class T> inline bool is_prime(T x){
 	if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false;return true;}
-	template<class T> inline void disc(Vec<T> &v,int st=0){set<int> num;Vec<T> pos;
-	for(T x:v)num.insert(x);for(T x:num)pos.pb(x);for(T &x:v) x=lb(all(pos),x)-pos.begin()+st;}
+	template<class T> inline void disc(Vec<T> &v,int st=0) /*discretize*/ {Vec<T> num=v;sort(all(num));
+	for(T &x:v) x=lb(all(num),x)-num.begin()+st;}
 } using namespace Comfun;
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 2e5+10;
 
-int n;
+int n,x,y,vis[2][N];
+ll k,c[N],dist[2][N];
+VPI e[N];
 
-inline void SOLVE(int Case){
-	cin>>n;
-	
+int solve(){
+	PQG<array<ll,3>> q;
+	q.push({0,x,0});
+	q.push({0,y,1});
+	memset(dist,0x3f,sizeof(dist));
+	dist[0][x]=dist[1][y]=0;
+	int cnt=0;
+	while(!q.empty()){
+		auto tp=q.top();
+		int need=tp[0];
+		int u=tp[1];
+		int d=tp[2];
+		q.pop();
+		if(vis[d][u]) continue;
+		if(k<need) break;
+		vis[d][u]=1;
+		cnt++;
+		k-=need;
+		c[u]+=need;
+		if(dist[d^1][u]!=LLINF){
+			q.push({dist[d^1][u]-c[u],u,d^1});
+		}
+		for(PI edge:e[u]){
+			int v=edge.fir;
+			int w=edge.sec;
+			if(vis[d][v]) continue;
+			dist[d][v]=dist[d][u]+w;
+			q.push({max(0ll,dist[d][v]-c[v]),v,d});
+		}
+	}
+	return cnt;
+}
+
+int max_score(int N,int X,int Y,ll K,VI U,VI V,VI W){
+	n=N,x=X,y=Y,k=K;
+	rep(i,0,n-2){
+		int u=U[i];
+		int v=V[i];
+		int w=W[i];
+		e[u].pb({v,w});
+		e[v].pb({u,w});
+	}
+	return solve();
+}
+
+void SOLVE(int Case){
+	cout<<max_score(4, 0, 3, 20, {0, 1, 2}, {1, 2, 3}, {18, 1, 19})<<endl;
+	rep(i,0,1){
+		rep(j,0,n-1){
+			cout<<vis[i][j]<<" ";
+		}
+		cout<<endl;
+	}
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -165,3 +217,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) Adversarial Testing
 */
+

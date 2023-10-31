@@ -1,20 +1,20 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 10/9/2023 8:04:35 AM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
 //#define FASTIO
 #define OPTIMIZE
-//#define INTTOLL
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -63,7 +63,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -97,7 +97,7 @@ const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 const unordered_set<char> vowel = {'a','e','i','o','u'};
 
-/* Common functions */
+/* Common functions and data structures */
 
 namespace Comfun{
 	template<class T> inline T lowbit(T x){return x&-x;}
@@ -120,11 +120,47 @@ namespace Comfun{
 
 const int N = 1e6+10;
 
-int n;
+int n,pos,p[N],q[N];
+string s;
 
 inline void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>s;
+	n=s.size();
+	s=" "+s;
+	cin>>pos;
+	stack<int> st;
+	int cnt=0;
+	rep(i,1,n){
+		while(!st.empty()&&s[i]<s[st.top()]){
+			p[st.top()]=++cnt;
+			q[cnt]=st.top();
+			st.pop();
+		}
+		st.push(i);
+	}
+	while(!st.empty()){
+		p[st.top()]=++cnt;
+		q[cnt]=st.top();
+		st.pop();
+	}
+	rep(i,1,n){
+		if((n+n-i+1)*i/2>=pos){
+			i--;
+			int left=pos-(n+n-i+1)*i/2;
+//			cout<<i<<" "<<left<<endl;
+			int tot=0;
+			rep(j,1,n){
+				if(p[j]>i){
+					tot++;
+					if(tot==left){
+						cout<<s[j];
+						return;
+					}
+				}
+			}
+			return;
+		}
+	}
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -165,3 +201,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) Adversarial Testing
 */
+
