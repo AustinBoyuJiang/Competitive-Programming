@@ -1,20 +1,20 @@
 /*
  * Author: Austin Jiang
- * Date: 10/29/2023 11:39:11 PM
- * Problem: Travel Plan
+ * Date: 11/2/2023 11:37:30 AM
+ * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-#define MULTICASES
+//#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
-#define FASTIO
+//#define FASTIO
 #define OPTIMIZE
-#define INTTOLL
+//#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -35,6 +35,10 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
+
+/* Segment Tree */
+#define lc (rt << 1)
+#define rc (rt << 1 | 1)
 
 /* STL */
 #define lb lower_bound
@@ -114,86 +118,42 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 200;
+const int N = 2e5+10;
 
-int n,m,cnt[N],ppow[N];
+int n,p[N],dp[N];
+//dp[i]第i层到第n层还要几步 
 
-int get(int len,int n,int h){
-	if(len==0) return 1;
-	if(len<h) return ppow[len-1];
-	return (n%MOD-ppow[len-1]+MOD+1)%MOD;
-}
+/*
+dp[2]=0
+dp[1]=0.5dp[2]+0.25dp[1]+0.25dp[0]+1
+dp[0]=0.2dp[1]+0.8dp[0]+1
 
-void solve(int n,int dep){
-	if(n==0) return;
-	rep(h,1,dep){
-		rep(len,3,h*2-1){
-			cnt[len]+=ppow[dep-h+len-3]*min(len-2,h*2-len)%MOD;
-			cnt[len]%=MOD;
-		}
-		rep(len,1,h){
-			cnt[len]+=ppow[dep-h+len-1]%MOD;
-			cnt[len]%=MOD;
-		}
-	}
-}
-
-void dfs(int n){
-	if(n==0) return;
-	int h=log2(n)+1,sizl,sizr,hl,hr;
-	int mid=(1ll<<h-1)+(1ll<<h-2)-1;
-	if(n>mid){
-		sizl=(1ll<<h-1)-1;
-		sizr=n-1-sizl;
-		hl=h-1,hr=h-1;
-		solve(sizl,h-1);
-		dfs(sizr);
-	}
-	else if(n<mid){
-		sizr=(1ll<<h-2)-1;
-		sizl=n-1-sizr;
-		hl=h-1,hr=h-2;
-		solve(sizr,h-2);
-		dfs(sizl);
-	}
-	else{
-		sizl=(1ll<<h-1)-1;
-		sizr=(1ll<<h-2)-1;
-		hl=h-1,hr=h-2;
-		solve(sizl,h-1);
-		solve(sizr,h-2);
-	}
-	rep(lenl,0,hl){
-		rep(lenr,0,hr){
-			int len=lenl+lenr+1;
-			cnt[len]+=get(lenl,sizl,hl)*get(lenr,sizr,hr)%MOD;
-			cnt[len]%=MOD;
-		}
-	}
-}
+dp[2]=0
+dp[1]=4.5
+dp[2]=9.5
+*/
 
 inline void SOLVE(int Case){
-	memset(cnt,0,sizeof(cnt));
-	cin>>n>>m;
-	ppow[0]=1;
-	rep(i,1,N-1){
-		ppow[i]=ppow[i-1]*2;
-		ppow[i]%=MOD;
+	cin>>n;
+	rep(i,1,n){
+		cin>>p[i];
+		p[i]*=inv(100);
+		p[i]%=MOD;
 	}
-	int h=log2(n)+1;
-	if((1ll<<h)-1==n) solve(n,h);
-	else dfs(n);
-	int ans=0;
-	rep(len,1,min(n,N-1)){
-		int tot=0;
-		rep(i,1,m){
-			tot+=(qpow(i,len)-qpow(i-1,len)+MOD)%MOD*i%MOD;
-			tot%=MOD;
+	dp[n]=0;
+	per(i,n-1,0){
+		dp[i]=dp[i+1];
+		rep(j,i+1,n-1){
+			int res=(dp[j]-1+MOD)*(1-p[j+1]+MOD)%MOD;
+			rep(k,1,j-i) res=res*p[j+1]%MOD;
+			dp[i]=(dp[i]-res)%MOD;
 		}
-		ans+=cnt[len]*tot%MOD*qpow(m,n-len)%MOD;
-		ans%=MOD;
+		dp[i]=dp[i]*inv(1-p[i+1]+MOD)%MOD;
+		dp[i]=(dp[i]+1)%MOD;
 	}
-	cout<<ans<<endl;
+	cout<<dp[2]<<endl;
+	cout<<dp[1]<<endl;
+	cout<<dp[0]<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
