@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 3/26/2023 11:02:38 PM
+ * Date: 11/19/2023 5:47:29 PM
  * Problem:
  * Source:
  * Description:
@@ -13,7 +13,7 @@
 //#define FILESCOMP
 //#define SETMEM
 #define FASTIO
-//#define OPTIMIZE
+#define OPTIMIZE
 //#define INTTOLL
 
 #ifdef OPTIMIZE
@@ -72,7 +72,7 @@ namespace FastIO{
 	inline ll readLL() {ll x=0; bool f=0; char ch=0; while(!isdigit(ch)) f=ch=='-',ch=getchar(); while(isdigit(ch)) x=x*10+ch-'0',ch=getchar(); return f?-x:x;}
 	inline int read(int &x) {return x=read();}
     template<class T> inline void write(T x) {if(x<0) x=-x,putchar('-'); if(x>9) write(x/10); putchar(x%10+'0');}
-	template<class T> inline void write(T x,char let) {write(x),putchar(let);}
+	template<class T> inline void write(T x,char ch) {write(x),putchar(ch);}
 } using namespace FastIO;
 
 void SETUP(){
@@ -97,7 +97,7 @@ const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 const unordered_set<char> vowel = {'a','e','i','o','u'};
 
-/* Common functions and data structures */
+/* Common functions */
 
 namespace Comfun{
 	template<class T> inline T lowbit(T x){return x&-x;}
@@ -105,152 +105,114 @@ namespace Comfun{
 	template<class T> inline T lcm(T a,T b){return a/gcd(a,b)*b;}
 	template<class T> inline T chkmax(T &a,T b){return a=max(a,b);}
 	template<class T> inline T chkmin(T &a,T b){return a=min(a,b);}
-	template<class T> inline T qpow(T a,T b){
-	T ans=1;while(b){if(b&1) ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
+	template<class T> inline T qpow(T a,T b){T ans=1;
+	while(b){if(b&1)ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
+	inline int mex(VI s){sort(all(s));int j=0;rep(i,0,s[s.size()-1]+1){
+	while(j<s.size()&&s[j]<i) j++;if(s[j]!=i) return i;}}
 	template<class T> inline T inv(T x){return qpow(x,MOD-2);}
 	template<class T> inline bool is_prime(T x){
-	if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false; return true;}
+	if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false;return true;}
+	template<class T> inline void disc(Vec<T> &v,int st=0){set<int> num;Vec<T> pos;
+	for(T x:v)num.insert(x);for(T x:num)pos.pb(x);for(T &x:v) x=lb(all(pos),x)-pos.begin()+st;}
 } using namespace Comfun;
-
-template<class T,class Fun=function<T(const T,const T)>> struct Segtree{
-	int L=0,R=0; Fun F; Vec<T> st;
-	inline Segtree(int L,int R,int val,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,val);}
-	inline Segtree(int L,int R,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,0);}
-	inline Segtree(Vec<T> v,Fun F){this->R=v.size()-1,this->F=F;st.resize(v.size()<<2);rep(i,0,this->R) upd(i,v[i],true);}
-	inline T query(int rt,int l,int r,int x,int y){
-		if(l==x&&r==y) return st[rt];
-		int mid=l+r>>1;
-		if(y<=mid) return query(lc,l,mid,x,y);
-		else if(x>mid) return query(rc,mid+1,r,x,y);
-		else return F(query(lc,l,mid,x,mid),query(rc,mid+1,r,mid+1,y));}
-	inline void update(int rt,int l,int r,int x,int v,bool cover){
-		if(l==r){st[rt]=cover?v:F(st[rt],v);return;}
-		int mid=l+r>>1;
-		if(x<=mid) update(lc,l,mid,x,v,cover);
-		else update(rc,mid+1,r,x,v,cover);
-		st[rt]=F(st[lc],st[rc]);}
-	inline T ask(int x,int y){return query(1,L,R,x,y);}
-	inline void upd(int x,int y,bool cover=false){update(1,L,R,x,y,cover);}
-};
-
-template<class T> struct Fenwick{
-	int n; Vec<array<T,2>> d;
-	inline Fenwick(int n){d.resize(this->n=n);}
-	inline T query(int x,int k){int ans=0;for(int i=x;i>0;i-=lowbit(i)) ans+=d[i][k];return ans;}
-	inline T ask(int x,int y){return (y+2)*query(y+1,0)-query(y+1,1)-(x+1)*query(x,0)+query(x,1);}
-	inline void update(int x,int v){for(int i=x;i<=n;i+=lowbit(i))d[i][0]+=v,d[i][1]+=v*x;}
-	inline void add(int x,int y,int v){update(x+1,v),update(y+2,-v);}
-	inline void add(int x,int v){add(x,x,v);}
-};
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e3+10;
+const int N = 1010;
 
-int n,m,f[N],ff[N],flag[N];
-VI e[N],ee[N];
-Vec<VI> child[N];
+int n,m,root,fa[N],fb[N],dep[N],mg[N][N],flag[N],rep[N];
+VI ea[N],eb[N],d[N];
 
-void merge(int x,int y){
-	cout<<x<<" "<<y<<endl;
-	for(auto v:e[x]){
-		e[y].pb(v);
-	}
-	e[x].clear();
-}
+/*
+a is mergable with a itself
 
-bool match(int x,int y){
-	if(child[y].size()<child[x].size()){
-//		cout<<x<<" "<<y<<" "<<child[x].size()<<" "<<child[y].size()<<endl;
-		return false;
-	}
-	rep(i,0,child[x].size()-1){
-		int mx=0,my=0;
-		map<int,bool> vis;
-		for(auto c:child[y][i]){
-			vis[c]=1;
-			chkmax(my,c);
-		}
-		for(auto c:child[x][i]){
-			if(vis[c]){
-				return true;
-			}
-			chkmax(mx,c);
-		}
-		if(mx>my){
-			return false;
-		}
-	}
-	return true;
-}
+a is mergable with b:
+	1. a disappear
+	2. b appears
+	3. they have the same depth
+	4. for each disappeared child of a, it must be mergable with a b's child
+	5. b>a
+*/
 
-void dfs(int u){
-	for(auto v:e[u]){
-		if(flag[v]) continue;
-		for(auto vv:ee[u]){
-//			puts("here");
-//			cout<<v<<" "<<v<<endl;
-			if(vv<=v) continue;
-			if(match(v,vv)){
-				merge(v,vv);
-				break;
-			}
-		}
-	}
-	for(auto vv:e[u]){
-		dfs(vv);
+void get_depth(int u,int depth){
+	dep[u]=depth;
+	d[depth].pb(u);
+	for(int v:ea[u]){
+		get_depth(v,depth+1);
 	}
 }
 
-void init(int u,int dep,int x){
-	if(dep+1>=child[x].size()){
-		child[x].resize(dep+2);
-	}
-	child[x][dep].pb(u);
-	if(flag[x]){	
-		for(auto v:ee[u]){
-			init(v,dep+1,x);
-		}
-	}
-	else{
-		for(auto v:e[u]){
-			init(v,dep+1,x);
-		}
-	}
-}
-
-void SOLVE(int Case){
+inline void SOLVE(int Case){
 	cin>>n;
 	rep(i,1,n){
-		e[i].clear();
-		ee[i].clear();
-		child[i].clear();
+		ea[i].clear();
+		eb[i].clear();
+		d[i].clear();
 		flag[i]=0;
+		rep(j,1,n){
+			mg[i][j]=0;
+		}
 	}
+	root=(1+n)*n/2;
 	rep(i,1,n-1){
 		int u,v;
 		cin>>u>>v;
-		e[v].pb(u);
-		f[u]=v;
+		fa[u]=v;
+		ea[v].pb(u);
+		root-=u;
 	}
 	cin>>m;
 	rep(i,1,m-1){
 		int u,v;
 		cin>>u>>v;
-		ee[v].pb(u);
-		ff[u]=v;
+		fb[u]=v;
+		eb[v].pb(u);
 		flag[u]=1;
-		flag[v]=1;
 	}
-	cout<<n-m<<endl;
-	int root=0;
-	rep(i,1,n){
-		init(i,0,i);
-		if(!f[i]&&!ff[i]){
-			root=i;
+	get_depth(root,1);
+	per(depth,n,1){
+		sort(all(d[depth]));
+		rep(i,0,(int)d[depth].size()-1){
+			int a=d[depth][i];
+			if(flag[a]){
+				mg[a][a]=1;
+				continue;
+			}
+			rep(j,i+1,(int)d[depth].size()-1){
+				int b=d[depth][j];
+				if(!flag[b]) continue;
+				mg[a][b]=1;
+				for(int v:ea[a]){
+					bool ok=0;
+					for(int vv:eb[b]){
+						if(mg[v][vv]){
+							ok=1;
+							break;
+						}
+					}
+					if(ok==0){
+						mg[a][b]=0;
+						break;
+					}
+				}
+			}
 		}
 	}
-	dfs(root);
+//	cout<<"Case: "<<Case<<endl;
+	cout<<n-m<<endl;
+	rep[root]=root;
+	rep(depth,1,n){
+		for(int a:d[depth]){
+			for(int b:d[depth]){
+				if(rep[fa[a]]==fb[b]&&mg[a][b]){
+					rep[a]=b;
+				}
+			}
+			if(rep[a]!=a){
+				cout<<a<<" "<<rep[a]<<endl;
+			}
+		}
+	}
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -289,6 +251,6 @@ signed main(){
     * don't stuck on one question for two long (like 30-45 min)
     * Debug: (a) read your code once, check overflow and edge case
     * Debug: (b) create your own test case
-    * Debug: (c) duipai
+    * Debug: (c) Adversarial Testing
 */
 

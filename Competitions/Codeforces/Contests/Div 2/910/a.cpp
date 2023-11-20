@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 3/26/2023 7:27:41 PM
+ * Date: 11/19/2023 6:29:38 AM
  * Problem:
  * Source:
  * Description:
@@ -12,7 +12,7 @@
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
-#define FASTIO
+//#define FASTIO
 #define OPTIMIZE
 //#define INTTOLL
 
@@ -72,7 +72,7 @@ namespace FastIO{
 	inline ll readLL() {ll x=0; bool f=0; char ch=0; while(!isdigit(ch)) f=ch=='-',ch=getchar(); while(isdigit(ch)) x=x*10+ch-'0',ch=getchar(); return f?-x:x;}
 	inline int read(int &x) {return x=read();}
     template<class T> inline void write(T x) {if(x<0) x=-x,putchar('-'); if(x>9) write(x/10); putchar(x%10+'0');}
-	template<class T> inline void write(T x,char let) {write(x),putchar(let);}
+	template<class T> inline void write(T x,char ch) {write(x),putchar(ch);}
 } using namespace FastIO;
 
 void SETUP(){
@@ -97,7 +97,7 @@ const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 const unordered_set<char> vowel = {'a','e','i','o','u'};
 
-/* Common functions and data structures */
+/* Common functions */
 
 namespace Comfun{
 	template<class T> inline T lowbit(T x){return x&-x;}
@@ -105,126 +105,60 @@ namespace Comfun{
 	template<class T> inline T lcm(T a,T b){return a/gcd(a,b)*b;}
 	template<class T> inline T chkmax(T &a,T b){return a=max(a,b);}
 	template<class T> inline T chkmin(T &a,T b){return a=min(a,b);}
-	template<class T> inline T qpow(T a,T b){
-	T ans=1;while(b){if(b&1) ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
+	template<class T> inline T qpow(T a,T b){T ans=1;
+	while(b){if(b&1)ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
+	inline int mex(VI s){sort(all(s));int j=0;rep(i,0,s[s.size()-1]+1){
+	while(j<s.size()&&s[j]<i) j++;if(s[j]!=i) return i;}}
 	template<class T> inline T inv(T x){return qpow(x,MOD-2);}
 	template<class T> inline bool is_prime(T x){
-	if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false; return true;}
+	if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false;return true;}
+	template<class T> inline void disc(Vec<T> &v,int st=0){set<int> num;Vec<T> pos;
+	for(T x:v)num.insert(x);for(T x:num)pos.pb(x);for(T &x:v) x=lb(all(pos),x)-pos.begin()+st;}
 } using namespace Comfun;
-
-template<class T,class Fun=function<T(const T,const T)>> struct Segtree{
-	int L=0,R=0; Fun F; Vec<T> st;
-	inline Segtree(int L,int R,int val,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,val);}
-	inline Segtree(int L,int R,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,0);}
-	inline Segtree(Vec<T> v,Fun F){this->R=v.size()-1,this->F=F;st.resize(v.size()<<2);rep(i,0,this->R) upd(i,v[i],true);}
-	inline T query(int rt,int l,int r,int x,int y){
-		if(l==x&&r==y) return st[rt];
-		int mid=l+r>>1;
-		if(y<=mid) return query(lc,l,mid,x,y);
-		else if(x>mid) return query(rc,mid+1,r,x,y);
-		else return F(query(lc,l,mid,x,mid),query(rc,mid+1,r,mid+1,y));}
-	inline void update(int rt,int l,int r,int x,int v,bool cover){
-		if(l==r){st[rt]=cover?v:F(st[rt],v);return;}
-		int mid=l+r>>1;
-		if(x<=mid) update(lc,l,mid,x,v,cover);
-		else update(rc,mid+1,r,x,v,cover);
-		st[rt]=F(st[lc],st[rc]);}
-	inline T ask(int x,int y){return query(1,L,R,x,y);}
-	inline void upd(int x,int y,bool cover=false){update(1,L,R,x,y,cover);}
-};
-
-template<class T> struct Fenwick{
-	int n; Vec<array<T,2>> d;
-	inline Fenwick(int n){d.resize(this->n=n);}
-	inline T query(int x,int k){int ans=0;for(int i=x;i>0;i-=lowbit(i)) ans+=d[i][k];return ans;}
-	inline T ask(int x,int y){return (y+2)*query(y+1,0)-query(y+1,1)-(x+1)*query(x,0)+query(x,1);}
-	inline void update(int x,int v){for(int i=x;i<=n;i+=lowbit(i))d[i][0]+=v,d[i][1]+=v*x;}
-	inline void add(int x,int y,int v){update(x+1,v),update(y+2,-v);}
-	inline void add(int x,int v){add(x,x,v);}
-};
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e5+10;
+const int N = 110;
 
-int n,m,c[N],s[N],t[N],flag[N],vis[N],vis2[N];
-set<int> pos[N];
-VI e[N],ee[N];
+int n,k;
+char a[N];
 
-void dfs(int u){
-	vis2[u]=1;
-	for(auto v:ee[u]){
-		if(vis2[v]) continue;
-		dfs(v);
-	}
-}
-
-void SOLVE(int Case){
-	cin>>n>>m;
+inline void SOLVE(int Case){
+	cin>>n>>k;
+	int cnt=0;
 	rep(i,1,n){
-		cin>>c[i];
-		flag[i]=0;
-		vis[i]=0;
-		e[i].clear();
-		ee[i].clear();
-		pos[i].clear();
+		cin>>a[i];
+		if(a[i]=='B') cnt++;
 	}
-	rep(i,1,n) cin>>s[i];
-	rep(i,1,n) cin>>t[i];
-	rep(i,1,m){
-		int u,v;
-		cin>>u>>v;
-		e[u].pb(v);
-		e[v].pb(u);
+	if(cnt==k){
+		cout<<0<<endl;
+		return;
 	}
-	queue<int> q;
-	q.push(1);
-	while(!q.empty()){
-		int u=q.front();
-		q.pop();
-		vis[u]=1;
-		flag[s[u]]++;
-		for(auto v:pos[s[u]]) q.push(v);
-		pos[s[u]].clear();
-		for(auto v:e[u]){
-			if(vis[v]) continue;
-			if(flag[c[v]]) q.push(v);
-			else pos[c[v]].insert(v);
+	cout<<1<<endl;
+	if(cnt<k){
+		rep(i,1,n){
+			int cc=0;
+			rep(j,i+1,n){
+				if(a[j]=='B') cc++;
+			}
+			if(i+cc==k){
+				cout<<i<<" "<<'B'<<endl;
+				return;
+			}
 		}
 	}
-	rep(i,1,n){
-		if(s[i]!=t[i]&&!vis[i]){
-			cout<<"NO"<<endl;
-			return;
+	else{
+		rep(i,1,n){
+			int cc=0;
+			rep(j,i+1,n){
+				if(a[j]=='B') cc++;
+			}
+			if(cc==k){
+				cout<<i<<" "<<'A'<<endl;
+				return;
+			}
 		}
 	}
-	rep(i,1,n){
-		flag[i]=0;
-		vis2[i]=0;
-		pos[i].clear();
-	}
-	q.push(1);
-	while(!q.empty()){
-		int u=q.front();
-		q.pop();
-		vis2[u]=1;
-		flag[t[u]]++;
-		for(auto v:pos[t[u]]) q.push(v);
-		pos[t[u]].clear();
-		for(auto v:e[u]){
-			if(!vis[v]) continue;
-			if(vis2[v]) continue;
-			if(flag[c[v]]||c[v]==t[v]) q.push(v);
-			else pos[c[v]].insert(v);
-		}
-	}
-	rep(i,1,n){
-		if(vis[i]&&!vis2[i]){
-			cout<<"NO"<<endl;
-			return;
-		}
-	}
-	cout<<"YES"<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -263,6 +197,6 @@ signed main(){
     * don't stuck on one question for two long (like 30-45 min)
     * Debug: (a) read your code once, check overflow and edge case
     * Debug: (b) create your own test case
-    * Debug: (c) duipai
+    * Debug: (c) Adversarial Testing
 */
 
