@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 6/28/2023 8:01:30 PM
+ * Date: <DATETIME>
  * Problem:
  * Source:
  * Description:
@@ -12,9 +12,9 @@
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
-//#define FASTIO
+#define FASTIO
 #define OPTIMIZE
-//#define INTTOLL
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -35,11 +35,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
-
+ 
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
-
+ 
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -63,7 +63,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>;
+template <class T> using PQ = priority_queue<T>; 
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -93,11 +93,11 @@ const int INF = 0x3f3f3f3f;
 #else
 const ll INF = LLINF;
 #endif
-const int MOD = 1e9+7;
+const int MOD = 998244353;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 const unordered_set<char> vowel = {'a','e','i','o','u'};
 
-/* Common functions and data structures */
+/* Common functions */
 
 namespace Comfun{
 	template<class T> inline T lowbit(T x){return x&-x;}
@@ -105,108 +105,46 @@ namespace Comfun{
 	template<class T> inline T lcm(T a,T b){return a/gcd(a,b)*b;}
 	template<class T> inline T chkmax(T &a,T b){return a=max(a,b);}
 	template<class T> inline T chkmin(T &a,T b){return a=min(a,b);}
-	template<class T> inline T qpow(T a,T b){T ans=1;while(b){if(b&1)ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
+	template<class T> inline T qpow(T a,T b){T ans=1;
+	while(b){if(b&1)ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
+	inline int mex(VI s){sort(all(s));int j=0;rep(i,0,s[s.size()-1]+1){
+	while(j<s.size()&&s[j]<i) j++;if(s[j]!=i) return i;}}
 	template<class T> inline T inv(T x){return qpow(x,MOD-2);}
 	template<class T> inline bool is_prime(T x){
 	if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false;return true;}
-	template<class T> inline void disc(Vec<T> &v,int st=0) /*discretize*/ {Vec<T> num=v;sort(all(num));
-	for(T &x:v) x=lb(all(num),x)-num.begin()+st;}
+	template<class T> inline void disc(Vec<T> &v,int st=0){set<int> num;Vec<T> pos;
+	for(T x:v)num.insert(x);for(T x:num)pos.pb(x);for(T &x:v) x=lb(all(pos),x)-pos.begin()+st;}
 } using namespace Comfun;
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 2e5+10;
+const int P = 110;
+const int inv100 = inv(100ll);
 
-int n;
+int n,ans,p[N],dp[N],f[P][N],flag[P];
 
-struct Segtree_sum{
-	int st[N<<2],lazy[N<<2];
-	
-	void push_down(int rt,int l,int mid,int r){
-		if(lazy[rt]){
-			lazy[lc]+=lazy[rt];
-			lazy[rc]+=lazy[rt];
-			st[lc]+=lazy[rt]*(mid-l+1);
-			st[rc]+=lazy[rt]*(r-mid);
-			lazy[rt]=0;
-		}
-	}
-	
-	void update(int rt,int l,int r,int x,int y,int val){
-		if(l==x&&r==y){
-			st[rt]+=val*(r-l+1);
-			lazy[rt]+=val;
-			return;
-		}
-		int mid=l+r>>1;
-		push_down(rt,l,mid,r);
-		if(y<=mid) update(lc,l,mid,x,y,val);
-		else if(x>mid) update(rc,mid+1,r,x,y,val);
-		else update(lc,l,mid,x,mid,val),update(rc,mid+1,r,mid+1,y,val);
-		st[rt]=st[lc]+st[rc];
-	}
-	
-	int query(int rt,int l,int r,int x,int y){
-		if(l==x&&r==y) return st[rt];
-		int mid=l+r>>1;
-		push_down(rt,l,mid,r);
-		if(y<=mid) return query(lc,l,mid,x,y);
-		else if(x>mid) return query(rc,mid+1,r,x,y);
-		else return query(lc,l,mid,x,mid)+query(rc,mid+1,r,mid+1,y);
-	}
-	
-	void add(int l,int r,int val){update(1,1,n,l,r,val);}
-	void add(int x,int val){add(x,x,val);}
-	int ask(int l,int r){return query(1,1,n,l,r);}
-};
-
-struct Segtree_max{
-	
-	int st[N<<2];
-	
-	void clear(int rt,int l,int r,int x){
-		if(l==r){
-			st[rt]=0;
-			return;
-		}
-		int mid=l+r>>1;
-		if(x<=mid) clear(lc,l,mid,x);
-		else clear(rc,mid+1,r,x);
-		st[rt]=max(st[lc],st[rc]);
-	}
-	
-	void update(int rt,int l,int r,int x,int y){
-		if(l==r){
-			chkmax(st[rt],y);
-			return;
-		}
-		int mid=l+r>>1;
-		if(x<=mid) update(lc,l,mid,x,y);
-		else update(rc,mid+1,r,x,y);
-		st[rt]=max(st[lc],st[rc]);
-	}
-	
-	int query(int rt,int l,int r,int x,int y){
-		if(l==x&r==y) return st[rt];
-		int mid=l+r>>1;
-		if(y<=mid) return query(lc,l,mid,x,y);
-		else if(x>mid) return query(rc,mid+1,r,x,y);
-		else return max(query(lc,l,mid,x,mid),query(rc,mid+1,r,mid+1,y));
-	}
-	
-	void upd(int pos,int val){
-		update(1,1,1e6+1,pos,val);
-	}
-	
-	int ask(int l,int r){
-		return query(1,1,1e6+1,l,r);
-	}
-	
-};
-
-void SOLVE(int Case){
+inline void SOLVE(int Case){
 	cin>>n;
-
+	rep(i,1,n){
+		cin>>p[i];
+	}
+	rep(i,1,n){
+		while(flag[p[i]]<i-1){
+			flag[p[i]]++;
+			f[p[i]][flag[p[i]]+1]=f[p[i]][flag[p[i]]];
+			f[p[i]][flag[p[i]]+1]+=dp[flag[p[i]]]*p[i]%MOD*inv100%MOD;
+			f[p[i]][flag[p[i]]+1]%=MOD;
+			f[p[i]][flag[p[i]]+1]*=p[i]*inv100%MOD;
+			f[p[i]][flag[p[i]]+1]%=MOD;
+		}
+		dp[i]=f[p[i]][i]+1;
+		dp[i]*=inv(1-p[i]*inv100%MOD+MOD);
+		dp[i]%=MOD;
+		ans+=dp[i];
+		ans%=MOD;
+	}
+	cout<<ans<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -247,4 +185,3 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) Adversarial Testing
 */
-

@@ -1,18 +1,18 @@
 /*
  * Author: Austin Jiang
- * Date: 6/28/2023 8:01:30 PM
+ * Date: 11/13/2023 11:06:34 AM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
-//#define FASTIO
+#define FASTIO
 #define OPTIMIZE
 //#define INTTOLL
 
@@ -97,7 +97,7 @@ const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 const unordered_set<char> vowel = {'a','e','i','o','u'};
 
-/* Common functions and data structures */
+/* Common functions */
 
 namespace Comfun{
 	template<class T> inline T lowbit(T x){return x&-x;}
@@ -105,64 +105,28 @@ namespace Comfun{
 	template<class T> inline T lcm(T a,T b){return a/gcd(a,b)*b;}
 	template<class T> inline T chkmax(T &a,T b){return a=max(a,b);}
 	template<class T> inline T chkmin(T &a,T b){return a=min(a,b);}
-	template<class T> inline T qpow(T a,T b){T ans=1;while(b){if(b&1)ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
+	template<class T> inline T qpow(T a,T b){T ans=1;
+	while(b){if(b&1)ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
+	inline int mex(VI s){sort(all(s));int j=0;rep(i,0,s[s.size()-1]+1){
+	while(j<s.size()&&s[j]<i) j++;if(s[j]!=i) return i;}}
 	template<class T> inline T inv(T x){return qpow(x,MOD-2);}
 	template<class T> inline bool is_prime(T x){
 	if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false;return true;}
-	template<class T> inline void disc(Vec<T> &v,int st=0) /*discretize*/ {Vec<T> num=v;sort(all(num));
-	for(T &x:v) x=lb(all(num),x)-num.begin()+st;}
+	template<class T> inline void disc(Vec<T> &v,int st=0){set<int> num;Vec<T> pos;
+	for(T x:v)num.insert(x);for(T x:num)pos.pb(x);for(T &x:v) x=lb(all(pos),x)-pos.begin()+st;}
 } using namespace Comfun;
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 3e5+10;
+const int C = 1e6+10;
 
-int n;
+int n,m,ans[3],vis[C];
+PI a[N],b[N];
 
-struct Segtree_sum{
-	int st[N<<2],lazy[N<<2];
+struct Segtree{
 	
-	void push_down(int rt,int l,int mid,int r){
-		if(lazy[rt]){
-			lazy[lc]+=lazy[rt];
-			lazy[rc]+=lazy[rt];
-			st[lc]+=lazy[rt]*(mid-l+1);
-			st[rc]+=lazy[rt]*(r-mid);
-			lazy[rt]=0;
-		}
-	}
-	
-	void update(int rt,int l,int r,int x,int y,int val){
-		if(l==x&&r==y){
-			st[rt]+=val*(r-l+1);
-			lazy[rt]+=val;
-			return;
-		}
-		int mid=l+r>>1;
-		push_down(rt,l,mid,r);
-		if(y<=mid) update(lc,l,mid,x,y,val);
-		else if(x>mid) update(rc,mid+1,r,x,y,val);
-		else update(lc,l,mid,x,mid,val),update(rc,mid+1,r,mid+1,y,val);
-		st[rt]=st[lc]+st[rc];
-	}
-	
-	int query(int rt,int l,int r,int x,int y){
-		if(l==x&&r==y) return st[rt];
-		int mid=l+r>>1;
-		push_down(rt,l,mid,r);
-		if(y<=mid) return query(lc,l,mid,x,y);
-		else if(x>mid) return query(rc,mid+1,r,x,y);
-		else return query(lc,l,mid,x,mid)+query(rc,mid+1,r,mid+1,y);
-	}
-	
-	void add(int l,int r,int val){update(1,1,n,l,r,val);}
-	void add(int x,int val){add(x,x,val);}
-	int ask(int l,int r){return query(1,1,n,l,r);}
-};
-
-struct Segtree_max{
-	
-	int st[N<<2];
+	int st[C<<2];
 	
 	void clear(int rt,int l,int r,int x){
 		if(l==r){
@@ -202,11 +166,76 @@ struct Segtree_max{
 		return query(1,1,1e6+1,l,r);
 	}
 	
-};
+} A,B;
 
-void SOLVE(int Case){
+int check(int x){
+	if(vis[x]) return 1;
+	vis[x]=1;
+	int mxb=B.ask(x+1,1e6+1);
+	if(!mxb) return 0;
+	int mxa=A.ask(mxb+1,1e6+1);
+	if(!mxa) return 2;
+	return check(mxa);
+}
+
+int find(int x){
+	rep(i,1,n){
+		vis[a[i].sec]=0;
+	}
+	return check(x);
+}
+
+inline void SOLVE(int Case){
 	cin>>n;
-
+	rep(i,1,n){
+		cin>>a[i].fir;
+	}
+	rep(i,1,n){
+		cin>>a[i].sec;
+		A.upd(a[i].fir,a[i].sec);
+	}
+	cin>>m;
+	rep(i,1,m){
+		cin>>b[i].fir;
+	}
+	rep(i,1,m){
+		cin>>b[i].sec;
+		B.upd(b[i].fir,b[i].sec);
+	}
+	
+	sort(a+1,a+n+1,[](PI a,PI b){
+		return a.sec<b.sec;
+	});
+	
+	ans[0]=0;
+	int l=1,r=n;
+	while(l<=r){
+		int mid=l+r>>1;
+		if(find(a[mid].sec)==0){
+			ans[0]=n-mid+1;
+			r=mid-1;
+		}
+		else l=mid+1;
+	}
+	ans[2]=0;
+	l=1,r=n;
+	while(l<=r){
+		int mid=l+r>>1;
+		if(find(a[mid].sec)==2){
+			ans[2]=mid;
+			l=mid+1;
+		}
+		else r=mid-1;
+	}
+	ans[1]=n-ans[0]-ans[2];
+	cout<<ans[0]<<" "<<ans[1]<<" "<<ans[2]<<endl;
+	
+	rep(i,1,n){
+		A.clear(1,1,1e6+1,a[i].fir);
+	}
+	rep(i,1,m){
+		B.clear(1,1,1e6+1,b[i].fir);
+	}
 }
 
 /* =====================================| End of Main Program |===================================== */
