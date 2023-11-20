@@ -1,20 +1,20 @@
 /*
  * Author: Austin Jiang
- * Date: 6/28/2023 8:01:30 PM
- * Problem:
+ * Date: 11/13/2023 1:39:31 PM
+ * Problem: Minimum Array
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
-//#define FASTIO
+#define FASTIO
 #define OPTIMIZE
-//#define INTTOLL
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -97,7 +97,7 @@ const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 const unordered_set<char> vowel = {'a','e','i','o','u'};
 
-/* Common functions and data structures */
+/* Common functions */
 
 namespace Comfun{
 	template<class T> inline T lowbit(T x){return x&-x;}
@@ -105,108 +105,67 @@ namespace Comfun{
 	template<class T> inline T lcm(T a,T b){return a/gcd(a,b)*b;}
 	template<class T> inline T chkmax(T &a,T b){return a=max(a,b);}
 	template<class T> inline T chkmin(T &a,T b){return a=min(a,b);}
-	template<class T> inline T qpow(T a,T b){T ans=1;while(b){if(b&1)ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
+	template<class T> inline T qpow(T a,T b){T ans=1;
+	while(b){if(b&1)ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
+	inline int mex(VI s){sort(all(s));int j=0;rep(i,0,s[s.size()-1]+1){
+	while(j<s.size()&&s[j]<i) j++;if(s[j]!=i) return i;}}
 	template<class T> inline T inv(T x){return qpow(x,MOD-2);}
 	template<class T> inline bool is_prime(T x){
 	if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false;return true;}
-	template<class T> inline void disc(Vec<T> &v,int st=0) /*discretize*/ {Vec<T> num=v;sort(all(num));
-	for(T &x:v) x=lb(all(num),x)-num.begin()+st;}
+	template<class T> inline void disc(Vec<T> &v,int st=0){set<int> num;Vec<T> pos;
+	for(T x:v)num.insert(x);for(T x:num)pos.pb(x);for(T &x:v) x=lb(all(pos),x)-pos.begin()+st;}
 } using namespace Comfun;
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 5e5+10;
 
-int n;
+int n,m,ans,a[N],d[N],sum[N];
 
-struct Segtree_sum{
-	int st[N<<2],lazy[N<<2];
-	
-	void push_down(int rt,int l,int mid,int r){
-		if(lazy[rt]){
-			lazy[lc]+=lazy[rt];
-			lazy[rc]+=lazy[rt];
-			st[lc]+=lazy[rt]*(mid-l+1);
-			st[rc]+=lazy[rt]*(r-mid);
-			lazy[rt]=0;
-		}
-	}
-	
-	void update(int rt,int l,int r,int x,int y,int val){
-		if(l==x&&r==y){
-			st[rt]+=val*(r-l+1);
-			lazy[rt]+=val;
-			return;
-		}
-		int mid=l+r>>1;
-		push_down(rt,l,mid,r);
-		if(y<=mid) update(lc,l,mid,x,y,val);
-		else if(x>mid) update(rc,mid+1,r,x,y,val);
-		else update(lc,l,mid,x,mid,val),update(rc,mid+1,r,mid+1,y,val);
-		st[rt]=st[lc]+st[rc];
-	}
-	
-	int query(int rt,int l,int r,int x,int y){
-		if(l==x&&r==y) return st[rt];
-		int mid=l+r>>1;
-		push_down(rt,l,mid,r);
-		if(y<=mid) return query(lc,l,mid,x,y);
-		else if(x>mid) return query(rc,mid+1,r,x,y);
-		else return query(lc,l,mid,x,mid)+query(rc,mid+1,r,mid+1,y);
-	}
-	
-	void add(int l,int r,int val){update(1,1,n,l,r,val);}
-	void add(int x,int val){add(x,x,val);}
-	int ask(int l,int r){return query(1,1,n,l,r);}
-};
+struct query{
+	int l,r,x;
+} q[N];
 
-struct Segtree_max{
-	
-	int st[N<<2];
-	
-	void clear(int rt,int l,int r,int x){
-		if(l==r){
-			st[rt]=0;
-			return;
-		}
-		int mid=l+r>>1;
-		if(x<=mid) clear(lc,l,mid,x);
-		else clear(rc,mid+1,r,x);
-		st[rt]=max(st[lc],st[rc]);
-	}
-	
-	void update(int rt,int l,int r,int x,int y){
-		if(l==r){
-			chkmax(st[rt],y);
-			return;
-		}
-		int mid=l+r>>1;
-		if(x<=mid) update(lc,l,mid,x,y);
-		else update(rc,mid+1,r,x,y);
-		st[rt]=max(st[lc],st[rc]);
-	}
-	
-	int query(int rt,int l,int r,int x,int y){
-		if(l==x&r==y) return st[rt];
-		int mid=l+r>>1;
-		if(y<=mid) return query(lc,l,mid,x,y);
-		else if(x>mid) return query(rc,mid+1,r,x,y);
-		else return max(query(lc,l,mid,x,mid),query(rc,mid+1,r,mid+1,y));
-	}
-	
-	void upd(int pos,int val){
-		update(1,1,1e6+1,pos,val);
-	}
-	
-	int ask(int l,int r){
-		return query(1,1,1e6+1,l,r);
-	}
-	
-};
-
-void SOLVE(int Case){
+inline void SOLVE(int Case){
 	cin>>n;
-
+	rep(i,1,n){
+		cin>>a[i];
+		d[i]=0;
+		sum[i]=0;
+	}
+	cin>>m;
+	set<PI> s;
+	ans=0;
+	rep(i,1,m){
+		int l,r,x;
+		cin>>l>>r>>x;
+		q[i]={l,r,x};
+		if(d[l]) s.erase({l,d[l]});
+		d[l]+=x;
+		if(d[l]) s.insert({l,d[l]});
+		if(r<n){
+			if(d[r+1]) s.erase({r+1,d[r+1]});
+			d[r+1]-=x;
+			if(d[r+1]) s.insert({r+1,d[r+1]});
+		}
+		if((*s.begin()).sec<0){
+			ans=i;
+			for(PI p:s) d[p.fir]=0;
+			s.clear();
+		}
+	}
+	rep(i,1,ans){
+		int l=q[i].l;
+		int r=q[i].r;
+		int x=q[i].x;
+		sum[l]+=x;
+		if(r<n) sum[r+1]-=x;
+	}
+	rep(i,1,n){
+		sum[i]+=sum[i-1];
+		cout<<a[i]+sum[i]<<" ";
+	}
+	cout<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
