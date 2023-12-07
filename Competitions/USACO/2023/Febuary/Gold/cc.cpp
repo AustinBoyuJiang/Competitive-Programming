@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 2/26/2023 8:25:04 PM
+ * Date: 2/26/2023 7:05:51 PM
  * Problem:
  * Source:
  * Description:
@@ -12,9 +12,9 @@
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
-#define FASTIO
-//#define OPTIMIZE
-//#define INTTOLL
+//#define FASTIO
+#define OPTIMIZE
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -139,13 +139,98 @@ template<class T> struct Fenwick{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 310;
 
-int n;
+int n,q,L,a[N],dp[N][N][20][10],fA[N][N][20],fB[N][N][20];
+string A,B;
 
 void SOLVE(int Case){
-	cin>>n;
-
+	cin>>n>>L>>B;
+	{L--;
+		while(L){
+				A+=(char)(L%10+'0');
+				L/=10;
+		}
+		reverse(all(A));
+		if(A==" ") A="0";
+	}
+	rep(i,1,n) cin>>a[i];
+	rep(i,1,n){
+		dp[i][i][1][a[i]]=1;
+	}
+	rep(len,2,n){
+		rep(l,1,n-len+1){
+			int r=l+len-1;
+			{
+				rep(i,1,B.size()-1){
+					int p=B.size()-i;
+					rep(j,1,B[p+1]-'0'){
+						fB[l][r][i]+=dp[l+1][r][i-1][j];
+						fB[l][r][i]+=dp[l][r-1][i-1][j];
+					}
+					fB[l][r][i]+=fB[l+1][r][i-1];
+					fB[l][r][i]+=fB[l][r-1][i-1];
+					fB[l][r][i]%=MOD;
+				}
+				rep(cnt,1,B.size()){
+					rep(j,1,9){
+						if(cnt==B.size()&&j>B[0]-'0') continue;
+						dp[l][r][cnt][j]+=dp[l-1][r][cnt][j];
+						dp[l][r][cnt][j]+=dp[l][r-1][cnt][j];
+						dp[l][r][cnt][j]%=MOD;
+						if(cnt==B.size()&&j>=B[0]-'0') continue;
+						dp[l][r][cnt][a[l]]+=dp[l-1][r][cnt-1][j];
+						dp[l][r][cnt][a[r]]+=dp[l][r-1][cnt-1][j];
+						dp[l][r][cnt][a[l]]%=MOD;
+						dp[l][r][cnt][a[r]]%=MOD;
+					}
+				}
+				if(a[l]==B[0]-'0') dp[l][r][B.size()][a[l]]+=fB[l+1][r][B.size()-1];
+				if(a[r]==B[0]-'0') dp[l][r][B.size()][a[r]]+=fB[l][r-1][B.size()-1];
+			}
+			{
+				rep(i,1,(int)A.size()-1){
+					int p=A.size()-i;
+					rep(j,1,A[p+1]-'0'){
+						fA[l][r][i]+=dp[l+1][r][i-1][j];
+						fA[l][r][i]+=dp[l][r-1][i-1][j];
+					}
+					fA[l][r][i]+=fA[l+1][r][i-1];
+					fA[l][r][i]+=fA[l][r-1][i-1];
+					fA[l][r][i]%=MOD;
+				}
+				
+				rep(cnt,1,A.size()){
+					rep(j,1,9){
+						if(cnt==A.size()&&j>A[0]-'0') continue;
+						dp[l][r][cnt][j]-=dp[l-1][r][cnt][j]-MOD;
+						dp[l][r][cnt][j]-=dp[l][r-1][cnt][j]-MOD;
+						dp[l][r][cnt][j]%=MOD;
+						if(cnt==B.size()&&j>=B[0]-'0') continue;
+						dp[l][r][cnt][a[l]]-=dp[l-1][r][cnt-1][j]-MOD;
+						dp[l][r][cnt][a[r]]-=dp[l][r-1][cnt-1][j]-MOD;
+						dp[l][r][cnt][a[l]]%=MOD;
+						dp[l][r][cnt][a[r]]%=MOD;
+					}
+				}
+				if(a[l]==A[0]-'0') dp[l][r][A.size()][a[l]]-=fA[l+1][r][A.size()-1]-MOD;
+				if(a[r]==A[0]-'0') dp[l][r][A.size()][a[r]]-=fA[l][r-1][A.size()-1]-MOD;
+				dp[l][r][A.size()][a[l]]%=MOD;
+				dp[l][r][A.size()][a[l]]%=MOD;
+			}
+		}
+	}
+	cin>>q;
+	rep(i,1,q){
+		int l,r;
+		cin>>l>>r;
+		int ans=0;
+		rep(i,0,19) rep(j,1,9){
+			ans+=dp[l][r][i][j];
+			ans%=MOD;
+		}
+		cout<<ans<<endl;
+	}
 }
 
 /* =====================================| End of Main Program |===================================== */

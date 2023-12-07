@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 11/26/2023 8:51:28 PM
+ * Date: 12/1/2023 11:50:42 AM
  * Problem:
  * Source:
  * Description:
@@ -14,7 +14,7 @@
 //#define SETMEM
 #define FASTIO
 #define OPTIMIZE
-#define INTTOLL
+//#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -118,82 +118,134 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 310;
-const int C = 19;
+const int N = 2e5+1;
+const int LG = 18;
 
-int n,q,A,B,a[N],siz[2],c[2][C],dp[2][2][C][N][N],eq[2][C][N][N];
-int fact[N],invfact[N],pow2[C];
+int n,q,sp[N],id[2],l[N],r[N],to[N][LG],fr[N][LG],dep[N],sum[N][LG],invsum[N][LG],laysum[N];
+char a[N<<1];
+VI e[N],lay[N];
 
-int CB(int n,int m){
-	if(n<m) return 0;
-	return fact[n]*invfact[m]%MOD*invfact[n-m]%MOD;
-}
-
-void DP(int lim,int dp[2][C][N][N],int c[C],int &siz){
-	while(lim){
-		siz++;
-		c[siz]=lim%10;
-		lim/=10;
-	}
-	reverse(c+1,c+siz+1);
-	rep(l,1,n+1) rep(r,l-1,n) rep(i,0,siz){
-		dp[0][i][l][r]=1;
-		eq[0][i][l][r]=1;
-	}
-	rep(lenn,1,siz){
-		rep(i,0,siz) rep(l,1,n+1) rep(r,l-1,n){
-			eq[lenn&1][i][l][r]=0;
-			dp[lenn&1][i][l][r]=0;
-		}
-		rep(rr,lenn,siz){
-			int ll=rr-lenn+1;
-			rep(len,1,n) rep(l,1,n-len+1){
-				int r=l+len-1;
-				dp[lenn&1][rr][l][r]=dp[lenn&1][rr][l][r-1]+dp[lenn-1&1][rr-1][l][r-1];
-				if(a[r]<c[ll]) dp[lenn&1][rr][l][r]+=CB(len-1,lenn-1)*pow2[lenn-1]%MOD;
-				if(a[r]==c[ll]) dp[lenn&1][rr][l][r]+=dp[lenn-1&1][rr][l][r-1];
-				if(a[r]>c[rr]) dp[lenn&1][rr][l][r]-=eq[lenn-1&1][rr-1][l][r-1]-MOD;
-				dp[lenn&1][rr][l][r]%=MOD;
-				
-				eq[lenn&1][rr][l][r]=eq[lenn&1][rr][l][r-1];
-				if(a[r]==c[rr]) eq[lenn&1][rr][l][r]+=eq[lenn-1&1][rr-1][l][r-1];
-				if(a[r]==c[ll]) eq[lenn&1][rr][l][r]+=eq[lenn-1&1][rr][l][r-1];
-				eq[lenn&1][rr][l][r]%=MOD;
-			}
+struct Segtree_sum{
+	int st[N<<3],lazy[N<<3];
+	
+	inline void push_down(int rt,int l,int mid,int r){
+		if(lazy[rt]){
+			chkmax(lazy[lc],lazy[rt]);
+			chkmax(lazy[rc],lazy[rt]);
+			chkmax(st[lc],lazy[rt]);
+			chkmax(st[rc],lazy[rt]);
+			lazy[rt]=0;
 		}
 	}
-}
-
-int get(int k,int l,int r){
-	int res=dp[k][siz[k]&1][siz[k]][l][r];
-	rep(i,0,siz[k]-1){
-		res+=CB(r-l+1,i)*pow2[i]%MOD;
-		res%=MOD;
+	
+	inline void update(int rt,int l,int r,int x,int y,int val){
+		if(l==x&&r==y){
+			st[rt]=val;
+			lazy[rt]=val;
+			return;
+		}
+		int mid=l+r>>1;
+		push_down(rt,l,mid,r);
+		if(y<=mid) update(lc,l,mid,x,y,val);
+		else if(x>mid) update(rc,mid+1,r,x,y,val);
+		else update(lc,l,mid,x,mid,val),update(rc,mid+1,r,mid+1,y,val);
+		st[rt]=max(st[lc],st[rc]);
 	}
-	return res;
+	
+	inline int query(int rt,int l,int r,int x){
+		if(l==r) return st[rt];
+		int mid=l+r>>1;
+		push_down(rt,l,mid,r);
+		if(x<=mid) return query(lc,l,mid,x);
+		else return query(rc,mid+1,r,x);
+	}
+	
+	inline void upd(int l,int r,int val){update(1,1,n*2,l,r,val);}
+	inline int get(int x){return query(1,1,n*2,x);}
+} st;
+
+inline void dfs(int u){
+	dep[u]=dep[to[u][0]]+1;
+	lay[dep[u]].pb(u);
+	laysum[dep[u]]+=sp[u];
+	for(int v:e[u]){
+		dfs(v);
+	}
 }
 
 inline void SOLVE(int Case){
-	cin>>n>>A>>B;
-	rep(i,1,n){
+	cin>>n>>q;
+	rep(i,1,n*2){
 		cin>>a[i];
+		if(a[i]=='L'){
+			id[0]++;
+			l[id[0]]=i;
+		}
+		else{
+			id[1]++;
+			r[id[1]]=i;
+			st.upd(l[id[1]],r[id[1]],id[1]);
+		}
 	}
-	fact[0]=1;
-	int mx=max(n,C-1);
-	rep(i,1,mx) fact[i]=fact[i-1]*i%MOD;
-	invfact[mx]=inv(fact[mx]);
-	per(i,mx-1,0) invfact[i]=invfact[i+1]*(i+1)%MOD;
-	pow2[0]=1;
-	rep(i,1,C-1) pow2[i]=pow2[i-1]*2%MOD;
-	DP(B,dp[0],c[0],siz[0]);
-	DP(A-1,dp[1],c[1],siz[1]);
-	cin>>q;
+	per(i,n-1,1){
+		to[i][0]=st.get(r[i]);
+		fr[to[i][0]][0]=i;
+		rep(j,1,LG-1){
+			to[i][j]=to[to[i][j-1]][j-1];
+		}
+	}
+	rep(i,1,n){
+		char x;
+		cin>>x;
+		sp[i]=x-'0';
+		e[to[i][0]].pb(i);
+	}
+	dfs(n);
+	per(i,n,1) if(!fr[i][0]&&dep[i]==dep[i+1])
+		fr[i][0]=fr[i+1][0];
+	rep(i,1,n){
+		rep(j,1,LG-1) fr[i][j]=fr[fr[i][j-1]][j-1];
+		laysum[i]+=laysum[i-1];
+		if(lay[i].empty()) continue;
+		sum[lay[i][0]][0]=sp[lay[i][0]];
+		invsum[lay[i][0]][0]=0;
+		for(int j=1;j<lay[i].size();j++){
+			sum[lay[i][j]][0]=sum[lay[i][j-1]][0]+sp[lay[i][j]];
+			invsum[lay[i][j]][0]=sum[lay[i][j-1]][0];
+		}
+	}
+	per(i,n,1)rep(j,1,LG-1)
+		sum[i][j]=sum[i][j-1]+sum[to[i][j-1]][j-1];
+	rep(i,1,n) rep(j,1,LG-1)
+		invsum[i][j]=invsum[i][j-1]+invsum[fr[i][j-1]][j-1];
 	rep(i,1,q){
-		int l,r;
-		cin>>l>>r;
-		cout<<(get(0,l,r)-get(1,l,r)+MOD)%MOD<<endl;
+		int s,t;
+		cin>>s>>t;
+		int d=s;
+		per(i,LG-1,0){
+			if(to[d][i]==0) continue;
+			if(dep[to[d][i]]<dep[t]) continue;
+			d=to[d][i];
+		}
+		int res=sp[s]+sp[t];
+		int x=s,y=t;
+		per(i,LG-1,0){
+			if(to[x][i]==0) continue;
+			if(d<t&&dep[to[x][i]]<dep[t]) continue;
+			if(d>=t&&dep[to[x][i]]<=dep[t]) continue;
+			res+=sum[to[x][0]][i];
+			x=to[x][i];
+		}
+		per(i,LG-1,0){
+			if(fr[y][i]==0) continue;
+			if(d<t&&dep[fr[y][i]]>dep[s]) continue;
+			if(d>=t&&dep[fr[y][i]]>=dep[s]) continue;
+			res-=invsum[fr[y][0]][i];
+			y=fr[y][i];
+		}
+		if(d<t) res+=laysum[dep[y]]-laysum[dep[t]];
+		cout<<dep[s]-dep[t]+(d<t)<<" "<<res<<endl;
 	}
-	
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -234,3 +286,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) Adversarial Testing
 */
+

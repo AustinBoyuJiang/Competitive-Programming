@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 11/26/2023 8:51:28 PM
+ * Date: 12/3/2023 7:32:55 AM
  * Problem:
  * Source:
  * Description:
@@ -14,7 +14,7 @@
 //#define SETMEM
 #define FASTIO
 #define OPTIMIZE
-#define INTTOLL
+//#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -118,82 +118,82 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 310;
-const int C = 19;
+const int N = 1e6+10;
 
-int n,q,A,B,a[N],siz[2],c[2][C],dp[2][2][C][N][N],eq[2][C][N][N];
-int fact[N],invfact[N],pow2[C];
+int n,m,sumx[N],sumy[N],res[N];
+Vec<pair<PI,int>> s[N];
 
-int CB(int n,int m){
-	if(n<m) return 0;
-	return fact[n]*invfact[m]%MOD*invfact[n-m]%MOD;
-}
+struct query{
+	int x,y,l,r;
+	int p1,p2,p3;
+} q[N];
 
-void DP(int lim,int dp[2][C][N][N],int c[C],int &siz){
-	while(lim){
-		siz++;
-		c[siz]=lim%10;
-		lim/=10;
-	}
-	reverse(c+1,c+siz+1);
-	rep(l,1,n+1) rep(r,l-1,n) rep(i,0,siz){
-		dp[0][i][l][r]=1;
-		eq[0][i][l][r]=1;
-	}
-	rep(lenn,1,siz){
-		rep(i,0,siz) rep(l,1,n+1) rep(r,l-1,n){
-			eq[lenn&1][i][l][r]=0;
-			dp[lenn&1][i][l][r]=0;
-		}
-		rep(rr,lenn,siz){
-			int ll=rr-lenn+1;
-			rep(len,1,n) rep(l,1,n-len+1){
-				int r=l+len-1;
-				dp[lenn&1][rr][l][r]=dp[lenn&1][rr][l][r-1]+dp[lenn-1&1][rr-1][l][r-1];
-				if(a[r]<c[ll]) dp[lenn&1][rr][l][r]+=CB(len-1,lenn-1)*pow2[lenn-1]%MOD;
-				if(a[r]==c[ll]) dp[lenn&1][rr][l][r]+=dp[lenn-1&1][rr][l][r-1];
-				if(a[r]>c[rr]) dp[lenn&1][rr][l][r]-=eq[lenn-1&1][rr-1][l][r-1]-MOD;
-				dp[lenn&1][rr][l][r]%=MOD;
-				
-				eq[lenn&1][rr][l][r]=eq[lenn&1][rr][l][r-1];
-				if(a[r]==c[rr]) eq[lenn&1][rr][l][r]+=eq[lenn-1&1][rr-1][l][r-1];
-				if(a[r]==c[ll]) eq[lenn&1][rr][l][r]+=eq[lenn-1&1][rr][l][r-1];
-				eq[lenn&1][rr][l][r]%=MOD;
-			}
-		}
-	}
-}
-
-int get(int k,int l,int r){
-	int res=dp[k][siz[k]&1][siz[k]][l][r];
-	rep(i,0,siz[k]-1){
-		res+=CB(r-l+1,i)*pow2[i]%MOD;
-		res%=MOD;
-	}
-	return res;
+void ask(int k,int sx,int sy,int id){
+//	cout<<k<<" "<<sx<<" "<<sy<<endl;
+	s[k].pb({{sx,sy},id});
 }
 
 inline void SOLVE(int Case){
-	cin>>n>>A>>B;
+	cin>>n>>m;
 	rep(i,1,n){
-		cin>>a[i];
+		char x;
+		cin>>x;
+		sumx[i]=sumx[i-1];
+		sumy[i]=sumy[i-1];
+		if(x=='U') sumy[i]++;
+		if(x=='D') sumy[i]--;
+		if(x=='L') sumx[i]--;
+		if(x=='R') sumx[i]++;
 	}
-	fact[0]=1;
-	int mx=max(n,C-1);
-	rep(i,1,mx) fact[i]=fact[i-1]*i%MOD;
-	invfact[mx]=inv(fact[mx]);
-	per(i,mx-1,0) invfact[i]=invfact[i+1]*(i+1)%MOD;
-	pow2[0]=1;
-	rep(i,1,C-1) pow2[i]=pow2[i-1]*2%MOD;
-	DP(B,dp[0],c[0],siz[0]);
-	DP(A-1,dp[1],c[1],siz[1]);
-	cin>>q;
-	rep(i,1,q){
-		int l,r;
-		cin>>l>>r;
-		cout<<(get(0,l,r)-get(1,l,r)+MOD)%MOD<<endl;
+	int tot=0;
+	rep(i,1,m){
+		int x,y,l,r;
+		cin>>q[i].x>>q[i].y>>q[i].l>>q[i].r;
+		q[i].p1=++tot;
+		q[i].p2=++tot;
+		q[i].p3=++tot;
+		ask(q[i].l-1,q[i].x,q[i].y,q[i].p1);
+//		cout<<sumx[q[i].r]+sumx[q[i].l-1]<<" "<<sumy[q[i].r]+sumy[q[i].l-1]<<endl;
+		ask(q[i].r,sumx[q[i].r]+sumx[q[i].l-1]-q[i].x,sumy[q[i].r]+sumy[q[i].l-1]-q[i].y,q[i].p2);
+		ask(n,q[i].x,q[i].y,q[i].p3);
 	}
-	
+	set<pair<PI,int>> num;
+	rep(i,0,n){
+		num.insert({{sumx[i],sumy[i]},n-i});
+//		if(i==10){
+//			cout<<sumx[i]<<","<<sumy[i]<<endl;
+//		}
+		for(pair<PI,int> ss:s[i]){
+			pair<PI,int> fd=*num.lb({ss.fir,-1});
+			if(ss.sec==12){
+//				cout<<i<<",,,"<<endl;
+//				cout<<fd.fir.fir<<"+"<<fd.fir.sec<<endl;
+//				cout<<ss.fir.fir<<"-"<<ss.fir.sec<<endl;
+			}
+			if(fd.fir==ss.fir) res[ss.sec]=n-fd.sec;
+			else res[ss.sec]=-1;
+		}
+	}
+	rep(i,1,m){
+		if(res[q[i].p1]>=0){
+//			if(i==4) cout<<111<<endl;
+			cout<<"YES"<<endl;
+			continue;
+		}
+//		cout<<res[q[i].p2]<<endl;
+		if(res[q[i].p2]>=q[i].l-1){
+//			if(i==4) cout<<"222"<<endl;
+			cout<<"YES"<<endl;
+			continue;
+		}
+//		cout<<sumx[5]<<" "<<sumy[5]<<endl;
+//		cout<<sumx[1]<<" "<<sumy[1]<<endl;
+		if(res[q[i].p3]>=q[i].r){
+			cout<<"YES"<<endl;
+			continue;
+		}
+		cout<<"NO"<<endl;
+	}
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -234,3 +234,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) Adversarial Testing
 */
+

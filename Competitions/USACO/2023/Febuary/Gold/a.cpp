@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 11/26/2023 8:51:28 PM
+ * Date: 11/26/2023 2:48:45 PM
  * Problem:
  * Source:
  * Description:
@@ -118,82 +118,56 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 310;
-const int C = 19;
+const int N = 510;
 
-int n,q,A,B,a[N],siz[2],c[2][C],dp[2][2][C][N][N],eq[2][C][N][N];
-int fact[N],invfact[N],pow2[C];
-
-int CB(int n,int m){
-	if(n<m) return 0;
-	return fact[n]*invfact[m]%MOD*invfact[n-m]%MOD;
-}
-
-void DP(int lim,int dp[2][C][N][N],int c[C],int &siz){
-	while(lim){
-		siz++;
-		c[siz]=lim%10;
-		lim/=10;
-	}
-	reverse(c+1,c+siz+1);
-	rep(l,1,n+1) rep(r,l-1,n) rep(i,0,siz){
-		dp[0][i][l][r]=1;
-		eq[0][i][l][r]=1;
-	}
-	rep(lenn,1,siz){
-		rep(i,0,siz) rep(l,1,n+1) rep(r,l-1,n){
-			eq[lenn&1][i][l][r]=0;
-			dp[lenn&1][i][l][r]=0;
-		}
-		rep(rr,lenn,siz){
-			int ll=rr-lenn+1;
-			rep(len,1,n) rep(l,1,n-len+1){
-				int r=l+len-1;
-				dp[lenn&1][rr][l][r]=dp[lenn&1][rr][l][r-1]+dp[lenn-1&1][rr-1][l][r-1];
-				if(a[r]<c[ll]) dp[lenn&1][rr][l][r]+=CB(len-1,lenn-1)*pow2[lenn-1]%MOD;
-				if(a[r]==c[ll]) dp[lenn&1][rr][l][r]+=dp[lenn-1&1][rr][l][r-1];
-				if(a[r]>c[rr]) dp[lenn&1][rr][l][r]-=eq[lenn-1&1][rr-1][l][r-1]-MOD;
-				dp[lenn&1][rr][l][r]%=MOD;
-				
-				eq[lenn&1][rr][l][r]=eq[lenn&1][rr][l][r-1];
-				if(a[r]==c[rr]) eq[lenn&1][rr][l][r]+=eq[lenn-1&1][rr-1][l][r-1];
-				if(a[r]==c[ll]) eq[lenn&1][rr][l][r]+=eq[lenn-1&1][rr][l][r-1];
-				eq[lenn&1][rr][l][r]%=MOD;
-			}
-		}
-	}
-}
-
-int get(int k,int l,int r){
-	int res=dp[k][siz[k]&1][siz[k]][l][r];
-	rep(i,0,siz[k]-1){
-		res+=CB(r-l+1,i)*pow2[i]%MOD;
-		res%=MOD;
-	}
-	return res;
-}
+int n,a[N];
+set<int> num1,num2;
 
 inline void SOLVE(int Case){
-	cin>>n>>A>>B;
+	cin>>n;
 	rep(i,1,n){
 		cin>>a[i];
 	}
-	fact[0]=1;
-	int mx=max(n,C-1);
-	rep(i,1,mx) fact[i]=fact[i-1]*i%MOD;
-	invfact[mx]=inv(fact[mx]);
-	per(i,mx-1,0) invfact[i]=invfact[i+1]*(i+1)%MOD;
-	pow2[0]=1;
-	rep(i,1,C-1) pow2[i]=pow2[i-1]*2%MOD;
-	DP(B,dp[0],c[0],siz[0]);
-	DP(A-1,dp[1],c[1],siz[1]);
-	cin>>q;
-	rep(i,1,q){
-		int l,r;
-		cin>>l>>r;
-		cout<<(get(0,l,r)-get(1,l,r)+MOD)%MOD<<endl;
+	rep(i,1,n){
+		int sum=0;
+		rep(j,i,n){
+			sum+=a[j];
+			num1.insert(sum);
+		}
 	}
-	
+	rep(i,1,n){
+		int sum;
+		sum=0;
+		per(j,i-1,1){
+			sum+=a[j];
+			num1.insert(sum);
+			num2.erase(sum);
+		}
+		sum=0;
+		rep(j,i,n){
+			sum+=a[j];
+			num1.erase(sum);
+			num2.insert(sum);
+		}
+		int ans=INF;
+		auto itr=num2.begin();
+		for(int x:num1){
+			while(*itr<x){
+				itr++;
+				if(itr==num2.end()){
+					itr--;
+					break;
+				}
+			}
+			chkmin(ans,abs(x-*itr));
+			if(itr!=num2.begin()){
+				itr--;
+				chkmin(ans,abs(x-*itr));
+				itr++;
+			}
+		}
+		cout<<ans<<endl;
+	}
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -234,3 +208,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) Adversarial Testing
 */
+

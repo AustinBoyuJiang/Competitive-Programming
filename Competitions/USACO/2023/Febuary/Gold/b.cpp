@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 11/26/2023 8:51:28 PM
+ * Date: 11/26/2023 4:55:24 PM
  * Problem:
  * Source:
  * Description:
@@ -12,7 +12,7 @@
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
-#define FASTIO
+//#define FASTIO
 #define OPTIMIZE
 #define INTTOLL
 
@@ -118,82 +118,78 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 310;
-const int C = 19;
+const int N = 2e5+10;
 
-int n,q,A,B,a[N],siz[2],c[2][C],dp[2][2][C][N][N],eq[2][C][N][N];
-int fact[N],invfact[N],pow2[C];
+int n,t,a[N],fa[N],siz[N],sum[N],dp[N],pd[N],dep[N];
+VI e[N];
 
-int CB(int n,int m){
-	if(n<m) return 0;
-	return fact[n]*invfact[m]%MOD*invfact[n-m]%MOD;
-}
-
-void DP(int lim,int dp[2][C][N][N],int c[C],int &siz){
-	while(lim){
-		siz++;
-		c[siz]=lim%10;
-		lim/=10;
-	}
-	reverse(c+1,c+siz+1);
-	rep(l,1,n+1) rep(r,l-1,n) rep(i,0,siz){
-		dp[0][i][l][r]=1;
-		eq[0][i][l][r]=1;
-	}
-	rep(lenn,1,siz){
-		rep(i,0,siz) rep(l,1,n+1) rep(r,l-1,n){
-			eq[lenn&1][i][l][r]=0;
-			dp[lenn&1][i][l][r]=0;
-		}
-		rep(rr,lenn,siz){
-			int ll=rr-lenn+1;
-			rep(len,1,n) rep(l,1,n-len+1){
-				int r=l+len-1;
-				dp[lenn&1][rr][l][r]=dp[lenn&1][rr][l][r-1]+dp[lenn-1&1][rr-1][l][r-1];
-				if(a[r]<c[ll]) dp[lenn&1][rr][l][r]+=CB(len-1,lenn-1)*pow2[lenn-1]%MOD;
-				if(a[r]==c[ll]) dp[lenn&1][rr][l][r]+=dp[lenn-1&1][rr][l][r-1];
-				if(a[r]>c[rr]) dp[lenn&1][rr][l][r]-=eq[lenn-1&1][rr-1][l][r-1]-MOD;
-				dp[lenn&1][rr][l][r]%=MOD;
-				
-				eq[lenn&1][rr][l][r]=eq[lenn&1][rr][l][r-1];
-				if(a[r]==c[rr]) eq[lenn&1][rr][l][r]+=eq[lenn-1&1][rr-1][l][r-1];
-				if(a[r]==c[ll]) eq[lenn&1][rr][l][r]+=eq[lenn-1&1][rr][l][r-1];
-				eq[lenn&1][rr][l][r]%=MOD;
-			}
-		}
+void dfs1(int u){
+	siz[u]=1;
+	sum[u]=a[u];
+	dep[u]=0;
+	for(int v:e[u]){
+		dfs1(v);
+		siz[u]+=siz[v];
+		sum[u]+=sum[v];
+		chkmax(dep[u],dep[v]+1);
 	}
 }
 
-int get(int k,int l,int r){
-	int res=dp[k][siz[k]&1][siz[k]][l][r];
-	rep(i,0,siz[k]-1){
-		res+=CB(r-l+1,i)*pow2[i]%MOD;
-		res%=MOD;
+void dfs2(int u){
+	if(e[u].empty()) return;
+	sort(all(e[u]),[](int x,int y){
+		return siz[x]*sum[y]<siz[y]*sum[x];
+	});
+	int pre=1;
+	for(int v:e[u]){
+		dfs2(v);
+		dp[u]+=dp[v];
+		dp[u]+=pre*sum[v];
+		pre+=siz[v]*2;
 	}
-	return res;
+	pd[u]=INF;
+	int d=e[u][e[u].size()-1];
+	int s=0,ss=0;
+	per(i,e[u].size()-1,0){
+		int k=e[u][i];
+		if(dep[k]+1==dep[u]){
+			chkmin(pd[u],dp[u]-siz[k]*2*s+sum[k]*2*ss+pd[k]-dp[k]);
+			/*
+			chkmin(pd[u],dp[u]+(siz[d]-siz[k])*2*s+(sum[k]-sum[d])*2*ss+pd[k]-dp[k]);
+			
+			siz[1]*2*(sum[2]+sum[3]+sum[4])+
+			siz[2]*2*(sum[3]+sum[4])+
+			siz[3]*2*sum[4]
+			
+			siz[4]*2*(sum[2]+sum[3]+sum[1])+
+			siz[2]*2*(sum[3]+sum[1])+
+			siz[3]*2*sum[1]
+			
+			sum[2]*2*(siz[1])
+			sum[3]*2*(siz[1]+siz[2])
+			sum[4]*2*(siz[1]+siz[2]+siz[3])
+			
+			sum[2]*2*(siz[4])
+			sum[3]*2*(siz[4]+siz[2])
+			sum[1]*2*(siz[4]+siz[2]+siz[3])
+			
+			ans-siz[1]*2*(sum[2]+sum[3])+siz[4]*(sum[2]+sum[3])-sum[4]*2*(siz[1]+siz[2]+siz[3])+sum[1]*2*(siz[4]+siz[2]+siz[3])
+			*/
+		}
+		s+=sum[k];
+		ss+=siz[k];
+	}
 }
 
 inline void SOLVE(int Case){
-	cin>>n>>A>>B;
-	rep(i,1,n){
-		cin>>a[i];
+	cin>>n>>t;
+	rep(i,2,n){
+		cin>>fa[i]>>a[i];
+		e[fa[i]].pb(i);
 	}
-	fact[0]=1;
-	int mx=max(n,C-1);
-	rep(i,1,mx) fact[i]=fact[i-1]*i%MOD;
-	invfact[mx]=inv(fact[mx]);
-	per(i,mx-1,0) invfact[i]=invfact[i+1]*(i+1)%MOD;
-	pow2[0]=1;
-	rep(i,1,C-1) pow2[i]=pow2[i-1]*2%MOD;
-	DP(B,dp[0],c[0],siz[0]);
-	DP(A-1,dp[1],c[1],siz[1]);
-	cin>>q;
-	rep(i,1,q){
-		int l,r;
-		cin>>l>>r;
-		cout<<(get(0,l,r)-get(1,l,r)+MOD)%MOD<<endl;
-	}
-	
+	dfs1(1);
+	dfs2(1);
+	cout<<(t==0?(siz[1]-1)*2:(siz[1]-1)*2-dep[1])<<" "<<(t==0?dp[1]:pd[1])<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -234,3 +230,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) Adversarial Testing
 */
+
