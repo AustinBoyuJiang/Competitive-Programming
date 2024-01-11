@@ -154,7 +154,7 @@ template<class T> struct Fenwick{
 
 const int N = 1e6+10;
 
-int n=7;
+int n=5;
 char ans[10];
 
 int LSHIFT(int x,int dis){
@@ -197,25 +197,25 @@ string STR(int x){
 }
 
 void SOLVE(int Case){
-	int ans=LCIRC(BIT("1101101"),2)|RSHIFT(BIT("1011101"),1)^BIT("1101101")&BIT("1110111");
-	PRINT(STR(ans));
-//	rep(i,0,n-1) ans[i]='?';
-//	rep(X,0,(1<<n)-1){
-//		int left=LSHIFT(BIT("10111"),1)|LCIRC(RSHIFT(X,1),2)&RCIRC(NOT(BIT("01101")),3);
-//		int right=BIT("01110");
-//		
-//		if(left==right){
-//			string strx=STR(X);
-//			rep(i,0,n-1){
-//				if(ans[i]!='?'&&ans[i]!=strx[i]) ans[i]='*';
-//				else ans[i]=strx[i];
-//			}
-//		}
-//	}
-//	cout<<"Answer: ";
-//	rep(i,0,n-1){
-//		cout<<ans[i];
-//	} cout<<endl;
+//	int ans=LSHIFT(BIT("01101"),2)&RCIRC(LSHIFT(NOT(BIT("11010")),2),1);
+//	cout<<STR(ans)<<endl;
+	rep(i,0,n-1) ans[i]='?';
+	rep(X,0,(1<<n)-1){
+		int left=RSHIFT(BIT("01110"),2)|X&LCIRC(LSHIFT(BIT("10110"),1),1);
+		int right=BIT("01011");
+		
+		if(left==right){
+			string strx=STR(X);
+			rep(i,0,n-1){
+				if(ans[i]!='?'&&ans[i]!=strx[i]) ans[i]='*';
+				else ans[i]=strx[i];
+			}
+		}
+	}
+	cout<<"Answer: ";
+	rep(i,0,n-1){
+		cout<<ans[i];
+	} cout<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */

@@ -69,60 +69,58 @@ namespace ASM{
 int A,B,C,D,E,F,G,H,X,Y,Z,N,M;
 int NUM,FACT,QUOT;
 
-void TOP1();
-void TOP2();
-void NEXT();
-void CONT();
-void STOP();
+void YELLOW();
+void BLUE();
+void GREEN();
+void RED();
 
-void TOP1(){
-    LOAD(NUM);
-    ACC-=2;
-    if(BL()) STOP();
-    LOAD(2);
-    STORE(FACT);
-    TOP2();
+void YELLOW(){
+	LOAD(B);
+	ACC/=10;
+	STORE(C);
+	ACC*=10;
+	STORE(F);
+	LOAD(B);
+	ACC-=F;
+	STORE(D);
+	LOAD(B);
+	ACC/=100;
+	STORE(E);
+	ACC-=D;
+	STORE(G);
+	if(BE()) RED();
+	BLUE();
 }
 
-void TOP2(){
-    LOAD(NUM);
-    ACC/=FACT;
-    STORE(QUOT);
-    ACC*=FACT;
-    ACC-=NUM;
-    if(BE()) NEXT();
-    LOAD(FACT);
-    ACC+=1;
-    STORE(FACT);
-    if(BU()) TOP2();
-    NEXT();
+void BLUE(){
+	LOAD(B);
+	ACC-=999;
+	STORE(H);
+	if(BL()) GREEN();
+	PRINT(A);
+	END();
+	RED();
 }
 
-void NEXT(){
-    LOAD(FACT);
-    ACC-=M;
-    if(BL()) CONT();
-    LOAD(FACT);
-    STORE(M);
-    CONT();
+void RED(){
+	LOAD(A);
+	ACC+=1;
+	STORE(A);
+	if(BU()) BLUE();
+	GREEN();
 }
 
-void CONT(){
-    LOAD(QUOT);
-    STORE(NUM);
-    if(BU()) TOP1();
-    STOP();
-}
-
-void STOP(){
-    PRINT(M);
-    END();
+void GREEN(){
+	LOAD(B);
+	ACC+=1;
+	STORE(B);
+	if(BU()) YELLOW();
 }
 
 void SOLVE(int Case){
-	NUM=440;
-	M=0;
-	TOP1();
+	A=0;
+	B=100;
+	YELLOW();
 }
 
 /* =====================================| End of Main Program |===================================== */

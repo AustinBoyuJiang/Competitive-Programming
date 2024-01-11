@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 5/10/2023 9:37:48 PM
+ * Date: 1/10/2024 12:39:58 AM
  * Problem:
  * Source:
  * Description:
@@ -13,7 +13,8 @@
 //#define FILESCOMP
 //#define SETMEM
 #define FASTIO
-//#define OPTIMIZE
+//#define NDEBUG
+#define OPTIMIZE
 //#define INTTOLL
 
 #ifdef OPTIMIZE
@@ -72,7 +73,7 @@ namespace FastIO{
 	inline ll readLL() {ll x=0; bool f=0; char ch=0; while(!isdigit(ch)) f=ch=='-',ch=getchar(); while(isdigit(ch)) x=x*10+ch-'0',ch=getchar(); return f?-x:x;}
 	inline int read(int &x) {return x=read();}
     template<class T> inline void write(T x) {if(x<0) x=-x,putchar('-'); if(x>9) write(x/10); putchar(x%10+'0');}
-	template<class T> inline void write(T x,char let) {write(x),putchar(let);}
+	template<class T> inline void write(T x,char ch) {write(x),putchar(ch);}
 } using namespace FastIO;
 
 void SETUP(){
@@ -97,7 +98,7 @@ const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 const unordered_set<char> vowel = {'a','e','i','o','u'};
 
-/* Common functions and data structures */
+/* Common functions */
 
 namespace Comfun{
 	template<class T> inline T lowbit(T x){return x&-x;}
@@ -105,71 +106,117 @@ namespace Comfun{
 	template<class T> inline T lcm(T a,T b){return a/gcd(a,b)*b;}
 	template<class T> inline T chkmax(T &a,T b){return a=max(a,b);}
 	template<class T> inline T chkmin(T &a,T b){return a=min(a,b);}
-	template<class T> inline T qpow(T a,T b){T ans=1;while(b){if(b&1) ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
+	template<class T> inline T qpow(T a,T b){T ans=1;
+	while(b){if(b&1)ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
 	template<class T> inline T inv(T x){return qpow(x,MOD-2);}
 	template<class T> inline bool is_prime(T x){
 	if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false;return true;}
+	inline int mex(VI v){VI vis(v.size(),0);for(int x:v) if(x<v.size()) vis[x]=1;
+	int pos=0;while(pos<v.size()&&vis[pos]) pos++;return pos;}
+	template<class T> inline void discrete(T *st,T *ed,T offset=0){ set<T> num(st,ed); Vec<T> pos(all(num));
+	for (T *itr=st;itr!=ed;++itr){*itr=lb(all(pos),*itr)-pos.begin()+offset;}}
 } using namespace Comfun;
-
-template<class T,class Fun=function<T(const T,const T)>> struct Segtree{
-	int L=0,R=-1,ini=0; Fun F; Vec<T> st;
-	inline Segtree(){}
-	inline Segtree(int L,int R,int val,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,ini=val);}
-	inline Segtree(int L,int R,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,0);}
-	inline Segtree(Vec<T> v,Fun F){this->R=v.size()-1,this->F=F;st.resize(v.size()<<2);rep(i,0,this->R) upd(i,v[i],true);}
-	inline void init(int L,int R,int val,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,ini=val);}
-	inline void init(int L,int R,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,0);}
-	inline void init(Vec<T> v,Fun F){this->R=v.size()-1,this->F=F;st.resize(v.size()<<2);rep(i,0,this->R) upd(i,v[i],true);}
-	inline T query(int rt,int l,int r,int x,int y){
-		if(x>y) return ini;
-		if(l==x&&r==y) return st[rt];
-		int mid=l+r>>1;
-		if(y<=mid) return query(lc,l,mid,x,y);
-		else if(x>mid) return query(rc,mid+1,r,x,y);
-		else return F(query(lc,l,mid,x,mid),query(rc,mid+1,r,mid+1,y));}
-	inline void update(int rt,int l,int r,int x,int v,bool cover){
-		if(l==r){st[rt]=cover?v:F(st[rt],v);return;}
-		int mid=l+r>>1;
-		if(x<=mid) update(lc,l,mid,x,v,cover);
-		else update(rc,mid+1,r,x,v,cover);
-		st[rt]=F(st[lc],st[rc]);}
-	inline T ask(int x,int y){return query(1,L,R,x,y);}
-	inline void upd(int x,int y,bool cover=false){update(1,L,R,x,y,cover);}
-};
-
-template<class T> struct Fenwick{
-	int n=0; Vec<array<T,2>> d;
-	inline Fenwick(){}
-	inline Fenwick(int n){d.resize(this->n=n);}
-	inline resize(int n){d.resize(this->n=n,0);}
-	inline T query(int x,int k){int ans=0;for(int i=x;i>0;i-=lowbit(i)) ans+=d[i][k];return ans;}
-	inline T ask(int x,int y){return (y+2)*query(y+1,0)-query(y+1,1)-(x+1)*query(x,0)+query(x,1);}
-	inline void update(int x,int v){for(int i=x;i<=n;i+=lowbit(i))d[i][0]+=v,d[i][1]+=v*x;}
-	inline void add(int x,int y,int v){update(x+1,v),update(y+2,-v);}
-	inline void add(int x,int v){add(x,x,v);}
-};
 
 /* ========================================| Main Program |======================================== */
 
 const int N = 1e6+10;
 
-double a,b,c,d,e,f,g,h;
+int n,f[N];
+map<PI,int> c;
+map<PI,VI> nd;
 
-void SOLVE(int Case){
-	for(int yr=2021;yr<=2025;yr++){
-		int num=yr;
-		int s1=0;
-		int s2=0;
-		while(num!=0){
-			int d=num%10;
-			s1=s1+d;
-			s2=s2+d*d;
-			num=num/10;
+struct edge{
+	int u,v,w;
+};
+
+bool cmp(edge a,edge b){
+	return a.w<b.w;
+}
+
+int find(int x){
+	if(f[x]==x) return x;
+	return f[x]=find(f[x]);
+}
+
+void merge(int x,int y){
+	int fx=find(x);
+	int fy=find(y);
+	if(fx==fy) return;
+	f[fx]=fy;
+}
+
+int solve1(){
+	Vec<edge> e;
+	for(auto p:c){
+		PI uv=p.first;
+		int w=p.second;
+		if(nd[uv].size()==1) continue;
+		int u=nd[uv][0];
+		int v=nd[uv][1];
+		e.pb({u,v,w});
+	}
+	sort(all(e),cmp);
+	rep(i,1,n){
+		f[i]=i;
+	}
+	int ans=0;
+	for(edge ee:e){
+		if(find(ee.u)==find(ee.v)) continue;
+		merge(ee.u,ee.v);
+		ans+=ee.w;
+	}
+	int fx=find(1);
+	rep(i,2,n){
+		if(find(i)!=fx) return INF;
+	}
+	return ans;
+}
+
+int solve2(){
+	Vec<edge> e;
+	for(auto p:c){
+		PI uv=p.first;
+		int w=p.second,u,v;
+		if(nd[uv].size()==1){
+			u=nd[uv][0];
+			v=0;
 		}
-		if(yr%s1==0&&yr%s2==0){
-			cout<<yr<<endl;
+		else{
+			u=nd[uv][0];
+			v=nd[uv][1];
+		}
+		e.pb({u,v,w});
+	}
+	sort(all(e),cmp);
+	rep(i,0,n){
+		f[i]=i;
+	}
+	int ans=0;
+	for(edge ee:e){
+		if(find(ee.u)==find(ee.v)) continue;
+		merge(ee.u,ee.v);
+		ans+=ee.w;
+	}
+	return ans;
+}
+
+inline void SOLVE(int Case){
+	cin>>n;
+	rep(i,1,n){
+		int m;
+		cin>>m;
+		VI id(m),cost(m);
+		for(int &x:id) cin>>x;
+		for(int &x:cost) cin>>x;
+		rep(j,0,m-1){
+			int u=id[j];
+			int v=id[(j+1)%m];
+			if(u>v) swap(u,v);
+			nd[{u,v}].pb(i);
+			c[{u,v}]=cost[j];
 		}
 	}
+	cout<<min(solve1(),solve2())<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -208,6 +255,6 @@ signed main(){
     * don't stuck on one question for two long (like 30-45 min)
     * Debug: (a) read your code once, check overflow and edge case
     * Debug: (b) create your own test case
-    * Debug: (c) duipai
+    * Debug: (c) Adversarial Testing
 */
 

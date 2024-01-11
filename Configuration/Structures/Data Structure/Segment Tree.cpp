@@ -119,7 +119,7 @@ const int N = 1e6+10;
 
 int n;
 
-struct Segtree_sum{
+struct Segtree_sum_interval{
 	int st[N<<2],lazy[N<<2];
 	
 	void push_down(int rt,int l,int mid,int r){
@@ -160,18 +160,68 @@ struct Segtree_sum{
 	int ask(int l,int r){return query(1,1,n,l,r);}
 };
 
-struct Segtree_max{
+struct Segtree_max_interval{
+	int st[N<<2],lazy[N<<2];
+	
+	void build(int rt,int l,int r){
+		st[rt]=0;
+		lazy[rt]=0;
+		if(l==r) return;
+		int mid=l+r>>1;
+		build(lc,l,mid);
+		build(rc,mid+1,r);
+	}
+	
+	void push_down(int rt,int l,int mid,int r){
+		if(lazy[rt]){
+			chkmax(lazy[lc],lazy[rt]);
+			chkmax(lazy[rc],lazy[rt]);
+			chkmax(st[lc],lazy[rt]);
+			chkmax(st[rc],lazy[rt]);
+			lazy[rt]=0;
+		}
+	}
+	
+	void update(int rt,int l,int r,int x,int y,int val){
+		if(l==x&&r==y){
+			chkmax(st[rt],val);
+			chkmax(lazy[rt],val);
+			return;
+		}
+		int mid=l+r>>1;
+		push_down(rt,l,mid,r);
+		if(y<=mid) update(lc,l,mid,x,y,val);
+		else if(x>mid) update(rc,mid+1,r,x,y,val);
+		else update(lc,l,mid,x,mid,val),update(rc,mid+1,r,mid+1,y,val);
+		st[rt]=max(st[lc],st[rc]);
+	}
+	
+	int query(int rt,int l,int r,int x,int y){
+		if(l==x&&r==y) return st[rt];
+		int mid=l+r>>1;
+		push_down(rt,l,mid,r);
+		if(y<=mid) return query(lc,l,mid,x,y);
+		else if(x>mid) return query(rc,mid+1,r,x,y);
+		else return max(query(lc,l,mid,x,mid),query(rc,mid+1,r,mid+1,y));
+	}
+	
+	void add(int l,int r,int val){update(1,1,n,l,r,val);}
+	void add(int x,int val){add(x,x,val);}
+	int ask(int l,int r){return query(1,1,n,l,r);}
+};
+
+struct Segtree_max_single{
 	
 	int st[N<<2];
 	
-	void clear(int rt,int l,int r,int x){
+	void build(int rt,int l,int r,int x){
 		if(l==r){
 			st[rt]=0;
 			return;
 		}
 		int mid=l+r>>1;
-		if(x<=mid) clear(lc,l,mid,x);
-		else clear(rc,mid+1,r,x);
+		if(x<=mid) build(lc,l,mid,x);
+		else build(rc,mid+1,r,x);
 		st[rt]=max(st[lc],st[rc]);
 	}
 	
@@ -201,7 +251,69 @@ struct Segtree_max{
 	int ask(int l,int r){
 		return query(1,1,1e6+1,l,r);
 	}
+};
+
+struct segtree_add_multi_interval{
+	int st[N<<2];
+	PI lazy[N<<2];
 	
+	int build(int rt,int l,int r){
+		st[rt]=0;
+		lazy[rt]={1,0};
+		if(l==r) return;
+		int mid=l+r>>1;
+		build(lc,l,mid);
+		build(rc,mid+1,r); 
+	}
+	
+	void push_down(int rt,int l,int mid,int r){
+		st[lc]=st[lc]*lazy[rt].fir%MOD;
+		st[lc]=(st[lc]+lazy[rt].sec)%MOD;
+		st[rc]=st[rc]*lazy[rt].fir%MOD;
+		st[rc]=(st[rc]+lazy[rt].sec)%MOD;
+		lazy[lc].fir=lazy[lc].fir*lazy[rt].fir%MOD;
+		lazy[lc].sec=lazy[lc].sec*lazy[rt].fir%MOD;
+		lazy[lc].sec=(lazy[lc].sec+lazy[rt].sec)%MOD;
+		lazy[rc].fir=lazy[rc].fir*lazy[rt].fir%MOD;
+		lazy[rc].sec=lazy[rc].sec*lazy[rt].fir%MOD;
+		lazy[rc].sec=(lazy[rc].sec+lazy[rt].sec)%MOD;
+		lazy[rt]={1,0};
+	}
+	
+	void mult(int rt,int l,int r,int x,int y,int v){
+		if(x==l&&r==y){
+			st[rt]=st[rt]*v%MOD;
+			lazy[rt].fir=lazy[rt].fir*v%MOD;
+			lazy[rt].sec=lazy[rt].sec*v%MOD;
+			return;
+		}
+		int mid=l+r>>1;
+		push_down(rt,l,mid,r);
+		if(y<=mid) mult(lc,l,mid,x,y,v);
+		else if(x>mid) mult(rc,mid+1,r,x,y,v);
+		else mult(lc,l,mid,x,mid,v),mult(rc,mid+1,r,mid+1,y,v);
+	}
+	
+	void add(int rt,int l,int r,int x,int y,int v){
+		if(x==l&&r==y){
+			st[rt]=(st[rt]+val*(r-l+1)%MOD)%MOD;
+			lazy[rt].sec=(lazy[rt].sec+val)%MOD;
+			return;
+		}
+		int mid=l+r>>1;
+		push_down(rt,l,mid,r);
+		if(y<=mid) add(lc,l,mid,x,y,v);
+		else if(x>mid) add(rc,mid+1,r,x,y,v);
+		else add(lc,l,mid,x,mid,v),add(rc,mid+1,r,mid+1,y,v);
+	}
+	
+	int ask(int rt,int l,int r,int x){
+		if(l==r) return st[rt];
+		int mid=l+r>>1;
+		push_down(rt,l,mid,r);
+		if(x<=mid) return ask(lc,l,mid,x);
+		else return ask(rc,mid+1,r,x);
+	}
 };
 
 void SOLVE(int Case){

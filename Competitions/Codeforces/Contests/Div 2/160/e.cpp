@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 8/27/2023 9:27:57 PM
+ * Date: 12/31/2023 6:19:53 PM
  * Problem:
  * Source:
  * Description:
@@ -97,7 +97,7 @@ const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 const unordered_set<char> vowel = {'a','e','i','o','u'};
 
-/* Common functions and data structures */
+/* Common functions */
 
 namespace Comfun{
 	template<class T> inline T lowbit(T x){return x&-x;}
@@ -112,19 +112,133 @@ namespace Comfun{
 	template<class T> inline T inv(T x){return qpow(x,MOD-2);}
 	template<class T> inline bool is_prime(T x){
 	if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false;return true;}
-	template<class T> inline void disc(Vec<T> &v,int st=0) /*discretize*/ {Vec<T> num=v;sort(all(num));
-	for(T &x:v) x=lb(all(num),x)-num.begin()+st;}
+	template<class T> inline void discrete(T *st,T *ed,T offset=0){ set<T> num(st,ed); Vec<T> pos(all(num));
+	for (T *itr=st;itr!=ed;++itr){*itr=lb(all(pos),*itr)-pos.begin()+offset;}}
 } using namespace Comfun;
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 60;
 
-int n;
+struct flow_network{
+	static const int V = 100;
+	static const int E = 200;
+	
+	int S,T,inq[V],dist[V],vis[V];
+	int tot=-1,head[V],h[V];
+	
+	flow_network(){
+		memset(head,-1,sizeof(head));
+	}
+	
+	struct edge{
+		int to,flow,cost,nxt;
+	} e[E<<1];
+	
+	void addd(int u,int v,int w,int c){
+		e[++tot].to=v;
+		e[tot].flow=w;
+		e[tot].cost=c;
+		e[tot].nxt=head[u];
+		head[u]=tot;
+	}
+	
+	void add(int u,int v,int w,int c=0){
+		addd(u,v,w,c);
+		addd(v,u,0,-c);
+	}
+	
+	bool SPFA(){
+		for(int i=S;i<=T;i++){
+			h[i]=head[i];
+			dist[i]=INF;
+		}
+		queue<int> q;
+		q.push(S);
+		dist[S]=0;
+		while(!q.empty()){
+			int u=q.front();
+			q.pop();
+			inq[u]=0;
+			for(int i=h[u];~i;i=e[i].nxt){
+				int v=e[i].to,w=e[i].flow,c=e[i].cost;
+				if(w&&dist[u]+c<dist[v]){
+					dist[v]=dist[u]+c;
+					if(!inq[v]){
+						q.push(v);
+						inq[v]=1;
+					}
+				}
+			}
+		}
+		return dist[T]!=INF;
+	}
+	
+	int DFS(int u,int flow){
+		if(u==T) return flow;
+		vis[u]=1;
+		int ans=0;
+		for(int &i=h[u];~i;i=e[i].nxt){
+			int v=e[i].to,&w=e[i].flow,c=e[i].cost;
+			if(!vis[v]&&w&&dist[v]==dist[u]+c){
+				int res=DFS(v,min(w,flow));
+				w-=res,e[i^1].flow+=res;
+				flow-=res,ans+=res;
+				if(!res) dist[v]=-1;
+				if(!flow) break;
+			}
+		}
+		vis[u]=0;
+		return ans;
+	}
+	
+	PI Dinic(){
+		PI ans={0,0};
+		while(SPFA()){
+			int res=DFS(S,INF);
+			ans.fir+=res;
+			ans.sec+=res*dist[T];
+		}
+		return ans;
+	}
+} fn;
+
+int n,m,a[N],b[N],Map[N][N];
 
 inline void SOLVE(int Case){
-	cin>>n;
-
+	cin>>n>>m;
+	fn.S=0;
+	fn.T=n+m+1;
+	rep(i,1,n){
+		rep(j,1,m){
+			cin>>Map[i][j];
+			fn.add(i,n+j,1,1-Map[i][j]);
+		}
+	}
+	int sum=0;
+	rep(i,1,n){
+		cin>>a[i];
+		sum+=a[i];
+		fn.add(fn.S,i,a[i]);
+	}
+	rep(i,1,m){
+		cin>>b[i];
+		fn.add(n+i,fn.T,b[i]);
+	}
+	PI res=fn.Dinic();
+	if(res.fir==sum){
+		int ans=0,id=1;
+		rep(i,1,n){
+			rep(j,1,m){
+				ans+=fn.e[id].flow^Map[i][j];
+				id+=2;
+			}
+		}
+		cout<<ans<<endl;
+	}
+	else{
+		cout<<-1<<endl;
+	}
 }
 
 /* =====================================| End of Main Program |===================================== */

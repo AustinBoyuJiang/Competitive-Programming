@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 5/10/2023 9:37:48 PM
+ * Date: 5/10/2023 9:34:37 PM
  * Problem:
  * Source:
  * Description:
@@ -153,23 +153,22 @@ template<class T> struct Fenwick{
 
 const int N = 1e6+10;
 
-double a,b,c,d,e,f,g,h;
+int n;
 
 void SOLVE(int Case){
-	for(int yr=2021;yr<=2025;yr++){
-		int num=yr;
-		int s1=0;
-		int s2=0;
-		while(num!=0){
-			int d=num%10;
-			s1=s1+d;
-			s2=s2+d*d;
-			num=num/10;
+	int ans=0;
+	rep(i,1,64){
+		int x=i;
+		int cnt[2]={0,0};
+		while(x){
+			cnt[x&1]++;
+			x>>=1;
 		}
-		if(yr%s1==0&&yr%s2==0){
-			cout<<yr<<endl;
+		if(cnt[1]<cnt[0]){
+			ans++;
 		}
 	}
+	cout<<ans<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */

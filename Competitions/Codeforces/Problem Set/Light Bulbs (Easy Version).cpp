@@ -120,12 +120,13 @@ namespace Comfun{
 
 const int N = 2010;
 
-int n,a[N],pos[N],to[N],mx[N],vis[N];
+int n,a[N],pos[N],to[N],mx[N],vis[N],cnt[N];
 
 inline void SOLVE(int Case){
 	cin>>n;
 	rep(i,1,n){
 		pos[i]=0;
+		cnt[i]=0;
 	}
 	rep(i,1,n*2){
 		cin>>a[i];
@@ -146,7 +147,9 @@ inline void SOLVE(int Case){
 		if(st==mx[st]){
 			st++;
 			ans1++;
-			vis[st]=1;
+			vis[st]=ans1;
+			vis[to[st]]=ans1;
+			cnt[ans1]++;
 			q.push(st);
 		}
 		st=mx[st];
@@ -157,16 +160,20 @@ inline void SOLVE(int Case){
 		rep(i,u+1,to[u]-1){
 			if(vis[i]) continue;
 			if(to[i]>to[u]||to[i]<u){
-				vis[min(i,to[i])]=1;
+				vis[i]=vis[u];
+				vis[to[i]]=vis[u];
+				cnt[vis[u]]++;
 				q.push(min(i,to[i]));
 			}
 		}
 	}
-	int ans2=0;
-	rep(i,1,n*2){
-		ans2+=vis[i];
+	int ans2=1;
+	rep(i,1,n){
+		if(!cnt[i]) continue;
+		ans2*=cnt[i]*2;
+		ans2%=MOD;
 	}
-	cout<<ans1<<" "<<qpow(2ll,ans2)<<endl;
+	cout<<ans1<<" "<<ans2<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */

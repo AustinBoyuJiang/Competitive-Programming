@@ -12,9 +12,9 @@
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
-//#define FASTIO
+#define FASTIO
 #define OPTIMIZE
-#define INTTOLL
+//#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -94,6 +94,7 @@ const int INF = 0x3f3f3f3f;
 const ll INF = LLINF;
 #endif
 const int MOD = 998244353;
+const ll MOD2 = 1e12+39;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 const unordered_set<char> vowel = {'a','e','i','o','u'};
 
@@ -118,19 +119,18 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 2010;
+const int N = 4e5+10;
+const int BASE = 1331;
 
-int n,a[N],pos[N],to[N],mx[N],vis[N],l[N],r[N];
-
-void remove(int i){
-	if(r[i]) l[r[i]]=l[i];
-	if(l[i]) r[l[i]]=r[i];
-}
+int n,a[N],pos[N],to[N],mx[N],flag[N],sum[N];
+ll xorsum[N],power[N];
 
 inline void SOLVE(int Case){
 	cin>>n;
+	power[0]=1;
 	rep(i,1,n){
 		pos[i]=0;
+		power[i]=power[i-1]*BASE%MOD2;
 	}
 	rep(i,1,n*2){
 		cin>>a[i];
@@ -142,47 +142,33 @@ inline void SOLVE(int Case){
 	}
 	rep(i,1,n*2){
 		mx[i]=max(mx[i-1],to[i]);
-		vis[i]=0;
-		l[i]=i-1;
-		r[i]=i+1;
+		flag[i]=0;
 	}
-	r[n*2]=0;
-	int ans1=0;
-	int st=0;
-	queue<int> q;
+	int ans1=0,st=0;
 	while(st<n*2){
 		if(st==mx[st]){
 			st++;
 			ans1++;
-			vis[st]=1;
-			vis[to[st]]=1;
-			remove(st);
-			remove(to[st]);
-			q.push(st);
+			flag[st]=1;
 		}
 		st=mx[st];
 	}
-	while(!q.empty()){
-		int u=q.front();
-		q.pop();
-		int i=u;
-		while(r[i]&&r[i]<to[u]){
-			i=r[i];
-			if(to[i]>to[u]||to[i]<u){
-				vis[i]=1;
-				vis[to[i]]=1;
-				remove(i);
-				remove(to[i]);
-				q.push(min(i,to[i]));
-			}
-		}
-	}
-	int ans2=0;
+	ll ans2=1;
+	map<ll,int> lst;
+	lst[0]=1;
 	rep(i,1,n*2){
-		ans2+=vis[i];
+		sum[i]=sum[i-1];
+		xorsum[i]=xorsum[i-1]^power[a[i]];
+		int j=lst[xorsum[i]];
+		if(!lst[xorsum[i]]){
+			lst[xorsum[i]]=i+1;
+			continue;
+		}
+		lst[xorsum[i]]=i+1;
+		if(flag[j]) ans2=ans2*(i-j+1-sum[i]+sum[j-1])%MOD;
+		else sum[i]=sum[j-1]+i-j+1;
 	}
-	ans2/=2;
-	cout<<ans1<<" "<<qpow(2ll,ans2)<<endl;
+	cout<<ans1<<" "<<ans2<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */

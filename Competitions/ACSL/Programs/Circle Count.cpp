@@ -109,11 +109,11 @@ void solve(int Case){
 	}
 	rep(i,1,n) dfs(i,i);
 	rep(i,1,n) cout<<"Circles on "<<i<<": "<<cnt[i]<<endl;
-	int aans=0;
-	for(auto x:circle){
-		if(x.fir.size()>=3) aans+=1;
-	}
-	cout<<aans<<endl;
+//	int ans=0;
+//	for(auto x:circle){
+//		if(x.fir.size()>=3) ans+=1;
+//	}
+//	cout<<ans<<endl;
 //	cout<<"Total circle: "<<circle.size()<<endl;
 }
 

@@ -199,7 +199,7 @@ string postfixToInfix(string str){
 
 void SOLVE(int Case){
 //	cout<<postfixToInfix("AC+A2^/CAB-/-")<<endl;
-	cout<<prefixToInfix("*a+a^+^a2*4^b2/12")<<endl;
+	cout<<prefixToInfix("-+/*A+BC^B2/*BCA/+^A2^B2C")<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
