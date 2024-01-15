@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 1/10/2024 11:18:51 PM
+ * Date: 1/14/2024 3:09:13 PM
  * Problem:
  * Source:
  * Description:
@@ -15,7 +15,7 @@
 #define FASTIO
 //#define NDEBUG
 #define OPTIMIZE
-#define INTTOLL
+//#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -36,6 +36,10 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
+
+/* Segment Tree */
+#define lc (rt << 1)
+#define rc (rt << 1 | 1)
 
 /* STL */
 #define lb lower_bound
@@ -115,84 +119,31 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e4+10;
-const int M = 2510;
-const int S = 1e4+10;
+const int N = 30;
 
-int n,m,root,mid[S],a[N],lc[N],rc[N],dp[N][M];
-string inp,s;
-
-void build(int &rt,int l,int r){
-	if(!rt) rt=++n;
-	if(s[l]!='('){
-		rep(i,l,r){
-			a[rt]*=10;
-			a[rt]+=s[i]-'0';
-		}
-		return;
-	}
-	build(lc[rt],l+1,mid[l]-1);
-	build(rc[rt],mid[l]+1,r-1);
-}
-
-int get(int rt,int x){
-	int ans=0;
-	rep(i,0,x){
-		int res=min(dp[rt][x-i],(i+1)*(i+1));
-		chkmax(ans,res);
-	}
-	return ans;
-}
-
-void dfs(int rt){
-	if(lc[rt]) dfs(lc[rt]);
-	if(rc[rt]) dfs(rc[rt]);
-	if(!lc[rt]&&!rc[rt]){
-		dp[rt][0]=a[rt];
-		rep(i,1,m){
-			dp[rt][i]=a[rt]+i;
-		}
-		return;
-	}
-	rep(i,0,m){
-		rep(j,0,i){
-			int res=get(lc[rt],j)+get(rc[rt],i-j);
-			chkmax(dp[rt][i],res);
-		}
-	}
-}
+int n,m,k,a[N][N],dp[N][N];
 
 inline void SOLVE(int Case){
-	getline(cin,inp);
-	rep(i,0,(int)inp.size()-1){
-		char x=inp[i];
-		if(x==' '){
-			if(i>0&&inp[i-1]==' ') continue;
-			if(i>0&&inp[i-1]=='(') continue;
-			if(i+1<inp.size()&&inp[i+1]==')') continue;
-		}
-		s+=x;
-		if(i+1<inp.size()&&x==')'&&inp[i+1]>='0'&&inp[i+1]<='9'){
-			s+=' ';
-		}
-		if(i+1<inp.size()&&x>='0'&&x<='9'&&inp[i+1]=='('){
-			s+=' ';
-		}
-		if(i+1<inp.size()&&x==')'&&inp[i+1]=='('){
-			s+=' ';
+	cin>>n>>m>>k;
+	rep(i,1,k){
+		int x,y;
+		cin>>x>>y;
+		a[x][y]=1;
+	}
+	if(a[1][1]==1){
+		cout<<0<<endl;
+	}
+	if(a[n][m]==1){
+		cout<<0<<endl;
+	}
+	dp[1][1]=1;
+	rep(i,1,n){
+		rep(j,1,m){
+			if(i>1) dp[i][j]+=dp[i-1][j]*(1-a[i-1][j]);
+			if(j>1) dp[i][j]+=dp[i][j-1]*(1-a[i][j-1]);
 		}
 	}
-	cin>>m;
-	stack<char> stk;
-	rep(i,0,s.size()-1){
-		if(s[i]>='0'&&s[i]<='9') continue;
-		if(s[i]=='(') stk.push(i);
-		if(s[i]==')') stk.pop();
-		if(s[i]==' ') mid[stk.top()]=i;
-	}
-	build(root,0,s.size()-1);
-	dfs(root);
-	cout<<dp[root][m]<<endl;
+	cout<<dp[n][m]<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */

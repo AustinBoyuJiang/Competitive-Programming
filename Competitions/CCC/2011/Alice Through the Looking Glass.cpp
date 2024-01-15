@@ -1,18 +1,18 @@
 /*
  * Author: Austin Jiang
- * Date: 1/10/2024 11:18:51 PM
- * Problem:
+ * Date: 1/12/2024 11:14:06 PM
+ * Problem: Alice Through the Looking Glass
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
-#define FASTIO
+//#define FASTIO
 //#define NDEBUG
 #define OPTIMIZE
 #define INTTOLL
@@ -36,6 +36,10 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
+
+/* Segment Tree */
+#define lc (rt << 1)
+#define rc (rt << 1 | 1)
 
 /* STL */
 #define lb lower_bound
@@ -115,84 +119,38 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e4+10;
-const int M = 2510;
-const int S = 1e4+10;
+const int N = 1e6+10;
 
-int n,m,root,mid[S],a[N],lc[N],rc[N],dp[N][M];
-string inp,s;
+int n,x,y;
 
-void build(int &rt,int l,int r){
-	if(!rt) rt=++n;
-	if(s[l]!='('){
-		rep(i,l,r){
-			a[rt]*=10;
-			a[rt]+=s[i]-'0';
-		}
-		return;
-	}
-	build(lc[rt],l+1,mid[l]-1);
-	build(rc[rt],mid[l]+1,r-1);
-}
-
-int get(int rt,int x){
-	int ans=0;
-	rep(i,0,x){
-		int res=min(dp[rt][x-i],(i+1)*(i+1));
-		chkmax(ans,res);
-	}
-	return ans;
-}
-
-void dfs(int rt){
-	if(lc[rt]) dfs(lc[rt]);
-	if(rc[rt]) dfs(rc[rt]);
-	if(!lc[rt]&&!rc[rt]){
-		dp[rt][0]=a[rt];
-		rep(i,1,m){
-			dp[rt][i]=a[rt]+i;
-		}
-		return;
-	}
-	rep(i,0,m){
-		rep(j,0,i){
-			int res=get(lc[rt],j)+get(rc[rt],i-j);
-			chkmax(dp[rt][i],res);
-		}
-	}
+bool dfs(int n,int x,int y){
+	if(n==0) return 0;
+	int bx=x/qpow(5ll,n-1);
+	int by=y/qpow(5ll,n-1);
+	if(by==0&&bx==1) return 1;
+	if(by==0&&bx==2) return 1;
+	if(by==0&&bx==3) return 1;
+	if(by==1&&bx==2) return 1;
+	if(by==2&&bx==1) return 0;
+	if(by==2&&bx==3) return 0;
+	if(bx==0) return 0;
+	if(bx==4) return 0;
+	if(by==4) return 0;
+	if(by==3) return 0;
+	int nx=x%qpow(5ll,n-1);
+	int ny=y%qpow(5ll,n-1);
+	return dfs(n-1,nx,ny);
 }
 
 inline void SOLVE(int Case){
-	getline(cin,inp);
-	rep(i,0,(int)inp.size()-1){
-		char x=inp[i];
-		if(x==' '){
-			if(i>0&&inp[i-1]==' ') continue;
-			if(i>0&&inp[i-1]=='(') continue;
-			if(i+1<inp.size()&&inp[i+1]==')') continue;
-		}
-		s+=x;
-		if(i+1<inp.size()&&x==')'&&inp[i+1]>='0'&&inp[i+1]<='9'){
-			s+=' ';
-		}
-		if(i+1<inp.size()&&x>='0'&&x<='9'&&inp[i+1]=='('){
-			s+=' ';
-		}
-		if(i+1<inp.size()&&x==')'&&inp[i+1]=='('){
-			s+=' ';
-		}
+	cin>>n>>x>>y;
+	bool res=dfs(n,x,y);
+	if(res){
+		cout<<"crystal"<<endl;
 	}
-	cin>>m;
-	stack<char> stk;
-	rep(i,0,s.size()-1){
-		if(s[i]>='0'&&s[i]<='9') continue;
-		if(s[i]=='(') stk.push(i);
-		if(s[i]==')') stk.pop();
-		if(s[i]==' ') mid[stk.top()]=i;
+	else{
+		cout<<"empty"<<endl;
 	}
-	build(root,0,s.size()-1);
-	dfs(root);
-	cout<<dp[root][m]<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */

@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 1/10/2024 11:18:51 PM
+ * Date: 1/13/2024 9:35:58 PM
  * Problem:
  * Source:
  * Description:
@@ -15,7 +15,7 @@
 #define FASTIO
 //#define NDEBUG
 #define OPTIMIZE
-#define INTTOLL
+//#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -36,6 +36,10 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
+
+/* Segment Tree */
+#define lc (rt << 1)
+#define rc (rt << 1 | 1)
 
 /* STL */
 #define lb lower_bound
@@ -115,84 +119,76 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e4+10;
-const int M = 2510;
-const int S = 1e4+10;
+const int N = 1e6+10;
 
-int n,m,root,mid[S],a[N],lc[N],rc[N],dp[N][M];
-string inp,s;
+int n,a[N],dp[N][2];
 
-void build(int &rt,int l,int r){
-	if(!rt) rt=++n;
-	if(s[l]!='('){
-		rep(i,l,r){
-			a[rt]*=10;
-			a[rt]+=s[i]-'0';
-		}
-		return;
-	}
-	build(lc[rt],l+1,mid[l]-1);
-	build(rc[rt],mid[l]+1,r-1);
+int cnt0(int l,int r){
+	int cnt=0;
+	rep(i,l,r) cnt+=1-a[i];
+	return cnt;
 }
 
-int get(int rt,int x){
-	int ans=0;
-	rep(i,0,x){
-		int res=min(dp[rt][x-i],(i+1)*(i+1));
-		chkmax(ans,res);
-	}
-	return ans;
-}
-
-void dfs(int rt){
-	if(lc[rt]) dfs(lc[rt]);
-	if(rc[rt]) dfs(rc[rt]);
-	if(!lc[rt]&&!rc[rt]){
-		dp[rt][0]=a[rt];
-		rep(i,1,m){
-			dp[rt][i]=a[rt]+i;
-		}
-		return;
-	}
-	rep(i,0,m){
-		rep(j,0,i){
-			int res=get(lc[rt],j)+get(rc[rt],i-j);
-			chkmax(dp[rt][i],res);
-		}
-	}
+int cnt1(int l,int r){
+	int cnt=0;
+	rep(i,l,r) cnt+=a[i];
+	return cnt;
 }
 
 inline void SOLVE(int Case){
-	getline(cin,inp);
-	rep(i,0,(int)inp.size()-1){
-		char x=inp[i];
-		if(x==' '){
-			if(i>0&&inp[i-1]==' ') continue;
-			if(i>0&&inp[i-1]=='(') continue;
-			if(i+1<inp.size()&&inp[i+1]==')') continue;
-		}
-		s+=x;
-		if(i+1<inp.size()&&x==')'&&inp[i+1]>='0'&&inp[i+1]<='9'){
-			s+=' ';
-		}
-		if(i+1<inp.size()&&x>='0'&&x<='9'&&inp[i+1]=='('){
-			s+=' ';
-		}
-		if(i+1<inp.size()&&x==')'&&inp[i+1]=='('){
-			s+=' ';
+	cin>>n;
+	rep(i,1,n){
+		cin>>a[i];
+	}
+	rep(i,1,n){
+		if(a[i]==1&&(i==n||a[i+1]==0)){
+			int j=i;
+			while(j>1&&a[j-1]==1) j--;
+			if(i-j+1>=4){
+				rep(k,j,i){
+					a[k]=0;
+				}
+			}
 		}
 	}
-	cin>>m;
-	stack<char> stk;
-	rep(i,0,s.size()-1){
-		if(s[i]>='0'&&s[i]<='9') continue;
-		if(s[i]=='(') stk.push(i);
-		if(s[i]==')') stk.pop();
-		if(s[i]==' ') mid[stk.top()]=i;
+	int bd=0;
+	VI ord={1,1,0,1,0,1,1};
+	rep(i,1,n){
+		if(i>=ord.size()){
+			bool ok=1;
+			rep(j,1,ord.size()){
+				if(a[i-ord.size()+j]!=ord[j-1]){
+					ok=0;
+					break;
+				}
+			}
+			if(ok&&(i==ord.size()||a[i-ord.size()]==0)&&(i==n||a[i+1]==0)){
+				bd+=3;
+				per(j,i,i-ord.size()+1){
+					a[j]=0;
+				}
+			}
+		}
 	}
-	build(root,0,s.size()-1);
-	dfs(root);
-	cout<<dp[root][m]<<endl;
+	rep(i,1,n){
+		dp[i][0]=INF;
+		dp[i][1]=INF;
+		if(i>=4){
+			dp[i][1]=cnt0(1,i);
+			rep(j,1,i-4){
+				if(a[j+1]==1&&a[j]==0){
+					chkmin(dp[i][1],dp[j][0]+cnt0(j+1,i));
+				}				
+			}
+		}
+		dp[i][0]=cnt1(1,i);
+		rep(j,1,i-1){
+			if(a[j]==1&&a[j+1]==0){
+				chkmin(dp[i][0],dp[j][1]+cnt1(j+1,i));
+			}
+		}
+	}
+	cout<<min(dp[n][0],dp[n][1])+bd<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */

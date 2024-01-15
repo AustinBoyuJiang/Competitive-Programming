@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 1/10/2024 11:18:51 PM
+ * Date: 1/12/2024 11:43:09 PM
  * Problem:
  * Source:
  * Description:
@@ -36,6 +36,10 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
+
+/* Segment Tree */
+#define lc (rt << 1)
+#define rc (rt << 1 | 1)
 
 /* STL */
 #define lb lower_bound
@@ -115,84 +119,122 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e4+10;
-const int M = 2510;
-const int S = 1e4+10;
+const int N = 1e6+10;
 
-int n,m,root,mid[S],a[N],lc[N],rc[N],dp[N][M];
-string inp,s;
-
-void build(int &rt,int l,int r){
-	if(!rt) rt=++n;
-	if(s[l]!='('){
-		rep(i,l,r){
-			a[rt]*=10;
-			a[rt]+=s[i]-'0';
+struct flow_network{
+	static const int V = 10;
+	static const int E = 100;
+	
+	int S,T,inq[V],dist[V],vis[V];
+	int tot=-1,head[V],h[V];
+	
+	flow_network(){
+		memset(head,-1,sizeof(head));
+	}
+	
+	struct edge{
+		int to,flow,cost,nxt;
+	} e[E<<1];
+	
+	void addd(int u,int v,int w,int c){
+		e[++tot].to=v;
+		e[tot].flow=w;
+		e[tot].cost=c;
+		e[tot].nxt=head[u];
+		head[u]=tot;
+	}
+	
+	int add(int u,int v,int w=INF,int c=0){
+		addd(u,v,w,c);
+		addd(v,u,0,-c);
+		return tot;
+	}
+	
+	bool SPFA(){
+		for(int i=S;i<=T;i++){
+			h[i]=head[i];
+			dist[i]=INF;
 		}
-		return;
-	}
-	build(lc[rt],l+1,mid[l]-1);
-	build(rc[rt],mid[l]+1,r-1);
-}
-
-int get(int rt,int x){
-	int ans=0;
-	rep(i,0,x){
-		int res=min(dp[rt][x-i],(i+1)*(i+1));
-		chkmax(ans,res);
-	}
-	return ans;
-}
-
-void dfs(int rt){
-	if(lc[rt]) dfs(lc[rt]);
-	if(rc[rt]) dfs(rc[rt]);
-	if(!lc[rt]&&!rc[rt]){
-		dp[rt][0]=a[rt];
-		rep(i,1,m){
-			dp[rt][i]=a[rt]+i;
+		queue<int> q;
+		q.push(S);
+		dist[S]=0;
+		while(!q.empty()){
+			int u=q.front();
+			q.pop();
+			inq[u]=0;
+			for(int i=h[u];~i;i=e[i].nxt){
+				int v=e[i].to,w=e[i].flow,c=e[i].cost;
+				if(w&&dist[u]+c<dist[v]){
+					dist[v]=dist[u]+c;
+					if(!inq[v]){
+						q.push(v);
+						inq[v]=1;
+					}
+				}
+			}
 		}
-		return;
+		return dist[T]!=INF;
 	}
-	rep(i,0,m){
-		rep(j,0,i){
-			int res=get(lc[rt],j)+get(rc[rt],i-j);
-			chkmax(dp[rt][i],res);
+	
+	int DFS(int u,int flow){
+		if(u==T) return flow;
+		vis[u]=1;
+		int ans=0;
+		for(int &i=h[u];~i;i=e[i].nxt){
+			int v=e[i].to,&w=e[i].flow,c=e[i].cost;
+			if(!vis[v]&&w&&dist[v]==dist[u]+c){
+				int res=DFS(v,min(w,flow));
+				w-=res,e[i^1].flow+=res;
+				flow-=res,ans+=res;
+				if(!res) dist[v]=-1;
+				if(!flow) break;
+			}
 		}
+		vis[u]=0;
+		return ans;
 	}
-}
+	
+	PI Dinic(){
+		PI ans={0,0};
+		while(SPFA()){
+			int res=DFS(S,INF);
+			ans.fir+=res;
+			ans.sec+=res*dist[T];
+		}
+		return ans;
+	}
+} fn;
 
 inline void SOLVE(int Case){
-	getline(cin,inp);
-	rep(i,0,(int)inp.size()-1){
-		char x=inp[i];
-		if(x==' '){
-			if(i>0&&inp[i-1]==' ') continue;
-			if(i>0&&inp[i-1]=='(') continue;
-			if(i+1<inp.size()&&inp[i+1]==')') continue;
-		}
-		s+=x;
-		if(i+1<inp.size()&&x==')'&&inp[i+1]>='0'&&inp[i+1]<='9'){
-			s+=' ';
-		}
-		if(i+1<inp.size()&&x>='0'&&x<='9'&&inp[i+1]=='('){
-			s+=' ';
-		}
-		if(i+1<inp.size()&&x==')'&&inp[i+1]=='('){
-			s+=' ';
-		}
+	int &S=fn.S=0;
+	int &T=fn.T=9;
+	rep(i,1,8){
+		int x;
+		cin>>x;
+		fn.add(S,i,x);
 	}
-	cin>>m;
-	stack<char> stk;
-	rep(i,0,s.size()-1){
-		if(s[i]>='0'&&s[i]<='9') continue;
-		if(s[i]=='(') stk.push(i);
-		if(s[i]==')') stk.pop();
-		if(s[i]==' ') mid[stk.top()]=i;
+	rep(i,1,8){
+		int x;
+		cin>>x;
+		fn.add(i,T,x);
 	}
-	build(root,0,s.size()-1);
-	dfs(root);
-	cout<<dp[root][m]<<endl;
+	fn.add(1,3);
+	fn.add(1,5);
+	fn.add(1,7);
+	fn.add(3,7);
+	fn.add(5,7);
+	fn.add(1,2);
+	fn.add(1,4);
+	fn.add(2,4);
+	fn.add(3,4);
+	fn.add(1,6);
+	fn.add(2,6);
+	fn.add(5,6);
+	rep(v,1,7){
+		fn.add(v,8);
+	}
+	int ans=fn.Dinic().fir;
+	cout<<ans<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */

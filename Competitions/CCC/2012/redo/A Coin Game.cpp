@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 1/10/2024 11:18:51 PM
+ * Date: 1/14/2024 1:33:09 PM
  * Problem:
  * Source:
  * Description:
@@ -12,10 +12,10 @@
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
-#define FASTIO
+//#define FASTIO
 //#define NDEBUG
 #define OPTIMIZE
-#define INTTOLL
+//#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -36,6 +36,10 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
+
+/* Segment Tree */
+#define lc (rt << 1)
+#define rc (rt << 1 | 1)
 
 /* STL */
 #define lb lower_bound
@@ -115,84 +119,88 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e4+10;
-const int M = 2510;
-const int S = 1e4+10;
+#define AR array<int,8>
 
-int n,m,root,mid[S],a[N],lc[N],rc[N],dp[N][M];
-string inp,s;
+const int N = 1e6+10;
+const int D = 100;
 
-void build(int &rt,int l,int r){
-	if(!rt) rt=++n;
-	if(s[l]!='('){
-		rep(i,l,r){
-			a[rt]*=10;
-			a[rt]+=s[i]-'0';
+int n;
+map<AR,int> vis;
+
+void Print(AR u){
+	cout<<" | ";
+	rep(i,0,n-1){
+		rep(j,0,n-1){
+			if((u[i]>>j)&1){
+				cout<<j+1;
+			}
 		}
-		return;
+		cout<<" | ";
 	}
-	build(lc[rt],l+1,mid[l]-1);
-	build(rc[rt],mid[l]+1,r-1);
+	cout<<endl;
 }
 
-int get(int rt,int x){
-	int ans=0;
-	rep(i,0,x){
-		int res=min(dp[rt][x-i],(i+1)*(i+1));
-		chkmax(ans,res);
+bool equal(AR a,AR b){
+	rep(i,0,n-1){
+		if(a[i]!=b[i]){
+			return 0;
+		}
 	}
-	return ans;
+	return 1;
 }
 
-void dfs(int rt){
-	if(lc[rt]) dfs(lc[rt]);
-	if(rc[rt]) dfs(rc[rt]);
-	if(!lc[rt]&&!rc[rt]){
-		dp[rt][0]=a[rt];
-		rep(i,1,m){
-			dp[rt][i]=a[rt]+i;
-		}
-		return;
+inline void solve(){
+	AR st,ed;
+	vis.clear();
+	rep(i,0,n-1){
+		int x;
+		cin>>x;
+		x--;
+		st[i]=1<<x;
+		ed[i]=1<<i;
 	}
-	rep(i,0,m){
-		rep(j,0,i){
-			int res=get(lc[rt],j)+get(rc[rt],i-j);
-			chkmax(dp[rt][i],res);
+	queue<pair<AR,int>> q;
+	q.push({st,0});
+	vis[st]=0;
+	while(!q.empty()){
+		AR u=q.front().fir;
+		int step=q.front().sec;
+		q.pop();
+		if(equal(u,ed)){
+			cout<<step<<endl;
+			return;
+		}
+		rep(i,0,n-1){
+			if(u[i]==0) continue;
+			if(i>0&&(u[i-1]==0||lowbit(u[i])<lowbit(u[i-1]))){
+				AR newu=u;
+				newu[i]^=lowbit(u[i]);
+				newu[i-1]^=lowbit(u[i]);
+				if(!vis.count(newu)){
+					vis[newu]=step+1;
+					q.push({newu,step+1});
+				}
+			}
+			if(i<n-1&&(u[i+1]==0||lowbit(u[i])<lowbit(u[i+1]))){
+				AR newu=u;
+				newu[i]^=lowbit(u[i]);
+				newu[i+1]^=lowbit(u[i]);
+				if(!vis.count(newu)){
+					vis[newu]=step+1;
+					q.push({newu,step+1});
+				}
+			}
 		}
 	}
+	cout<<"IMPOSSIBLE"<<endl;
 }
 
 inline void SOLVE(int Case){
-	getline(cin,inp);
-	rep(i,0,(int)inp.size()-1){
-		char x=inp[i];
-		if(x==' '){
-			if(i>0&&inp[i-1]==' ') continue;
-			if(i>0&&inp[i-1]=='(') continue;
-			if(i+1<inp.size()&&inp[i+1]==')') continue;
-		}
-		s+=x;
-		if(i+1<inp.size()&&x==')'&&inp[i+1]>='0'&&inp[i+1]<='9'){
-			s+=' ';
-		}
-		if(i+1<inp.size()&&x>='0'&&x<='9'&&inp[i+1]=='('){
-			s+=' ';
-		}
-		if(i+1<inp.size()&&x==')'&&inp[i+1]=='('){
-			s+=' ';
-		}
+	while(true){
+		cin>>n;
+		if(!n) break;
+		solve();
 	}
-	cin>>m;
-	stack<char> stk;
-	rep(i,0,s.size()-1){
-		if(s[i]>='0'&&s[i]<='9') continue;
-		if(s[i]=='(') stk.push(i);
-		if(s[i]==')') stk.pop();
-		if(s[i]==' ') mid[stk.top()]=i;
-	}
-	build(root,0,s.size()-1);
-	dfs(root);
-	cout<<dp[root][m]<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */

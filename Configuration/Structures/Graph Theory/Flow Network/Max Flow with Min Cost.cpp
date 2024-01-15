@@ -143,7 +143,7 @@ struct flow_network{
 		head[u]=tot;
 	}
 	
-	int add(int u,int v,int w,int c=0){
+	int add(int u,int v,int w=INF,int c=0){
 		addd(u,v,w,c);
 		addd(v,u,0,-c);
 		return tot;

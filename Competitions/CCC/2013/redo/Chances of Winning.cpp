@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 1/10/2024 11:18:51 PM
+ * Date: 1/14/2024 3:50:49 PM
  * Problem:
  * Source:
  * Description:
@@ -15,7 +15,7 @@
 #define FASTIO
 //#define NDEBUG
 #define OPTIMIZE
-#define INTTOLL
+//#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -36,6 +36,10 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
+
+/* Segment Tree */
+#define lc (rt << 1)
+#define rc (rt << 1 | 1)
 
 /* STL */
 #define lb lower_bound
@@ -115,84 +119,67 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e4+10;
-const int M = 2510;
-const int S = 1e4+10;
+const int N = 10;
 
-int n,m,root,mid[S],a[N],lc[N],rc[N],dp[N][M];
-string inp,s;
+int n,m,ans,score[N],f[N],tmp[N];
+set<PI> contest;
 
-void build(int &rt,int l,int r){
-	if(!rt) rt=++n;
-	if(s[l]!='('){
-		rep(i,l,r){
-			a[rt]*=10;
-			a[rt]+=s[i]-'0';
+void dfs(int u){
+	if(u>contest.size()){
+		int i=1;
+		memset(tmp,0,sizeof(tmp));
+		for(PI x:contest){
+			if(f[i]==0){
+				tmp[x.fir]++;
+				tmp[x.sec]++;
+			}
+			else if(f[i]==1){
+				tmp[x.fir]+=3;
+			}
+			else{
+				tmp[x.sec]+=3;
+			}
+			i++;
 		}
+		bool ok=1;
+		rep(i,1,4){
+			if(i==n) continue;
+			if(score[n]+tmp[n]<=score[i]+tmp[i]){
+				ok=0;
+				break;
+			}
+		}
+		ans+=ok;
 		return;
 	}
-	build(lc[rt],l+1,mid[l]-1);
-	build(rc[rt],mid[l]+1,r-1);
-}
-
-int get(int rt,int x){
-	int ans=0;
-	rep(i,0,x){
-		int res=min(dp[rt][x-i],(i+1)*(i+1));
-		chkmax(ans,res);
-	}
-	return ans;
-}
-
-void dfs(int rt){
-	if(lc[rt]) dfs(lc[rt]);
-	if(rc[rt]) dfs(rc[rt]);
-	if(!lc[rt]&&!rc[rt]){
-		dp[rt][0]=a[rt];
-		rep(i,1,m){
-			dp[rt][i]=a[rt]+i;
-		}
-		return;
-	}
-	rep(i,0,m){
-		rep(j,0,i){
-			int res=get(lc[rt],j)+get(rc[rt],i-j);
-			chkmax(dp[rt][i],res);
-		}
-	}
+	f[u]=0;
+	dfs(u+1);
+	f[u]=1;
+	dfs(u+1);
+	f[u]=2;
+	dfs(u+1);
 }
 
 inline void SOLVE(int Case){
-	getline(cin,inp);
-	rep(i,0,(int)inp.size()-1){
-		char x=inp[i];
-		if(x==' '){
-			if(i>0&&inp[i-1]==' ') continue;
-			if(i>0&&inp[i-1]=='(') continue;
-			if(i+1<inp.size()&&inp[i+1]==')') continue;
-		}
-		s+=x;
-		if(i+1<inp.size()&&x==')'&&inp[i+1]>='0'&&inp[i+1]<='9'){
-			s+=' ';
-		}
-		if(i+1<inp.size()&&x>='0'&&x<='9'&&inp[i+1]=='('){
-			s+=' ';
-		}
-		if(i+1<inp.size()&&x==')'&&inp[i+1]=='('){
-			s+=' ';
+	cin>>n>>m;
+	rep(i,1,4){
+		rep(j,1,i-1){
+			contest.insert({j,i});
 		}
 	}
-	cin>>m;
-	stack<char> stk;
-	rep(i,0,s.size()-1){
-		if(s[i]>='0'&&s[i]<='9') continue;
-		if(s[i]=='(') stk.push(i);
-		if(s[i]==')') stk.pop();
-		if(s[i]==' ') mid[stk.top()]=i;
+	rep(i,1,m){
+		int x,y,a,b;
+		cin>>x>>y>>a>>b;
+		contest.erase({x,y});
+		if(a==b){
+			score[x]++;
+			score[y]++;
+		}
+		if(a>b) score[x]+=3;
+		if(b>a) score[y]+=3;
 	}
-	build(root,0,s.size()-1);
-	dfs(root);
-	cout<<dp[root][m]<<endl;
+	dfs(1);
+	cout<<ans<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
