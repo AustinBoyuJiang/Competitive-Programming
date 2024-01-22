@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 1/21/2024 6:06:30 PM
+ * Date: 1/21/2024 6:57:06 PM
  * Problem:
  * Source:
  * Description:
@@ -81,8 +81,8 @@ void SETUP(){
 	cin.tie(nullptr)->sync_with_stdio(false);
 	#endif
 	#ifdef READLOCAL
-	freopen("telein.txt","r",stdin);
-	freopen("teleout.txt","w",stdout);
+	freopen("bankin.txt","r",stdin);
+	freopen("bankout.txt","w",stdout);
 	#endif
 	srand(time(0));
 }
@@ -122,21 +122,22 @@ namespace Comfun{
 const int N = 1e6+10;
 
 int n;
-map<int,bool> vis;
 
 inline void SOLVE(int Case){
 	cin>>n;
-	int pos=0;
-	vis[pos]=1;
+	int s=1,sum=0,ans=n;
 	rep(i,1,n){
 		char x;
 		cin>>x;
-		if(x=='L') pos--;
-		else if(x=='R') pos++;
-		else pos=0;
-		vis[pos]=1;
+		if(x=='C'){
+			s++;
+			chkmax(ans,sum+(n-i)*s);
+		}
+		else{
+			sum+=s;
+		}
 	}
-	cout<<vis.size()<<endl;
+	cout<<ans<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */

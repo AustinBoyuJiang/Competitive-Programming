@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 1/21/2024 6:06:30 PM
+ * Date: 1/21/2024 10:06:23 PM
  * Problem:
  * Source:
  * Description:
@@ -9,13 +9,13 @@
 /* Configuration */
 //#define MULTICASES
 //#define LOCAL
-#define READLOCAL
+//#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
 #define FASTIO
 //#define NDEBUG
-#define OPTIMIZE
-//#define INTTOLL
+//#define OPTIMIZE
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -81,8 +81,8 @@ void SETUP(){
 	cin.tie(nullptr)->sync_with_stdio(false);
 	#endif
 	#ifdef READLOCAL
-	freopen("telein.txt","r",stdin);
-	freopen("teleout.txt","w",stdout);
+	freopen("in.txt","r",stdin);
+	freopen("stdout.txt","w",stdout);
 	#endif
 	srand(time(0));
 }
@@ -121,22 +121,97 @@ namespace Comfun{
 
 const int N = 1e6+10;
 
-int n;
-map<int,bool> vis;
+int n,a[N],b[N],c[N],d[N],vis[N];
+VI e[N];
+
+__int128 get(int i,int x){
+	if(c[i]>=0){
+		__int128 res=b[i]*x;
+		res+=(__int128)c[i]*(1+x)*x/2;
+		return res;
+	}
+	else{
+		c[i]*=-1;
+		int p=(b[i]-1)/c[i];
+		chkmin(p,x);
+		int res=(__int128)b[i]*p;
+		res-=(__int128)c[i]*(1+p)*p/2;
+		res+=x-p;
+		return res;
+	}
+}
+
+bool dfs(int u,int fa){
+	for(int v:e[u]){
+		if(v==fa) continue;
+		if(!dfs(v,u)) return 0;
+		chkmin(d[u],d[v]-1);
+		if(d[u]<1) return 0;
+	}
+	return 1;
+}
+
+bool check(int x){
+	rep(i,1,n){
+		vis[i]=0;
+		if(c[i]==0){
+			d[i]=x-(a[i]+b[i]-1)/b[i]+1;
+			continue;
+		}
+		// I know the solution is to get d[i] by pure math calculation
+		d[i]=0;
+		int l=1,r=x;
+		while(l<=r){
+			int mid=l+r>>1;
+			if(get(i,x)-get(i,mid-1)>=a[i]){
+				d[i]=mid;
+				l=mid+1;
+			}
+			else{
+				r=mid-1;
+			}
+		}
+	}
+	if(!dfs(1,0)) return 0;
+	PQG<PI> q;
+	q.push({d[1],1});
+	vis[1]=1;
+	rep(i,1,n){
+		int u=q.top().sec;
+		q.pop();
+		if(d[u]<i) return 0;
+		for(int v:e[u]){
+			if(vis[v]) continue;
+			vis[v]=1;
+			q.push({d[v],v});
+		}
+	}
+	return 1;
+}
 
 inline void SOLVE(int Case){
 	cin>>n;
-	int pos=0;
-	vis[pos]=1;
 	rep(i,1,n){
-		char x;
-		cin>>x;
-		if(x=='L') pos--;
-		else if(x=='R') pos++;
-		else pos=0;
-		vis[pos]=1;
+		cin>>a[i]>>b[i]>>c[i];
 	}
-	cout<<vis.size()<<endl;
+	rep(i,1,n-1){
+		int u,v;
+		cin>>u>>v;
+		e[u].pb(v);
+		e[v].pb(u);
+	}
+	int l=1,r=1e9,ans=-1;
+	while(l<=r){
+		int mid=l+r>>1;
+		if(check(mid)){
+			ans=mid;
+			r=mid-1;
+		}
+		else{
+			l=mid+1;
+		}
+	}
+	cout<<ans<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
