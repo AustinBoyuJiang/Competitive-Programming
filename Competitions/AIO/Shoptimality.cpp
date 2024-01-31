@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 1/21/2024 6:06:30 PM
+ * Date: 1/21/2024 7:03:14 PM
  * Problem:
  * Source:
  * Description:
@@ -81,8 +81,8 @@ void SETUP(){
 	cin.tie(nullptr)->sync_with_stdio(false);
 	#endif
 	#ifdef READLOCAL
-	freopen("telein.txt","r",stdin);
-	freopen("teleout.txt","w",stdout);
+	freopen("shopin.txt","r",stdin);
+	freopen("shopout.txt","w",stdout);
 	#endif
 	srand(time(0));
 }
@@ -119,24 +119,86 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 1e5+10;
 
-int n;
-map<int,bool> vis;
+int n,m,a[N];
+PI b[N];
+
+struct Segtree_max_interval{
+	int st[N<<2],lazy[N<<2];
+	
+	void build(int rt,int l,int r){
+		st[rt]=0;
+		lazy[rt]=0;
+		if(l==r) return;
+		int mid=l+r>>1;
+		build(lc,l,mid);
+		build(rc,mid+1,r);
+	}
+	
+	void push_down(int rt,int l,int mid,int r){
+		if(lazy[rt]){
+			lazy[lc]+=lazy[rt];
+			lazy[rc]+=lazy[rt];
+			st[lc]+=lazy[rt];
+			st[rc]+=lazy[rt];
+			lazy[rt]=0;
+		}
+	}
+	
+	void update(int rt,int l,int r,int x,int y,int val){
+		if(y<x) return;
+		if(l==x&&r==y){
+			st[rt]+=val;
+			lazy[rt]+=val;
+			return;
+		}
+		int mid=l+r>>1;
+		push_down(rt,l,mid,r);
+		if(y<=mid) update(lc,l,mid,x,y,val);
+		else if(x>mid) update(rc,mid+1,r,x,y,val);
+		else update(lc,l,mid,x,mid,val),update(rc,mid+1,r,mid+1,y,val);
+		st[rt]=min(st[lc],st[rc]);
+	}
+	
+	int query(int rt,int l,int r,int x,int y){
+		if(l==x&&r==y) return st[rt];
+		int mid=l+r>>1;
+		push_down(rt,l,mid,r);
+		if(y<=mid) return query(lc,l,mid,x,y);
+		else if(x>mid) return query(rc,mid+1,r,x,y);
+		else return min(query(lc,l,mid,x,mid),query(rc,mid+1,r,mid+1,y));
+	}
+	
+	void add(int l,int r,int val){update(1,1,m,l,r,val);}
+	void add(int x,int val){add(x,x,val);}
+	int ask(int l,int r){return query(1,1,m,l,r);}
+	int ask(int x){return query(1,1,m,x,x);}
+} st;
 
 inline void SOLVE(int Case){
-	cin>>n;
-	int pos=0;
-	vis[pos]=1;
-	rep(i,1,n){
-		char x;
-		cin>>x;
-		if(x=='L') pos--;
-		else if(x=='R') pos++;
-		else pos=0;
-		vis[pos]=1;
+	cin>>n>>m;
+	rep(i,1,n) cin>>a[i];
+	sort(a+1,a+n+1);
+	rep(i,1,m) cin>>b[i].fir;
+	rep(i,1,m) cin>>b[i].sec;
+	sort(b+1,b+m+1);
+	st.build(1,1,m);
+	rep(i,1,m){
+		st.add(i,b[i].sec+b[i].fir);
 	}
-	cout<<vis.size()<<endl;
+	int j=0;
+	rep(i,1,n){
+		st.add(1,j,a[i]-a[i-1]);
+		while(j<m&&b[j+1].fir<=a[i]){
+			j++;
+			st.add(j,-st.ask(j));
+			st.add(j,b[j].sec+abs(a[i]-b[j].fir));
+		}
+		st.add(j+1,m,a[i-1]-a[i]);
+		cout<<st.ask(1,m)<<" ";
+	}
+	cout<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */

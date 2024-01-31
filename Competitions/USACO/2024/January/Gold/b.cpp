@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 1/21/2024 6:06:30 PM
+ * Date: 1/28/2024 4:38:01 PM
  * Problem:
  * Source:
  * Description:
@@ -9,13 +9,13 @@
 /* Configuration */
 //#define MULTICASES
 //#define LOCAL
-#define READLOCAL
+//#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
 #define FASTIO
 //#define NDEBUG
 #define OPTIMIZE
-//#define INTTOLL
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -81,8 +81,8 @@ void SETUP(){
 	cin.tie(nullptr)->sync_with_stdio(false);
 	#endif
 	#ifdef READLOCAL
-	freopen("telein.txt","r",stdin);
-	freopen("teleout.txt","w",stdout);
+	freopen("in.txt","r",stdin);
+	freopen("stdout.txt","w",stdout);
 	#endif
 	srand(time(0));
 }
@@ -119,24 +119,65 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int Q = 210;
+const int C = 1e4+10;
 
-int n;
-map<int,bool> vis;
+int n,q,c,cnt,dp[Q][C],sum[Q][C];
+map<int,int> to,p,pos;
+set<int> ord;
+
 
 inline void SOLVE(int Case){
-	cin>>n;
-	int pos=0;
-	vis[pos]=1;
-	rep(i,1,n){
-		char x;
-		cin>>x;
-		if(x=='L') pos--;
-		else if(x=='R') pos++;
-		else pos=0;
-		vis[pos]=1;
+	cin>>n>>q>>c;
+	int mx=0;
+	rep(i,1,q){
+		int a,h;
+		cin>>a>>h;
+		ord.insert(a);
+		ord.insert(h);
+		chkmax(mx,h);
+		if(!to[h]) to[h]=a;
+		else chkmin(to[h],a);
 	}
-	cout<<vis.size()<<endl;
+	int lst=1;
+	for(int i:ord){
+		if(to[i]) lst=i;
+		else p[i]=lst;
+	}
+	pos[1]=cnt++;
+	rep(i,1,c){
+		dp[pos[1]][i]=1;
+		sum[pos[1]][i]=i;
+	}
+	for(int i:ord){
+		if(i==1) continue;
+		pos[i]=cnt++;
+		rep(j,1,c){
+			if(to[i]){
+				if(j>1){
+					dp[pos[i]][j]=dp[pos[i]][j-1]+dp[pos[to[i]]][j-1]*qpow(j-1,i-to[i]-1)%MOD;
+					dp[pos[i]][j]%=MOD;
+				}
+				sum[pos[i]][j]=sum[pos[i]][j-1]+dp[pos[i]][j];
+				sum[pos[i]][j]%=MOD;
+			}
+			else{
+				dp[pos[i]][j]=dp[pos[p[i]]][j]*qpow(j,i-p[i])%MOD;
+				dp[pos[i]][j]+=sum[pos[p[i]]][j-1]*(qpow(j,i-p[i])-qpow(j-1,i-p[i])+MOD)%MOD;
+				dp[pos[i]][j]%=MOD;
+				sum[pos[i]][j]=sum[pos[i]][j-1]+dp[pos[i]][j];
+				sum[pos[i]][j]%=MOD;
+			}
+		}
+	}
+	int ans=0;
+	rep(i,1,c){
+		ans+=dp[pos[mx]][i];
+		ans%=MOD;
+	}
+	ans*=qpow(c,n-mx);
+	ans%=MOD;
+	cout<<ans<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */

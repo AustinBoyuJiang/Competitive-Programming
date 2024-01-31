@@ -1,21 +1,21 @@
 /*
  * Author: Austin Jiang
- * Date: 1/21/2024 6:06:30 PM
+ * Date: 1/28/2024 5:48:09 PM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
-#define READLOCAL
+//#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
 #define FASTIO
 //#define NDEBUG
 #define OPTIMIZE
-//#define INTTOLL
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -81,8 +81,8 @@ void SETUP(){
 	cin.tie(nullptr)->sync_with_stdio(false);
 	#endif
 	#ifdef READLOCAL
-	freopen("telein.txt","r",stdin);
-	freopen("teleout.txt","w",stdout);
+	freopen("in.txt","r",stdin);
+	freopen("stdout.txt","w",stdout);
 	#endif
 	srand(time(0));
 }
@@ -119,24 +119,73 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 2e5+10;
 
-int n;
-map<int,bool> vis;
+int n,a[N];
+
+bool check(int x){
+	int k=1;
+	rep(i,2,n){
+		if((i+1)*i/2<=x){
+			k=i;
+		}
+		else{
+			break;
+		}
+	}
+	multiset<int> num1,num2;
+	int cnt=k,lst=INF;
+	per(i,n,1){
+		if(a[i]>x){
+			num2.insert(a[i]);
+			cnt--;
+		}
+		else{
+			num1.insert(a[i]);
+		}
+		if(cnt<0){
+			return 0;
+		}
+	}
+	rep(i,1,n){
+		for(int x:num2){
+			int t=(1+k-p+1)*p/2;
+			auto pos=num1.lb(t);
+			if(pos!=num1.end()&&*pos<x){
+				cout<<x<<":)"<<endl;
+				return 0;
+			}
+			pos=num1.lb(t);
+			if(pos!=num1.begin()&&*(--pos)>x){
+				cout<<x<<":("<<endl;
+				return 0;
+			}
+			p++;
+		}
+	}
+	return 1;
+}
 
 inline void SOLVE(int Case){
 	cin>>n;
-	int pos=0;
-	vis[pos]=1;
 	rep(i,1,n){
-		char x;
-		cin>>x;
-		if(x=='L') pos--;
-		else if(x=='R') pos++;
-		else pos=0;
-		vis[pos]=1;
+		cin>>a[i];
 	}
-	cout<<vis.size()<<endl;
+	sort(a+1,a+n+1);
+	int l=1,r=min((1+n)*n/2,a[n]),ans=-1;
+	while(l<=r){
+		int mid=l+r>>1;
+		if(check(mid)){
+			ans=mid;
+			r=mid-1;
+		}
+		else{
+			l=mid+1;
+		}
+	}
+//	assert(ans!=-1);
+	cout<<ans<<endl;
+//	cout<<check(5)<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */

@@ -1,21 +1,21 @@
 /*
  * Author: Austin Jiang
- * Date: 1/21/2024 6:06:30 PM
+ * Date: 1/28/2024 7:50:33 PM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
-#define READLOCAL
+//#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
 #define FASTIO
 //#define NDEBUG
 #define OPTIMIZE
-//#define INTTOLL
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -81,8 +81,8 @@ void SETUP(){
 	cin.tie(nullptr)->sync_with_stdio(false);
 	#endif
 	#ifdef READLOCAL
-	freopen("telein.txt","r",stdin);
-	freopen("teleout.txt","w",stdout);
+	freopen("in.txt","r",stdin);
+	freopen("stdout.txt","w",stdout);
 	#endif
 	srand(time(0));
 }
@@ -119,24 +119,40 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 2e5+10;
 
-int n;
-map<int,bool> vis;
+int n,mx,a[N];
+
+int ok(int x) {
+    int j=0;
+    per(i,x,1){
+        bool flag=0;
+    	if(j>=n) break;
+    	int s=(x+i)*(x-i+1)/2;
+        while(j<n&&s>=a[j+1]) j++,flag=1;
+        if(j <= n &&s!=a[j]) j++,flag=1;
+        if(!flag) j++;
+    }
+    if(j>=n) return (x+1)*x/2;
+    else return a[n];
+}
 
 inline void SOLVE(int Case){
 	cin>>n;
-	int pos=0;
-	vis[pos]=1;
+	mx=0;
 	rep(i,1,n){
-		char x;
-		cin>>x;
-		if(x=='L') pos--;
-		else if(x=='R') pos++;
-		else pos=0;
-		vis[pos]=1;
+		cin>>a[i];
+		chkmax(a[i],mx);
 	}
-	cout<<vis.size()<<endl;
+    sort(a+1,a+n+1);
+    int l=1,r=n,res=-1;
+	while(l<=r) {
+        int mid=l+r>>1;
+        if (ok(mid)==a[n]) l=mid+1;
+       	else r=mid-1,res=mid;
+    }
+    assert(res!=-1);
+    cout<<min(ok(res),a[n])<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */

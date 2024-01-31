@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 1/21/2024 6:06:30 PM
+ * Date: 1/28/2024 7:01:47 PM
  * Problem:
  * Source:
  * Description:
@@ -9,13 +9,13 @@
 /* Configuration */
 //#define MULTICASES
 //#define LOCAL
-#define READLOCAL
+//#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
 #define FASTIO
 //#define NDEBUG
 #define OPTIMIZE
-//#define INTTOLL
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -81,8 +81,8 @@ void SETUP(){
 	cin.tie(nullptr)->sync_with_stdio(false);
 	#endif
 	#ifdef READLOCAL
-	freopen("telein.txt","r",stdin);
-	freopen("teleout.txt","w",stdout);
+	freopen("in.txt","r",stdin);
+	freopen("stdout.txt","w",stdout);
 	#endif
 	srand(time(0));
 }
@@ -119,24 +119,101 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = (int)(1e5+10)<<1;
 
-int n;
-map<int,bool> vis;
+int n,q,d,dist[2][N][20],fa[2][N][20],dd[2]={0,1};
+VI seg[2],flag[2][2],id[2][2];
+
+void check(vector<int>&pos,int u,int &t) {
+    int need = dd[u ^ 1] ^ (t&1) ^ (pos[u]&1);
+    int idx = ub(all(flag[u][need]), pos[u]) - flag[u][need].begin();
+   	int tmp=min(d,flag[u][need][idx] - pos[u]);
+    pos[u]+=tmp;
+    t+=tmp;
+    d-=tmp;
+}
+
+bool find(vector<int>&seg,int x) {
+	return *lb(all(seg),x)==x;
+}
+
+int get(vector<int>&pos,int cur) {
+    int u=-1;
+    if(find(seg[0],pos[0])&&find(seg[1],pos[1])) u=1;
+    else if(find(seg[0],pos[0])) u=1;
+    else u=0;
+    if((cur&1)==0) u^=1;
+    return u;
+}
+
+void solve(vector<int>&pos,int &t) {
+    int u=get(pos,t);
+    check(pos,u,t);
+    u=get(pos,t);
+    check(pos,u,t);
+}
 
 inline void SOLVE(int Case){
-	cin>>n;
-	int pos=0;
-	vis[pos]=1;
+	cin>>n>>q;
 	rep(i,1,n){
-		char x;
-		cin>>x;
-		if(x=='L') pos--;
-		else if(x=='R') pos++;
-		else pos=0;
-		vis[pos]=1;
+		char t;
+		int c;
+		cin>>t>>c;
+        if(t=='H') seg[1].pb(c);
+        if(t=='V') seg[0].pb(c);
 	}
-	cout<<vis.size()<<endl;
+    seg[0].pb(2e9);
+	seg[1].pb(2e9+1);
+	seg[0].pb(2e9+1);
+    seg[1].pb(2e9);
+    sort(all(seg[0]));
+    sort(all(seg[1]));
+    rep(o,0,1){
+        rep(i,0,(int)seg[o].size()-1){
+            id[o][seg[o][i]&1].pb(i);
+            flag[o][seg[o][i]&1].pb(seg[o][i]);
+        }
+        rep(i,0,(int)seg[o].size()-1){
+            if(i<(int)seg[o].size() - 1) {
+                int v = 1 ^seg[o][i]%2;
+                int p = ub(flag[o][v].begin(), flag[o][v].end(), seg[o][i])-flag[o][v].begin();
+                dist[o][i][0] = flag[o][v][p] - seg[o][i];
+                fa[o][i][0] = id[o][v][p];
+                continue;
+            }
+            dist[o][i][0] = 0;
+            fa[o][i][0] = i;
+        }
+        rep(k,1,19){
+            rep(i,0,(int)seg[o].size()){
+                int ff = fa[o][i][k - 1];
+                fa[o][i][k] = fa[o][ff][k - 1];
+                dist[o][i][k] = dist[o][i][k - 1] + dist[o][ff][k - 1];
+            }
+        }
+    }
+    for(int i = 1; i <= q; ++i) {
+        int x,y;
+        cin>>x>>y>>d;
+        VI pos{x,y};
+	    int t=1;
+	    solve(pos,t);
+	    if(d!=0){
+		    per(k,19,0){
+		        int p0=lb(all(seg[0]),pos[0])-seg[0].begin();
+		        int p1=lb(all(seg[1]),pos[1])-seg[1].begin();
+		        int tot=dist[0][p0][k]+dist[1][p1][k];
+		        if(tot<=d) {
+		            pos[0]+=dist[0][p0][k];
+		            pos[1]+=dist[1][p1][k];
+		            d-=tot;
+		            t+=tot;
+		        }
+		    }
+		    solve(pos,t);
+		}
+        cout<<pos[0]<<" "<<pos[1]<<endl;
+    }
 }
 
 /* =====================================| End of Main Program |===================================== */

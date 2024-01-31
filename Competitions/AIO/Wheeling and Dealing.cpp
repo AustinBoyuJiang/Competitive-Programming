@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 1/21/2024 6:06:30 PM
+ * Date: 1/21/2024 8:36:32 PM
  * Problem:
  * Source:
  * Description:
@@ -15,7 +15,7 @@
 #define FASTIO
 //#define NDEBUG
 #define OPTIMIZE
-//#define INTTOLL
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -81,8 +81,8 @@ void SETUP(){
 	cin.tie(nullptr)->sync_with_stdio(false);
 	#endif
 	#ifdef READLOCAL
-	freopen("telein.txt","r",stdin);
-	freopen("teleout.txt","w",stdout);
+	freopen("dealin.txt","r",stdin);
+	freopen("dealout.txt","w",stdout);
 	#endif
 	srand(time(0));
 }
@@ -119,24 +119,69 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 1e5+10;
+const int P = 1e4+10;
 
-int n;
-map<int,bool> vis;
+int n,m,cnt,v[N],p[N],d[P],tmp[P];
+VI q[N];
+
+int check(int x){
+	int tot=cnt,res=0;
+	rep(i,0,P-1) tmp[i]=d[i];
+	rep(i,2,m){
+		int j=0;
+		while((int)q[i].size()>x+j){
+			res+=q[i][j];
+			tmp[q[i][j]]--;
+			tot++;
+			j++;
+		}
+	}
+	rep(i,0,P-1){
+		if(tot<=x){
+			int mn=min(tmp[i],x+1-tot);
+			tot+=mn;
+			res+=mn*i;
+		}
+	}
+	return res;
+}
 
 inline void SOLVE(int Case){
-	cin>>n;
-	int pos=0;
-	vis[pos]=1;
+	cin>>m>>n;
 	rep(i,1,n){
-		char x;
-		cin>>x;
-		if(x=='L') pos--;
-		else if(x=='R') pos++;
-		else pos=0;
-		vis[pos]=1;
+		cin>>v[i];
 	}
-	cout<<vis.size()<<endl;
+	rep(i,1,n){
+		cin>>p[i];
+		if(v[i]==1) cnt++;
+		else{
+			q[v[i]].pb(p[i]);
+			d[p[i]]++;
+		}
+	}
+	rep(i,1,m){
+		sort(all(q[i]));
+	}
+	int l=0,r=n,ans=INF;
+	while(l<=r){
+		int midl=l+(r-l)/3;
+		int midr=l+(r-l)*2/3;
+		int mid=l+r>>1;
+		int resl=check(midl);
+		int resr=check(midr);
+		int res=check(mid);
+		chkmin(ans,resl);
+		chkmin(ans,resr);
+		chkmin(ans,res);
+		if(resl<resr){
+			r=midr-1;
+		}
+		else{
+			l=midl+1;
+		}
+	}
+	cout<<ans<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */

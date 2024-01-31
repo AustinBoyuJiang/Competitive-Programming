@@ -1,7 +1,7 @@
 /*
  * Author: Austin Jiang
- * Date: 1/21/2024 6:06:30 PM
- * Problem:
+ * Date: 1/21/2024 11:31:06 PM
+ * Problem: Distincto's Raffle
  * Source:
  * Description:
 */
@@ -81,8 +81,8 @@ void SETUP(){
 	cin.tie(nullptr)->sync_with_stdio(false);
 	#endif
 	#ifdef READLOCAL
-	freopen("telein.txt","r",stdin);
-	freopen("teleout.txt","w",stdout);
+	freopen("rafflein.txt","r",stdin);
+	freopen("raffleout.txt","w",stdout);
 	#endif
 	srand(time(0));
 }
@@ -119,24 +119,24 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 1e5+10;
 
-int n;
-map<int,bool> vis;
+int n,k,cnt[N];
 
 inline void SOLVE(int Case){
-	cin>>n;
-	int pos=0;
-	vis[pos]=1;
+	cin>>n>>k;
 	rep(i,1,n){
-		char x;
+		int x;
 		cin>>x;
-		if(x=='L') pos--;
-		else if(x=='R') pos++;
-		else pos=0;
-		vis[pos]=1;
+		cnt[x]++;
 	}
-	cout<<vis.size()<<endl;
+	rep(i,1,k){
+		if(cnt[i]==1){
+			cout<<i<<endl;
+			return;
+		}
+	}
+	cout<<-1<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */

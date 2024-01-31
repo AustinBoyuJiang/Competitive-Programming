@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 1/21/2024 6:06:30 PM
+ * Date: 1/29/2024 2:18:59 PM
  * Problem:
  * Source:
  * Description:
@@ -9,7 +9,7 @@
 /* Configuration */
 //#define MULTICASES
 //#define LOCAL
-#define READLOCAL
+//#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
 #define FASTIO
@@ -81,8 +81,8 @@ void SETUP(){
 	cin.tie(nullptr)->sync_with_stdio(false);
 	#endif
 	#ifdef READLOCAL
-	freopen("telein.txt","r",stdin);
-	freopen("teleout.txt","w",stdout);
+	freopen("in.txt","r",stdin);
+	freopen("stdout.txt","w",stdout);
 	#endif
 	srand(time(0));
 }
@@ -121,22 +121,17 @@ namespace Comfun{
 
 const int N = 1e6+10;
 
-int n;
-map<int,bool> vis;
+int n,a[N];
 
 inline void SOLVE(int Case){
 	cin>>n;
-	int pos=0;
-	vis[pos]=1;
+	int m=INF;
 	rep(i,1,n){
-		char x;
-		cin>>x;
-		if(x=='L') pos--;
-		else if(x=='R') pos++;
-		else pos=0;
-		vis[pos]=1;
+		cin>>a[i];
+		chkmin(m,a[i]);
 	}
-	cout<<vis.size()<<endl;
+	m/=4;
+	
 }
 
 /* =====================================| End of Main Program |===================================== */

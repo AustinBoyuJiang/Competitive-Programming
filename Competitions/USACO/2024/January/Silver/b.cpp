@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 1/21/2024 6:06:30 PM
+ * Date: 1/29/2024 1:36:11 PM
  * Problem:
  * Source:
  * Description:
@@ -9,7 +9,7 @@
 /* Configuration */
 //#define MULTICASES
 //#define LOCAL
-#define READLOCAL
+//#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
 #define FASTIO
@@ -81,8 +81,8 @@ void SETUP(){
 	cin.tie(nullptr)->sync_with_stdio(false);
 	#endif
 	#ifdef READLOCAL
-	freopen("telein.txt","r",stdin);
-	freopen("teleout.txt","w",stdout);
+	freopen("in.txt","r",stdin);
+	freopen("stdout.txt","w",stdout);
 	#endif
 	srand(time(0));
 }
@@ -121,22 +121,63 @@ namespace Comfun{
 
 const int N = 1e6+10;
 
-int n;
-map<int,bool> vis;
+int n,ans,p[N],cnt[N],fa[N],has[N];
+VI e[N];
+
+void init(int u,int father){
+	fa[u]=father;
+	if(e[u].size()==1&&father!=0){
+		cnt[u]=1;
+	}
+	for(int v:e[u]){
+		if(v==father) continue;
+		init(v,u);
+		cnt[u]+=cnt[v];
+	}
+}
+
+void dfs(int u,int father){
+	cnt[u]--;
+	sort(all(e[u]),[](int a,int b){
+		return cnt[a]<cnt[b];
+	});
+	for(int v:e[u]){
+		if(v==father) continue;
+		if(cnt[v]){
+			dfs(v,u);
+			break;
+		}
+	}
+}
 
 inline void SOLVE(int Case){
 	cin>>n;
-	int pos=0;
-	vis[pos]=1;
 	rep(i,1,n){
-		char x;
-		cin>>x;
-		if(x=='L') pos--;
-		else if(x=='R') pos++;
-		else pos=0;
-		vis[pos]=1;
+		cin>>p[i];
+		has[p[i]]++;
 	}
-	cout<<vis.size()<<endl;
+	rep(I,1,n-1){
+		int u,v;
+		cin>>u>>v;
+		e[u].pb(v);
+		e[v].pb(u);
+	}
+	init(1,0);
+	rep(i,1,n){
+		if(!cnt[1]) break;
+		if(!cnt[p[i]]){
+			dfs(1,0);
+			continue;
+		}
+		ans++;
+		int u=p[i];
+		dfs(p[i],fa[p[i]]);
+		while(fa[u]){
+			u=fa[u];
+			cnt[u]--;
+		}
+	}
+	cout<<ans<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */

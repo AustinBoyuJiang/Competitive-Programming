@@ -1,15 +1,15 @@
 /*
  * Author: Austin Jiang
- * Date: 1/21/2024 6:06:30 PM
+ * Date: 1/29/2024 11:45:40 AM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
-#define READLOCAL
+//#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
 #define FASTIO
@@ -81,8 +81,8 @@ void SETUP(){
 	cin.tie(nullptr)->sync_with_stdio(false);
 	#endif
 	#ifdef READLOCAL
-	freopen("telein.txt","r",stdin);
-	freopen("teleout.txt","w",stdout);
+	freopen("in.txt","r",stdin);
+	freopen("stdout.txt","w",stdout);
 	#endif
 	srand(time(0));
 }
@@ -119,24 +119,60 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 1e5+10;
 
-int n;
-map<int,bool> vis;
+int n,q,c,a[N],mn[N],to[N],flag[N];
 
 inline void SOLVE(int Case){
-	cin>>n;
-	int pos=0;
-	vis[pos]=1;
+	cin>>n>>q>>c;
 	rep(i,1,n){
-		char x;
-		cin>>x;
-		if(x=='L') pos--;
-		else if(x=='R') pos++;
-		else pos=0;
-		vis[pos]=1;
+		cin>>a[i];
+		flag[i]=0;
+		if(!a[i]) flag[i]=1;
+		to[i]=0;
+		mn[i]=0;
 	}
-	cout<<vis.size()<<endl;
+	rep(i,1,q){
+		int a,h;
+		cin>>a>>h;
+		if(!to[h]) to[h]=a;
+		else chkmin(to[h],a);
+	}
+	mn[0]=0;
+	rep(i,1,n){
+		if(to[i]&&to[i]<i-1&&mn[i-1]>mn[i]){
+			if(!flag[to[i]]){
+				cout<<-1<<endl;
+				return;
+			}
+			a[to[i]]=mn[i-1];
+			rep(j,to[i],i-2){
+				mn[j]=mn[i-1];
+			}
+		}
+		if(!a[i]){
+			if(to[i]){
+				a[i]=mn[to[i]]+1;
+			}
+			else a[i]=1;
+		}
+		else{
+			if(to[i]){
+				if(a[i]<=mn[to[i]]){
+					cout<<-1<<endl;
+					return;
+				}
+			}
+		}
+		mn[i]=max(mn[i-1],a[i]);
+		if(a[i]>c){
+			cout<<-1<<endl;
+			return;
+		}
+	}
+	rep(i,1,n-1){
+		cout<<a[i]<<" ";
+	} cout<<a[n]<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
