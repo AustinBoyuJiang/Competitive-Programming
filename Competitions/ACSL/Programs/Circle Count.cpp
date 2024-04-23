@@ -114,7 +114,7 @@ void solve(int Case){
 //		if(x.fir.size()>=3) ans+=1;
 //	}
 //	cout<<ans<<endl;
-//	cout<<"Total circle: "<<circle.size()<<endl;
+	cout<<"Total circle: "<<circle.size()<<endl;
 }
 
 /* ======================================| Main Program End |====================================== */

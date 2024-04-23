@@ -1,13 +1,13 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 4/20/2024 8:38:01 PM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
@@ -36,11 +36,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -64,7 +64,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -121,11 +121,30 @@ namespace Comfun{
 
 const int N = 1e6+10;
 
-int n;
+string s;
+
+bool check(int len){
+	rep(i,1,len){
+		if(s[i]!=s[i+len]){
+			return 0;
+		}
+	}
+	return 1;
+}
 
 inline void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>s;
+	int n=s.size();
+	reverse(all(s));
+	s=" "+s;
+	rep(i,1,n){
+		if(i*2>=n) break;
+		if(check(i)){
+			cout<<"YES"<<endl;
+			return;
+		}
+	}
+	cout<<"NO"<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -166,3 +185,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) adversarial testing
 */
+

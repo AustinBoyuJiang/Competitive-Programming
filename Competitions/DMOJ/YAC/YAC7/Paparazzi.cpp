@@ -1,7 +1,7 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
- * Problem:
+ * Date: 2/8/2024 12:10:42 AM
+ * Problem: Paparazzi
  * Source:
  * Description:
 */
@@ -36,11 +36,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -64,7 +64,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -119,13 +119,48 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 2010;
 
-int n;
+int n,m,pos[N],dis[N][N];
+VI e[N];
+
+void dfs(int u,int fa,int rt){
+	dis[rt][u]=dis[rt][fa]+1;
+	for(int v:e[u]){
+		if(v==fa) continue;
+		dfs(v,u,rt);
+	}
+}
 
 inline void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>n>>m;
+	rep(i,1,n-1){
+		int u,v;
+		cin>>u>>v;
+		e[u].pb(v);
+		e[v].pb(u);
+	}
+	rep(i,1,n){
+		dfs(i,0,i);
+		pos[i]=i;
+	}
+	rep(i,1,m){
+		int x;
+		cin>>x;
+		rep(u,1,n){
+			for(int v:e[pos[u]]){
+				if(dis[x][v]<dis[x][pos[u]]){
+					pos[u]=v;
+					break;
+				}
+			}
+		}
+		set<int> cnt;
+		rep(i,1,n){
+			cnt.insert(pos[i]);
+		}
+		cout<<cnt.size()<<endl;
+	}
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -164,5 +199,6 @@ signed main(){
     * don't stuck on one question for two long (like 30-45 min)
     * Debug: (a) read your code once, check overflow and edge case
     * Debug: (b) create your own test case
-    * Debug: (c) adversarial testing
+    * Debug: (c) Adversarial Testing
 */
+

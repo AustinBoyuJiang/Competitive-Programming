@@ -1,13 +1,13 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 2/11/2024 3:12:22 AM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
@@ -15,7 +15,7 @@
 #define FASTIO
 //#define NDEBUG
 #define OPTIMIZE
-//#define INTTOLL
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -36,11 +36,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -64,7 +64,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -121,11 +121,47 @@ namespace Comfun{
 
 const int N = 1e6+10;
 
-int n;
+int n,a,b,c[N];
+
+int check(int m){
+	int ans=-(m-1)*b;
+	rep(i,1,n){
+		ans+=c[i]*(c[i]-1)/2*a;
+		int n1=c[i]%m;
+		int n2=m-c[i]%m;
+		ans-=n1*((c[i]+m-1)/m*((c[i]+m-1)/m-1)/2)*a;
+		ans-=n2*(c[i]/m*(c[i]/m-1)/2)*a;
+	}
+	return ans;
+}
 
 inline void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>n>>a>>b;
+	rep(i,1,n){
+		cin>>c[i];
+	}
+	int l=1,r=2e5,ans=0;
+	while(l<=r){
+		int midl=l+(r-l)/3;
+		int midr=l+(r-l)*2/3;
+		int mid=(l+r)/2;
+		int resl=check(midl);
+		int resr=check(midr);
+		int res=check(mid);
+		chkmax(ans,resl); 
+		chkmax(ans,resr); 
+		chkmax(ans,res);
+		if(resl>=resr){
+			r=midr-1;
+		}
+		else{
+			l=midl+1;
+		}
+	}
+	rep(i,max(1ll,l-100),min((int)2e5,l+100)){
+		chkmax(ans,check(i));
+	}
+	cout<<ans<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -164,5 +200,6 @@ signed main(){
     * don't stuck on one question for two long (like 30-45 min)
     * Debug: (a) read your code once, check overflow and edge case
     * Debug: (b) create your own test case
-    * Debug: (c) adversarial testing
+    * Debug: (c) Adversarial Testing
 */
+

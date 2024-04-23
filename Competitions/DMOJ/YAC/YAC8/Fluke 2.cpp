@@ -1,7 +1,7 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
- * Problem:
+ * Date: 2/3/2024 9:17:24 PM
+ * Problem: Fluke 2
  * Source:
  * Description:
 */
@@ -12,7 +12,7 @@
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
-#define FASTIO
+//#define FASTIO
 //#define NDEBUG
 #define OPTIMIZE
 //#define INTTOLL
@@ -36,11 +36,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -64,7 +64,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -121,11 +121,151 @@ namespace Comfun{
 
 const int N = 1e6+10;
 
-int n;
+int n,m,t,cnt,lstx,lsty,flag[200][200];
+
+bool get(int &x,int &y){
+	cnt++;
+//	assert(cnt<=400);
+	char res;
+	cin>>x>>y>>res;
+	lstx=x;
+	lsty=y;
+	flag[x][y]^=1;
+	assert(res!='L');
+	return res=='C';
+}
+
+bool go(int x,int y){
+	cnt++;
+//	assert(cnt<=400);
+	char res;
+	if(x==lstx&&y==lsty){
+		if(x==1) x+=1;
+		else x-=1;
+	}
+	assert(!(x==lstx&&y==lsty));
+	cout<<x<<" "<<y<<endl;
+	flag[x][y]^=1;
+	cout.flush();
+	cin>>res;
+	assert(res!='L');
+	return res=='C';
+}
+
+void solve2(){
+	cout<<"2"<<endl;
+	cout.flush();
+	while(true){
+		int x,y;
+		char res;
+		cin>>x>>y>>res;
+		if(res!='C') return;
+		if(y==1){
+			if(!go(1,2)) return;
+		}
+		else{
+			if(!go(1,1)) return;
+		}
+	}
+}
+
+int find(int y,int x){
+	int pos=INF;
+	rep(i,1,m){
+		if(i==x) continue;
+		if(!flag[y][i]) continue;
+		if(abs(x-i)<abs(x-pos)){
+			pos=i;
+		}
+	}
+	return pos;
+}
+
+int find2(int x,int y){
+	int pos=INF;
+	rep(i,1,n){
+		if(i==x) continue;
+		if(!flag[i][y]) continue;
+		if(abs(x-i)<abs(x-pos)){
+			pos=i;
+		}
+	}
+	return pos;
+}
+
+void solve(){
+	if(n<=2&&m==2){
+		solve2();
+		return;
+	}
+	cout<<1<<endl;
+	int posx=(n+1)/2;
+	int posy=(m+1)/2;
+	if(!go(posx,posy)) return;
+	int x,y;
+	if(!get(x,y)) return;
+	if(posx!=x&&posy!=y){
+		posx=x;
+		if(!go(posx,posy)) return;
+		int nx,ny;
+		if(!get(nx,ny)) return;
+	}
+	int p=find(posx,posy);
+	if(p!=INF){
+		int l=min(posy,p)+1;
+		int r=max(posy,p)-1;
+		while(true){
+			if(l<=r){
+				int mid=(l+r)/2;
+				if(!go(posx,mid)) return;
+				if(!get(x,y)) return;
+				int pos=find(posx,mid);
+				l=min(pos,mid)+1;
+				r=max(pos,mid)-1;
+			}
+			else{
+				if(l+1<=m){
+					if(!go(posx,l+1)) return;
+				}
+				else{
+					if(!go(posx,r-1)) return;
+				}
+			}
+		}
+		return;
+	}
+	p=find2(posx,posy);
+	int l=min(posx,p)+1;
+	int r=max(posx,p)-1;
+	while(true){
+		if(l<=r){
+			int mid=(l+r)/2;
+			if(!go(mid,posy)) return;
+			if(!get(x,y)) return;
+			int pos=find2(mid,posy);
+			l=min(pos,mid)+1;
+			r=max(pos,mid)-1;
+		}
+		else{
+			if(l+1<=n){
+				if(!go(l+1,posy)) return;
+			}
+			else{
+				if(!go(r-1,posy)) return;
+			}
+		}
+	}
+}
 
 inline void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>n>>m>>t;
+	while(t--){
+		cnt=0;
+		lstx=0;
+		lsty=0;
+		memset(flag,0,sizeof(flag));
+		solve();
+	}
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -164,5 +304,6 @@ signed main(){
     * don't stuck on one question for two long (like 30-45 min)
     * Debug: (a) read your code once, check overflow and edge case
     * Debug: (b) create your own test case
-    * Debug: (c) adversarial testing
+    * Debug: (c) Adversarial Testing
 */
+

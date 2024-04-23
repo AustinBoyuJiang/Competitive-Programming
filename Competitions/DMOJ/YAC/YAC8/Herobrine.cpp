@@ -1,7 +1,7 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
- * Problem:
+ * Date: 2/3/2024 8:34:24 PM
+ * Problem: Herobrine
  * Source:
  * Description:
 */
@@ -36,11 +36,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -64,7 +64,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -121,11 +121,81 @@ namespace Comfun{
 
 const int N = 1e6+10;
 
-int n;
+int n,mx,fa[N],siz[N],hson[N],cnt[N],pos[N],ans[N];
+VI e[N],o[N],stk;
+
+void init(int u){
+	siz[u]=1;
+	for(int v:e[u]){
+		init(v);
+		siz[u]+=siz[v];
+		if(siz[v]>siz[hson[u]]){
+			hson[u]=v;
+		}
+	}
+}
+
+void clean(){
+	mx=0;
+	while(!stk.empty()){
+		cnt[stk.back()]=0;
+		pos[stk.back()]=0;
+		stk.pop_back();
+	}
+}
+
+void upd(int x){
+	if(!cnt[x]){
+		stk.pb(x);
+		pos[x]=stk.size();
+		chkmax(mx,pos[x]);
+	}
+	cnt[x]++;
+	int l=0,r=pos[x]-2,p=pos[x]-1;
+	while(l<=r){
+		int mid=l+r>>1;
+		if(cnt[x]<=cnt[stk[mid]]) l=mid+1;
+		else p=mid,r=mid-1;
+	}
+	int id=stk[p];
+	swap(stk[pos[id]-1],stk[pos[x]-1]);
+	swap(pos[x],pos[id]);
+	chkmax(mx,cnt[x]*pos[x]);
+	chkmax(mx,cnt[id]*pos[id]);
+}
+
+void add(int u){
+	for(int x:o[u]) upd(x);
+	for(int v:e[u]) add(v);
+}
+
+void dfs(int u){
+	for(int v:e[u]) if(v!=hson[u]) dfs(v),clean();
+	if(hson[u]) dfs(hson[u]);
+	for(int v:e[u]) if(v!=hson[u]) add(v);
+	for(int x:o[u]) upd(x);
+	ans[u]=mx;
+}
 
 inline void SOLVE(int Case){
 	cin>>n;
-	
+	rep(i,1,n){
+		cin>>fa[i];
+		e[fa[i]].pb(i);
+	}
+	rep(i,1,n){
+		int m;
+		cin>>m;
+		o[i].resize(m);
+		for(int &x:o[i]){
+			cin>>x;
+		}
+	}
+	init(0);
+	dfs(0);
+	rep(i,1,n){
+		cout<<ans[i]<<endl;
+	}
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -164,5 +234,6 @@ signed main(){
     * don't stuck on one question for two long (like 30-45 min)
     * Debug: (a) read your code once, check overflow and edge case
     * Debug: (b) create your own test case
-    * Debug: (c) adversarial testing
+    * Debug: (c) Adversarial Testing
 */
+

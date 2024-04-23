@@ -1,13 +1,13 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 2/17/2024 7:00:31 AM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
@@ -15,7 +15,7 @@
 #define FASTIO
 //#define NDEBUG
 #define OPTIMIZE
-//#define INTTOLL
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -36,11 +36,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -64,7 +64,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -121,11 +121,31 @@ namespace Comfun{
 
 const int N = 1e6+10;
 
-int n;
+int n,a[N],flag[N];
 
 inline void SOLVE(int Case){
 	cin>>n;
-	
+	rep(i,1,n){
+		char x;
+		cin>>x;
+		a[i]=x-'0';
+	}
+	int ans=0;
+	rep(l,1,n){
+		flag[l]=flag[l+1]=0;
+		int cnt=0;
+		rep(r,l,n){
+			flag[r+2]=0;
+			if(a[r]&&!flag[r]){
+				flag[r]=1;
+				flag[r+1]=1;
+				flag[r+2]=1;
+				cnt++;
+			}
+			ans+=cnt;
+		}
+	}
+	cout<<ans<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -164,5 +184,6 @@ signed main(){
     * don't stuck on one question for two long (like 30-45 min)
     * Debug: (a) read your code once, check overflow and edge case
     * Debug: (b) create your own test case
-    * Debug: (c) adversarial testing
+    * Debug: (c) Adversarial Testing
 */
+

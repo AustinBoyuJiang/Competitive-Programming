@@ -1,13 +1,13 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 3/16/2024 7:40:07 AM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
@@ -36,11 +36,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -64,7 +64,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -121,11 +121,48 @@ namespace Comfun{
 
 const int N = 1e6+10;
 
-int n;
+int n,k,a[N],pos[N][2];
+
 
 inline void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>n>>k;
+	rep(i,1,n){
+		pos[i][0]=pos[i][1]=0;
+	}
+	rep(i,1,n*2){
+		cin>>a[i];
+		if(pos[a[i]][0]) pos[a[i]][1]=i;
+		else pos[a[i]][0]=i;
+	}
+	VI l,r;
+	rep(i,1,n){
+		if(pos[i][1]<=n&&l.size()<k*2){
+			l.pb(i);
+			l.pb(i);
+		}
+	}
+	rep(i,1,n){
+		if(pos[i][0]>n&&r.size()<k*2){
+			r.pb(i);
+			r.pb(i);
+		}
+	}
+	int len=min(l.size(),r.size());
+	l.resize(len);
+	r.resize(len);
+	rep(i,1,n){
+		if(pos[i][0]<=n&&pos[i][1]>n&&len<k*2){
+			l.pb(i);
+			r.pb(i);
+			len++;
+		}
+	}
+	for(int x:l){
+		cout<<x<<" ";
+	} cout<<endl;
+	for(int x:r){
+		cout<<x<<" ";
+	} cout<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -164,5 +201,6 @@ signed main(){
     * don't stuck on one question for two long (like 30-45 min)
     * Debug: (a) read your code once, check overflow and edge case
     * Debug: (b) create your own test case
-    * Debug: (c) adversarial testing
+    * Debug: (c) Adversarial Testing
 */
+

@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 2/7/2024 10:16:58 PM
  * Problem:
  * Source:
  * Description:
@@ -15,7 +15,7 @@
 #define FASTIO
 //#define NDEBUG
 #define OPTIMIZE
-//#define INTTOLL
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -36,11 +36,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -64,7 +64,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -121,11 +121,44 @@ namespace Comfun{
 
 const int N = 1e6+10;
 
-int n;
+int n,ans;
 
 inline void SOLVE(int Case){
 	cin>>n;
-	
+	deque<PI> a[2];
+	VI res;
+	rep(i,1,n){
+		int x;
+		cin>>x;
+		a[x&1].pb({x,i});
+	}
+	if(!a[1].empty()){
+		ans+=a[1].front().fir/2;
+		res.pb(a[1].front().sec);
+		a[1].pop_front();
+		for(PI x:a[0]){
+			ans+=x.fir/2-1;
+			res.pb(x.sec);
+		}
+		int flag=0;
+		for(PI x:a[1]){
+			if(flag) ans+=x.fir/2;
+			else ans+=(x.fir-1)/2;
+			flag^=1;
+			res.pb(x.sec);
+		}
+	}
+	else{
+		for(PI x:a[0]){
+			ans+=x.fir/2;
+			res.pb(x.sec);
+		}
+	}
+	cout<<ans<<endl;
+	for(int x:res){
+		cout<<x<<" ";
+	}
+	cout<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -164,5 +197,6 @@ signed main(){
     * don't stuck on one question for two long (like 30-45 min)
     * Debug: (a) read your code once, check overflow and edge case
     * Debug: (b) create your own test case
-    * Debug: (c) adversarial testing
+    * Debug: (c) Adversarial Testing
 */
+

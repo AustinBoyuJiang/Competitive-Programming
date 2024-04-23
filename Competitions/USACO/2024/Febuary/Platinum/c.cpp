@@ -1,6 +1,7 @@
+
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 2/18/2024 3:54:09 PM
  * Problem:
  * Source:
  * Description:
@@ -36,11 +37,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -64,7 +65,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -119,13 +120,62 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 1e5+10;
+const int K = 60;
 
-int n;
+int n,q,t[N];
+ll pow2[K+1];
+Vec<VI> f[N];
 
 inline void SOLVE(int Case){
-	cin>>n;
-	
+	pow2[0]=1;
+	rep(i,1,K){
+		pow2[i]=pow2[i-1]*2;
+	}
+	cin>>n>>q;
+	int mx=0;
+	rep(i,1,n){
+		cin>>t[i];
+		chkmax(mx,t[i]);
+	}
+	rep(i,1,n){
+		f[i].resize(mx);
+		rep(j,0,t[i]-1){
+			f[i][j].resize(K+1);
+			cin>>f[i][j][0];
+		}
+		rep(j,t[i],mx-1){
+			f[i][j].resize(K+1);
+			f[i][j][0]=f[i][j%t[i]][0];
+		}
+	}
+	rep(d,1,K){
+		rep(i,1,n){
+			rep(j,0,mx-1){
+				int k=f[i][j][d-1];
+				f[i][j][d]=f[k][(j+pow2[d-1])%mx][d-1];
+//				if(t[i]>=t[k]){
+//					f[i][j][d]=f[k][(j+pow2[d-1])%t[k]][d-1];
+//				}
+//				else{
+//					f[i][j][d]=f[k][][d-1];
+//				}
+			}
+		}
+	}
+	rep(i,1,q){
+		int pos;
+		ll s,d;
+		cin>>pos>>s>>d;
+		per(j,K,0){
+			if(d>=pow2[j]){
+				pos=f[pos][s%mx][j];
+				d-=pow2[j];
+				s+=pow2[j];
+			}
+		}
+		cout<<pos<<endl;
+	}
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -164,5 +214,8 @@ signed main(){
     * don't stuck on one question for two long (like 30-45 min)
     * Debug: (a) read your code once, check overflow and edge case
     * Debug: (b) create your own test case
-    * Debug: (c) adversarial testing
+    * Debug: (c) Adversarial Testing
 */
+
+
+

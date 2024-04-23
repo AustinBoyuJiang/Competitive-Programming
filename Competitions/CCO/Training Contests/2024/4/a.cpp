@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 4/19/2024 8:10:14 PM
  * Problem:
  * Source:
  * Description:
@@ -36,11 +36,7 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
-/* Segment Tree */
-#define lc (rt << 1)
-#define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -64,7 +60,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -119,13 +115,51 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 5e5+10;
 
-int n;
+int n,id=0,lc[N],rc[N],mx[N][3],mn[N][3];
+string s;
+
+int dfs(){
+	int u=++id;
+	if(s[u-1]>'0') lc[u]=dfs();
+	if(s[u-1]>'1') rc[u]=dfs();
+	return u;
+}
+
+void dp(int u){
+	if(lc[u]) dp(lc[u]);
+	if(rc[u]) dp(rc[u]);
+	if(!lc[u]){
+		mx[u][0]=mn[u][0]=1;
+		mx[u][1]=mn[u][1]=0;
+		mx[u][2]=mn[u][2]=0;
+	}
+	else if(!rc[u]){
+		mx[u][0]=max(mx[lc[u]][1],mx[lc[u]][2])+1;
+		mx[u][1]=max(mx[lc[u]][0],mx[lc[u]][2]);
+		mx[u][2]=max(mx[lc[u]][0],mx[lc[u]][1]);
+		mn[u][0]=min(mn[lc[u]][1],mn[lc[u]][2])+1;
+		mn[u][1]=min(mn[lc[u]][0],mn[lc[u]][2]);
+		mn[u][2]=min(mn[lc[u]][0],mn[lc[u]][1]);
+	}
+	else{
+		mx[u][0]=max(mx[lc[u]][1]+mx[rc[u]][2],mx[lc[u]][2]+mx[rc[u]][1])+1;
+		mx[u][1]=max(mx[lc[u]][0]+mx[rc[u]][2],mx[lc[u]][2]+mx[rc[u]][0]);
+		mx[u][2]=max(mx[lc[u]][0]+mx[rc[u]][1],mx[lc[u]][1]+mx[rc[u]][0]);
+		mn[u][0]=min(mn[lc[u]][1]+mn[rc[u]][2],mn[lc[u]][2]+mn[rc[u]][1])+1;
+		mn[u][1]=min(mn[lc[u]][0]+mn[rc[u]][2],mn[lc[u]][2]+mn[rc[u]][0]);
+		mn[u][2]=min(mn[lc[u]][0]+mn[rc[u]][1],mn[lc[u]][1]+mn[rc[u]][0]);
+	}
+}
 
 inline void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>s;
+	dfs();
+	dp(1);
+	int ans1=max({mx[1][0],mx[1][1],mx[1][2]});
+	int ans2=min({mn[1][0],mn[1][1],mn[1][2]});
+	cout<<ans1<<" "<<ans2<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -166,3 +200,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) adversarial testing
 */
+

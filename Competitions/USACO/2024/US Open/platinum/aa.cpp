@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 3/17/2024 5:09:37 PM
  * Problem:
  * Source:
  * Description:
@@ -36,11 +36,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -64,7 +64,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -121,11 +121,52 @@ namespace Comfun{
 
 const int N = 1e6+10;
 
-int n;
+int n,tot,ans,to[N][2],cnt[N];
+string s[N];
+
+void insert(int id){
+	int u=0;
+	cnt[u]++;
+	for(char x:s[id]){
+		if(!to[u][x-'0']) to[u][x-'0']=++tot;
+		u=to[u][x-'0'];
+		cnt[u]++;
+	}
+}
+
+void dfs(int u){
+	if(!cnt[u]) return;
+	ans+=cnt[u];
+//	cout<<u<<" "<<cnt[u]<<endl;
+	if(!to[u][0]) to[u][0]=++tot;
+	if(!to[u][1]) to[u][1]=++tot;
+	int cur=cnt[u]-cnt[to[u][0]]-cnt[to[u][1]];
+	if(cur&&cnt[u]==1) return;
+	if(abs(cnt[to[u][0]]-cnt[to[u][1]])>=cur){
+		if(cnt[to[u][0]]<cnt[to[u][1]]) cnt[to[u][0]]+=cur;
+		else cnt[to[u][1]]+=cur;
+	}
+	else{
+		cur-=abs(cnt[to[u][0]]-cnt[to[u][1]]);
+		cnt[to[u][0]]=max(cnt[to[u][0]],cnt[to[u][1]]);
+		cnt[to[u][1]]=max(cnt[to[u][0]],cnt[to[u][1]]);
+		cnt[to[u][0]]+=cur/2;
+		cnt[to[u][1]]+=(cur+1)/2;
+	}
+	dfs(to[u][0]);
+	dfs(to[u][1]);
+}
 
 inline void SOLVE(int Case){
 	cin>>n;
-	
+	rep(i,1,n){
+		cin>>s[i];
+		insert(i);
+		ans-=s[i].size();
+	}
+	ans-=n;
+	dfs(0);
+	cout<<ans<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -166,3 +207,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) adversarial testing
 */
+

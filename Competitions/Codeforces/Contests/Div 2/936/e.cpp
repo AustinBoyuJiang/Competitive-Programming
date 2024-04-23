@@ -1,13 +1,13 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 3/25/2024 1:11:53 AM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
@@ -15,7 +15,7 @@
 #define FASTIO
 //#define NDEBUG
 #define OPTIMIZE
-//#define INTTOLL
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -36,11 +36,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -64,7 +64,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -119,13 +119,55 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 2e5+10;
 
-int n;
+int n,m1,m2,fact[N],invfact[N];
+
+int P(int n){
+	return fact[n];
+}
+
+int C(int n,int m){
+	return fact[n]*invfact[m]%MOD*invfact[n-m]%MOD;
+}
 
 inline void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>n>>m1>>m2;
+	fact[0]=1;
+	rep(i,1,n){
+		fact[i]=fact[i-1]*i;
+		fact[i]%=MOD;
+	}
+	invfact[n]=inv(fact[n]);
+	per(i,n,1){
+		invfact[i-1]=invfact[i]*i%MOD;
+	}
+	VI p1(m1),p2(m2);
+	for(int &x:p1) cin>>x;
+	for(int &x:p2) cin>>x;
+	reverse(all(p1));
+	if(p1[0]!=p2[0]){
+		cout<<0<<endl;
+		return;
+	}
+	if(p1[m1-1]!=1||p2[m2-1]!=n){
+		cout<<0<<endl;
+		return;
+	}
+	int ans=C(n-1,p1[0]-1);
+	rep(i,1,m1-1){
+		ans*=C(p1[i-1]-2,p1[i-1]-p1[i]-1);
+		ans%=MOD;
+		ans*=P(p1[i-1]-p1[i]-1);
+		ans%=MOD;
+	}
+	rep(i,1,m2-1){
+		ans*=C(n-p2[i-1]-1,p2[i]-p2[i-1]-1);
+		ans%=MOD;
+		ans*=P(p2[i]-p2[i-1]-1);
+		ans%=MOD; 
+	}
+	cout<<ans<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -166,3 +208,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) adversarial testing
 */
+

@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 3/17/2024 7:29:32 PM
  * Problem:
  * Source:
  * Description:
@@ -15,7 +15,7 @@
 #define FASTIO
 //#define NDEBUG
 #define OPTIMIZE
-//#define INTTOLL
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -36,11 +36,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -64,7 +64,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -119,13 +119,27 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 1e5+10;
 
-int n;
+int L,R,n,k,p[N];
+
+int check(int x){
+	int t1=min(x,L-x);
+	int t2=(x+L/R)%L*k;
+	while(t2<t1){
+		t2+=L*k;
+	}
+	return t2;
+}
 
 inline void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>L>>R>>n>>k;
+	int ans=INF;
+	rep(i,1,n){
+		cin>>p[i];
+		chkmin(ans,check(p[i]));
+	}
+	cout<<ans<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -166,3 +180,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) adversarial testing
 */
+

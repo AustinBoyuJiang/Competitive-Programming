@@ -1,13 +1,13 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 3/22/2024 7:18:08 AM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
@@ -36,11 +36,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -64,7 +64,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -121,11 +121,18 @@ namespace Comfun{
 
 const int N = 1e6+10;
 
-int n;
+int n,a[N];
 
 inline void SOLVE(int Case){
 	cin>>n;
-	
+	rep(i,1,n){
+		cin>>a[i];
+	}
+	sort(a+1,a+n+1);
+	int ans=0;
+	rep(i,(n+1)/2,n){
+		if(a[i]==a[(n+1)/2]) ans++;
+	} cout<<ans<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -166,3 +173,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) adversarial testing
 */
+

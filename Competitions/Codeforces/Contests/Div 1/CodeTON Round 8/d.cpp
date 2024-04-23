@@ -1,13 +1,13 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 3/30/2024 8:23:41 AM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
@@ -36,11 +36,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -64,7 +64,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -119,13 +119,45 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int M = 5e3+10;
+const int N = 1e3+10;
 
-int n;
+int n,m,c[N][N],dp[N][M],mx[N][M];
+
+int check(int a,int b,int i){
+	if(a>m||b<1) return -INF;
+	return mx[max(b-2,0)][a]+c[b][i];
+}
 
 inline void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>n>>m;
+	rep(i,1,n){
+		rep(j,i,n){
+			cin>>c[i][j];
+		}
+	}
+	rep(i,2,m){
+		mx[0][i]=-INF;
+	}
+	rep(i,1,n){
+		PQ<pair<int,PI>> q;
+		rep(j,1,i) q.push({check(1,j,i),{1,j}});
+		rep(k,1,m){
+			pair<int,PI> p=q.top();
+			q.pop();
+			dp[i][k]=p.fir;
+			q.push({check(p.sec.fir+1,p.sec.sec,i),{p.sec.fir+1,p.sec.sec}});
+		}
+		int a=1,b=1;
+		rep(k,1,m){
+			mx[i][k]=max(mx[i-1][a],dp[i][b]);
+			if(mx[i-1][a]>dp[i][b]) a++;
+			else b++;
+		}
+	}
+	rep(i,1,m){
+		cout<<mx[n][i]<<" ";
+	} cout<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -166,3 +198,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) adversarial testing
 */
+

@@ -1,13 +1,13 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 2/11/2024 2:09:39 AM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
@@ -15,7 +15,7 @@
 #define FASTIO
 //#define NDEBUG
 #define OPTIMIZE
-//#define INTTOLL
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -36,11 +36,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -64,7 +64,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -121,11 +121,68 @@ namespace Comfun{
 
 const int N = 1e6+10;
 
-int n;
+int n,x;
+
+bool check(int k){
+	if(k%2==1) return 0;
+	if(x>k/2+1) return 0;
+	if((n-1)%k+1!=x) return 0;
+//	cout<<"case1:"<<k/2+1<<endl;
+	return 1;
+}
+
+bool check2(int k){
+//	cout<<k<<endl;
+	if(k%2==1) return 0;
+	if(k-x+2<=k/2+1) return 0;
+	if(k<=k/2+1) return 0;
+	if((n-1)%k+1!=k-x+2) return 0;
+//	cout<<"case2:"<<k/2+1<<endl;
+//	cout<<k/2+1<<">>"<<k-x+2<<endl; 
+	return 1;
+}
+
+int get(int x){
+	int cnt=0;
+	for(int i=1;i*i<=x;i++){
+		if(i*i==x){
+			cnt+=check(i);
+			break;
+		}
+		else{
+			if(x%i==0){
+				cnt+=check(i);
+				cnt+=check(x/i);
+			}
+		}
+	}
+	return cnt;
+}
+
+int get2(int x){
+	int cnt=0;
+	for(int i=1;i*i<=x;i++){
+		if(i*i==x){
+			cnt+=check2(i);
+			break;
+		}
+		else{
+			if(x%i==0){
+				cnt+=check2(i);
+				cnt+=check2(x/i);
+			}
+		}
+	}
+	return cnt;
+}
+
 
 inline void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>n>>x;
+	int ans=0;
+	ans+=get(n-x); 
+	ans+=get2(n+x-2);
+	cout<<ans<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -164,5 +221,6 @@ signed main(){
     * don't stuck on one question for two long (like 30-45 min)
     * Debug: (a) read your code once, check overflow and edge case
     * Debug: (b) create your own test case
-    * Debug: (c) adversarial testing
+    * Debug: (c) Adversarial Testing
 */
+

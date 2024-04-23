@@ -1,13 +1,13 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 3/22/2024 7:47:20 AM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
@@ -36,11 +36,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -64,7 +64,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -121,11 +121,59 @@ namespace Comfun{
 
 const int N = 1e6+10;
 
-int n;
+int n,k,siz[N];
+VI e[N];
+
+int dfs(int u,int fa,int k){
+	siz[u]=1;
+	int ans=0;
+	for(int v:e[u]){
+		if(v==fa) continue;
+		ans+=dfs(v,u,k);
+		siz[u]+=siz[v];
+	}
+	if(u!=1&&siz[u]>=k){
+//		if(k==2){
+//			cout<<u<<">>"<<endl;
+//		}
+		siz[u]=0;
+		ans++;
+	}
+	if(u==1&&siz[u]<k){
+		ans--;
+	}
+	return ans;
+}
+
+bool check(int x){
+	int res=dfs(1,0,x);
+//	cout<<x<<": "<<res<<endl;
+	return res>=k;
+}
 
 inline void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>n>>k;
+	rep(i,1,n){
+		e[i].clear();
+	}
+	rep(i,1,n-1){
+		int u,v;
+		cin>>u>>v;
+		e[u].pb(v);
+		e[v].pb(u);
+	}
+	int l=1,r=n,ans=1;
+	while(l<=r){
+		int mid=l+r>>1;
+		if(check(mid)){
+			ans=mid;
+			l=mid+1;
+		}
+		else{
+			r=mid-1;
+		}
+	}
+	cout<<ans<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -166,3 +214,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) adversarial testing
 */
+

@@ -1,7 +1,7 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
- * Problem:
+ * Date: 2/3/2024 8:34:24 PM
+ * Problem: Herobrine
  * Source:
  * Description:
 */
@@ -36,11 +36,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -64,7 +64,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -120,12 +120,125 @@ namespace Comfun{
 /* ========================================| Main Program |======================================== */
 
 const int N = 1e6+10;
+const int M = 2e6+10;
 
-int n;
+int n,mx,fa[N],siz[N],hson[N],cnt[N],ans[N];
+VI e[N],o[N],stk;
+int tot,ed,l[M],r[M],pos[N];
+array<int,3> val[M];
+
+inline void init(int u){
+	siz[u]=1;
+	for(int v:e[u]){
+		init(v);
+		siz[u]+=siz[v];
+		if(siz[v]>siz[hson[u]]){
+			hson[u]=v;
+		}
+	}
+}
+
+inline void check(int x){
+	chkmax(mx,val[x][0]*val[x][1]);
+}
+
+inline void upd(int x){
+	if(!cnt[x]){
+		cnt[x]=1;
+		stk.pb(x);
+		if(ed&&val[ed][0]==1){
+			val[ed][1]++;
+			val[ed][2]++;
+			pos[x]=ed;
+			check(ed);
+		}
+		else{
+			r[ed]=++tot;
+			l[tot]=ed;
+			r[tot]=0;
+			val[tot][0]=1;
+			val[tot][1]=val[ed][1]+1;
+			val[tot][2]=1;
+			pos[x]=tot;
+			check(tot);
+			ed=tot;
+		}
+		return;
+	}
+	cnt[x]++;
+	int p=pos[x];
+	val[p][2]--;
+	if(l[p]&&val[l[p]][0]==cnt[x]){
+		val[l[p]][1]++;
+		val[l[p]][2]++;
+		pos[x]=l[p];
+		check(l[p]);
+	}
+	else{
+		tot++;
+		val[tot][0]=cnt[x];
+		val[tot][1]=val[l[p]][1]+1;
+		val[tot][2]=1;
+		l[tot]=l[p];
+		r[tot]=p;
+		r[l[p]]=tot;
+		l[p]=tot;
+		pos[x]=tot;
+		check(tot);
+	}
+	if(!val[p][2]){
+		if(p==ed){
+			ed=l[p];
+			r[l[p]]=0;
+		}
+		else{
+			l[r[p]]=l[p];
+			r[l[p]]=r[p];
+		}
+	}
+}
+
+inline void add(int u){
+	for(int x:o[u]) upd(x);
+	for(int v:e[u]) add(v);
+}
+
+inline void clean(){
+	mx=tot=ed=0;
+	while(!stk.empty()){
+		cnt[stk.back()]=0;
+		pos[stk.back()]=0;
+		stk.pop_back();
+	}
+}
+
+inline void dfs(int u){
+	for(int v:e[u]) if(v!=hson[u]) dfs(v),clean();
+	if(hson[u]) dfs(hson[u]);
+	for(int v:e[u]) if(v!=hson[u]) add(v);
+	for(int x:o[u]) upd(x);
+	ans[u]=mx;
+}
 
 inline void SOLVE(int Case){
 	cin>>n;
-	
+	rep(i,1,n){
+		cin>>fa[i];
+		e[fa[i]].pb(i);
+	}
+	rep(i,1,n){
+		int m;
+		cin>>m;
+		o[i].resize(m);
+		for(int &x:o[i]){
+			cin>>x;
+		}
+	}
+	init(0);
+	dfs(0);
+	rep(i,1,n){
+		cout<<ans[i]<<endl;
+	}
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -164,5 +277,6 @@ signed main(){
     * don't stuck on one question for two long (like 30-45 min)
     * Debug: (a) read your code once, check overflow and edge case
     * Debug: (b) create your own test case
-    * Debug: (c) adversarial testing
+    * Debug: (c) Adversarial Testing
 */
+

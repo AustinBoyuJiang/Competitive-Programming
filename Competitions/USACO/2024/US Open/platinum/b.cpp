@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 3/17/2024 6:32:08 PM
  * Problem:
  * Source:
  * Description:
@@ -15,7 +15,7 @@
 #define FASTIO
 //#define NDEBUG
 #define OPTIMIZE
-//#define INTTOLL
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -36,11 +36,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -64,7 +64,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -119,13 +119,81 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 2e5+10;
 
-int n;
+int n,q,c[N],sum[N];
 
 inline void SOLVE(int Case){
 	cin>>n;
-	
+	rep(i,1,n){
+		cin>>c[i];
+		sum[i]=sum[i-1]+c[i];
+	}
+	cin>>q;
+	rep(i,1,q){
+		int L,R,a,b=0;
+		cin>>L>>R>>a;
+		while(L<=R){
+//			cout<<L<<" "<<R<<endl;
+			if(a<=b){
+				if(a+c[L]>b){
+					int l=L,r=R,pos=L;
+					while(l<=r){
+						int mid=l+r>>1;
+						if(c[mid]==c[L]){
+							pos=mid;
+							l=mid+1;
+						}
+						else r=mid-1;
+					}
+					if((pos-L+1)%2==1) a+=c[pos];
+					L=pos+1;
+				}
+				else{
+					int l=L,r=R,pos=R;
+					while(l<=r){
+						int mid=l+r>>1;
+						if(a+sum[mid]-sum[L-1]>b){
+							pos=mid;
+							r=mid-1;
+						}
+						else l=mid+1;
+					}
+					a+=sum[pos]-sum[L-1];
+					L=pos+1;
+				}
+			}
+			else{
+				if(b+c[L]>=a){
+					int l=L,r=R,pos=L;
+					while(l<=r){
+						int mid=l+r>>1;
+						if(c[mid]==c[L]){
+							pos=mid;
+							l=mid+1;
+						}
+						else r=mid-1;
+					}
+					if((pos-L+1)%2==1) b+=c[pos];
+					L=pos+1;
+				}
+				else{
+					int l=L,r=R,pos=R;
+					while(l<=r){
+						int mid=l+r>>1;
+						if(b+sum[mid]-sum[L-1]>=a){
+							pos=mid;
+							r=mid-1;
+						}
+						else l=mid+1;
+					}
+					b+=sum[pos]-sum[L-1];
+					L=pos+1;
+				}
+			}
+		}
+		cout<<a-b<<endl;
+	}
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -166,3 +234,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) adversarial testing
 */
+

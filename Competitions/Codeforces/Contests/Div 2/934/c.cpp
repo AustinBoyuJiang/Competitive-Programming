@@ -1,13 +1,13 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 3/16/2024 7:52:22 AM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
@@ -36,11 +36,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -64,7 +64,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -121,11 +121,44 @@ namespace Comfun{
 
 const int N = 1e6+10;
 
-int n;
+int n,a[N],cnt[N];
 
 inline void SOLVE(int Case){
 	cin>>n;
-	
+	rep(i,0,n){
+		cnt[i]=0;
+	}
+	rep(i,1,n){
+		cin>>a[i];
+		cnt[a[i]]++;
+	}
+	if(cnt[0]<1){
+		cout<<0<<endl;
+		return;
+	}
+	if(cnt[0]==1){
+		rep(i,1,n){
+			if(cnt[i]<2){
+				cout<<i<<endl;
+				return;
+			}
+		}
+		cout<<n+1<<endl;
+	}
+	else{
+		bool ok=1;
+		rep(i,1,n){
+			if(cnt[i]<2){
+				if(cnt[i]==1&&ok){
+					ok=0;
+					continue;
+				}
+				cout<<i<<endl;
+				return;
+			}
+		}
+		cout<<n+1<<endl;
+	}
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -164,5 +197,6 @@ signed main(){
     * don't stuck on one question for two long (like 30-45 min)
     * Debug: (a) read your code once, check overflow and edge case
     * Debug: (b) create your own test case
-    * Debug: (c) adversarial testing
+    * Debug: (c) Adversarial Testing
 */
+

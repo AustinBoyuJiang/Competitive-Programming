@@ -1,13 +1,13 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 3/16/2024 9:40:35 AM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
@@ -36,11 +36,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -64,7 +64,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -122,10 +122,37 @@ namespace Comfun{
 const int N = 1e6+10;
 
 int n;
+VI e[N];
+
+int dfs(int u,int fa,int dep){
+	int res=dep;
+	for(int v:e[u]){
+		if(v==fa) continue;
+		chkmax(res,dfs(v,u,dep+1));
+	}
+	return res;
+}
 
 inline void SOLVE(int Case){
 	cin>>n;
-	
+	rep(i,1,n){
+		e[i].clear();
+	}
+	rep(i,1,n-1){
+		int u,v;
+		cin>>u>>v;
+		e[u].pb(v);
+		e[v].pb(u);
+	}
+	PI ans={INF,INF};
+	rep(i,1,n){
+		int res=dfs(i,0,0);
+		chkmin(ans,{res,i});
+	}
+	cout<<ans.fir+1<<endl;
+	rep(i,0,ans.fir){
+		cout<<ans.sec<<" "<<i<<endl;
+	}
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -164,5 +191,6 @@ signed main(){
     * don't stuck on one question for two long (like 30-45 min)
     * Debug: (a) read your code once, check overflow and edge case
     * Debug: (b) create your own test case
-    * Debug: (c) adversarial testing
+    * Debug: (c) Adversarial Testing
 */
+

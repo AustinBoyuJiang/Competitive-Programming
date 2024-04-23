@@ -1,13 +1,13 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
- * Problem:
+ * Date: 2/7/2024 10:29:59 PM
+ * Problem: Coprime Grid
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
@@ -36,11 +36,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -64,7 +64,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -119,13 +119,84 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 110;
 
-int n;
+int n,m,a[N][N];
 
 inline void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>n>>m;
+	if(n==1||m==1){
+		cout<<-1<<endl;
+		return;
+	}
+	int cnt=0;
+	if(n%2==0){
+		rep(i,1,n){
+			a[i][1]=++cnt;
+		}
+		per(i,n,1){
+			if(i%2==0){
+				rep(j,2,m){
+					a[i][j]=++cnt;
+				}
+			}
+			else{
+				per(j,m,2){
+					a[i][j]=++cnt;
+				}
+			}
+		}
+	}
+	else if(m%2==0){
+		rep(j,1,m){
+			a[1][j]=++cnt;
+		}
+		per(j,m,1){
+			if(j%2==0){
+				rep(i,2,n){
+					a[i][j]=++cnt;
+				}
+			}
+			else{
+				per(i,n,2){
+					a[i][j]=++cnt;
+				}
+			}
+		}
+	}
+	else{
+		rep(i,1,n){
+			if(i%2==1){
+				a[i][1]=++cnt;
+				a[i][2]=++cnt;
+			}
+			else{
+				a[i][2]=++cnt;
+				a[i][1]=++cnt;
+			}
+		}
+		rep(j,3,m){
+			a[n][j]=++cnt;
+		}
+		per(j,m,3){
+			if(j%2==1){
+				per(i,n-1,1){
+					a[i][j]=++cnt;
+				}
+			}
+			else{
+				rep(i,1,n-1){
+					a[i][j]=++cnt;
+				}
+			}
+		}
+	}
+	rep(i,1,n){
+		rep(j,1,m-1){
+			cout<<a[i][j]<<" ";
+		}
+		cout<<a[i][m]<<endl;
+	}
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -164,5 +235,6 @@ signed main(){
     * don't stuck on one question for two long (like 30-45 min)
     * Debug: (a) read your code once, check overflow and edge case
     * Debug: (b) create your own test case
-    * Debug: (c) adversarial testing
+    * Debug: (c) Adversarial Testing
 */
+

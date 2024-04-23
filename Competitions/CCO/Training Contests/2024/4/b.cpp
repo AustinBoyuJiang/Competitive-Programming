@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 4/19/2024 8:27:17 PM
  * Problem:
  * Source:
  * Description:
@@ -36,11 +36,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -64,7 +64,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -119,13 +119,185 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 2e5+10;
 
-int n;
+int n,q,st,ed,dep[N],flag[N],pos[N],id[N];
+Vec<array<int,4>> tps;
+VI e[N],rt[N];
+bool xall0=1;
+
+struct query{
+	int x,y,z;
+} que[N];
+
+int dfs(int u,int fa,int depth,int root=0){
+	dep[u]=depth;
+	if(root) rt[root][depth]=u;
+	int res=dep[u];
+	for(int v:e[u]){
+		if(v==fa) continue;
+		if(flag[v]) continue;
+		res=max(res,dfs(v,u,depth+1,root));
+	}
+	return res;
+}
+
+int furthest(int st){
+	dfs(st,0,0);
+	int res=st;
+	rep(i,1,n){
+		if(dep[i]>dep[res]){
+			res=i;
+		}
+	}
+	return res;
+}
+
+void flag_path(int u,int fa){
+	for(int v:e[u]){
+		if(v==fa) continue;
+		flag_path(v,u);
+		flag[u]|=flag[v];
+	}
+}
+
+bool solve(int a,int b,int c,int k){
+	for(auto tp:tps){
+		if(a<=tp[0]&&b<=tp[1]&&c<=tp[2]){
+			int u=tp[3];
+			int A=id[pos[u]-a];
+			int B=id[pos[u]+b];
+			int C=rt[u][c];
+			if(k==0) cout<<A<<" "<<B<<" "<<C<<endl;
+			if(k==1) cout<<A<<" "<<C<<" "<<B<<endl;
+			if(k==2) cout<<B<<" "<<A<<" "<<C<<endl;
+			if(k==3) cout<<C<<" "<<A<<" "<<B<<endl;
+			if(k==4) cout<<B<<" "<<C<<" "<<A<<endl;
+			if(k==5) cout<<C<<" "<<B<<" "<<A<<endl;
+			return 1;
+		}
+		if(xall0) break;
+	}
+	return 0;
+}
+
+bool solve1(int a,int b,int c,int k){
+	int l=0,r=(int)tps.size()-1,res=(int)tps.size();
+	while(l<=r){
+		int mid=l+r>>1;
+		if(a<=tps[mid][0]){
+			r=mid-1;
+			res=mid;
+		}
+		else{
+			l=mid+1;
+		}
+	}
+	l=res,r=(int)tps.size()-1;
+	int res2=(int)tps.size();
+	while(l<=r){
+		int mid=l+r>>1;
+		if(b<=tps[mid][1]){
+			res2=mid;
+			l=mid+1;
+		}
+		else{
+			r=mid-1;
+		}
+	}
+	rep(i,res,res2){
+		auto tp=tps[i];
+		if(a<=tp[0]&&b<=tp[1]&&c<=tp[2]){
+			int u=tp[3];
+			int A=id[pos[u]-a];
+			int B=id[pos[u]+b];
+			int C=rt[u][c];
+			if(k==0) cout<<A<<" "<<B<<" "<<C<<endl;
+			if(k==1) cout<<A<<" "<<C<<" "<<B<<endl;
+			if(k==2) cout<<B<<" "<<A<<" "<<C<<endl;
+			if(k==3) cout<<C<<" "<<A<<" "<<B<<endl;
+			if(k==4) cout<<B<<" "<<C<<" "<<A<<endl;
+			if(k==5) cout<<C<<" "<<B<<" "<<A<<endl;
+			return 1;
+		}
+	}
+	return 0;
+}
 
 inline void SOLVE(int Case){
 	cin>>n;
-	
+	rep(i,1,n-1){
+		int u,v;
+		cin>>u>>v;
+		e[u].pb(v);
+		e[v].pb(u);
+	}
+	st=furthest(1);
+	ed=furthest(st);
+	flag[ed]=1;
+	flag_path(st,0);
+	int u=st,fa=0,left=0,right=dep[ed];
+	bool linear=1;
+	while(true){
+		pos[u]=left;
+		id[left]=u;
+		int far=dfs(u,0,0);
+		if(far) linear=0;
+		VI ord={left,right,far};
+//		sort(all(ord));
+		tps.pb({ord[0],ord[1],ord[2],u});
+		rt[u].resize(far+1);
+		dfs(u,0,0,u);
+		if(u==ed) break;
+		for(int v:e[u]){
+			if(v==fa) continue;
+			if(!flag[v]) continue;
+			fa=u;
+			u=v;
+			break;
+		}
+		left++;
+		right--;
+	}
+	cin>>q;
+	rep(i,1,q){
+		cin>>que[i].x>>que[i].y>>que[i].z;
+		if(que[i].x) xall0=0;
+	}
+	if(linear) sort(all(tps));
+	rep(i,1,q){
+		int x=que[i].x;
+		int y=que[i].y;
+		int z=que[i].z;
+		int a=(x+y-z)/2;
+		int b=(x+z-y)/2;
+		int c=(y+z-x)/2;
+		assert(a+b==x);
+		assert(b+c==z);
+		assert(a+c==y);
+		if(linear){
+			if(a==0){
+				solve1(b,c,a,3)||
+				solve1(c,b,a,5);
+			}
+			else if(b==0){
+				solve1(a,c,b,1)||
+				solve1(c,a,b,4);
+			}
+			else{
+				solve1(a,b,c,0)||
+				solve1(b,a,c,2);
+			}
+		}
+		else{
+			solve(a,b,c,0)||
+			solve(a,c,b,1)||
+			solve(b,a,c,2)||
+			solve(b,c,a,3)||
+			solve(c,a,b,4)||
+			solve(c,b,a,5);
+		}
+	}
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -166,3 +338,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) adversarial testing
 */
+

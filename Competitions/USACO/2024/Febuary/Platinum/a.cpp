@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 2/18/2024 2:20:20 PM
  * Problem:
  * Source:
  * Description:
@@ -15,7 +15,7 @@
 #define FASTIO
 //#define NDEBUG
 #define OPTIMIZE
-//#define INTTOLL
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -36,11 +36,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -64,7 +64,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -121,11 +121,153 @@ namespace Comfun{
 
 const int N = 1e6+10;
 
+struct Segtree_max_interval{
+	struct node{
+		int mx,sum,ans,num;
+	} st[N<<2];
+	
+	int lazy[N<<2],clean[N<<2];
+	
+	void clear(int rt){
+		clean[rt]=1;
+		st[rt].mx=0;
+		st[rt].sum=0;
+		st[rt].ans=0;
+		st[rt].num=0;
+		lazy[rt]=0;
+	}
+	
+	void check(int rt,int l,int r,int val){
+		st[rt].mx+=val;
+		st[rt].sum+=val*(r-l+1);
+		st[rt].ans+=(r-l+1)-st[rt].num;
+		st[rt].ans*=qpow(3ll,val);
+		st[rt].ans%=MOD;
+		st[rt].num=r-l+1;
+		lazy[rt]+=val;
+	}
+	
+	void push_down(int rt,int l,int mid,int r){
+		if(clean[rt]){
+			clear(lc);
+			clear(rc);
+			clean[rt]=0;
+		}
+		if(!lazy[rt]) return;
+		check(lc,l,mid,lazy[rt]);
+		check(rc,mid+1,r,lazy[rt]);
+		lazy[rt]=0;
+	}
+	
+	void update(int rt,int l,int r,int x,int y,int val){
+		if(l==x&&r==y){
+			check(rt,l,r,val);
+			return;
+		}
+		int mid=l+r>>1;
+		push_down(rt,l,mid,r);
+		if(y<=mid) update(lc,l,mid,x,y,val);
+		else if(x>mid) update(rc,mid+1,r,x,y,val);
+		else update(lc,l,mid,x,mid,val),update(rc,mid+1,r,mid+1,y,val);
+		st[rt].mx=max(st[lc].mx,st[rc].mx);
+		st[rt].sum=st[lc].sum+st[rc].sum;
+		st[rt].num=st[lc].num+st[rc].num;
+		st[rt].ans=(st[lc].ans+st[rc].ans)%MOD;
+	}
+	
+	void clear(int rt,int l,int r,int x,int y){
+		if(l==x&&r==y){
+			clear(rt);
+			return;
+		}
+		int mid=l+r>>1;
+		push_down(rt,l,mid,r);
+		if(y<=mid) clear(lc,l,mid,x,y);
+		else if(x>mid) clear(rc,mid+1,r,x,y);
+		else clear(lc,l,mid,x,mid),clear(rc,mid+1,r,mid+1,y);
+		st[rt].mx=max(st[lc].mx,st[rc].mx);
+		st[rt].sum=st[lc].sum+st[rt].sum;
+		st[rt].num=st[lc].num+st[rc].num;
+		st[rt].ans=st[lc].ans+st[rc].ans;
+	}
+	
+	node merge(node a,node b){
+		chkmax(a.mx,b.mx);
+		a.sum+=b.sum;
+		a.ans+=b.ans;
+		a.num+=b.num;
+		return a;
+	}
+	
+	node query(int rt,int l,int r,int x,int y){
+		if(l==x&&r==y) return st[rt];
+		int mid=l+r>>1;
+		push_down(rt,l,mid,r);
+		if(y<=mid) return query(lc,l,mid,x,y);
+		else if(x>mid) return query(rc,mid+1,r,x,y);
+		else return merge(query(lc,l,mid,x,mid),query(rc,mid+1,r,mid+1,y));
+	}
+	
+	void add(int l,int r,int val){
+		if(!val) return;
+		if(r<l) return;
+		update(1,1,1e6,l,r,val);
+	}
+	
+	void clear(int l,int r){
+		if(r<l) return;
+		clear(1,1,1e6,l,r);
+	}
+	
+	node ask(int l,int r){
+		if(r<l) return {0,0,0,0};
+		return query(1,1,1e6,l,r);
+	}
+} cnt;
+
 int n;
+PI q[N],p[N];
+
+bool check(int l,int r,int x){
+	x+=cnt.ask(l,r).sum;
+	int mid=l+x%(r-l+1)-1;
+	if(cnt.ask(l,mid).mx>(x+(r-l+1)-1)/(r-l+1)) return 0;
+	if(cnt.ask(mid+1,r).mx>x/(r-l+1)) return 0;
+	return 1;
+}
 
 inline void SOLVE(int Case){
 	cin>>n;
-	
+	rep(i,1,n){
+		cin>>q[i].fir>>q[i].sec;
+	}
+	rep(i,1,n){
+		p[i]=q[i];
+		sort(p+1,p+i+1);
+		cnt.clear(1);
+		int tot=0;
+		rep(j,1,i){
+			if(p[j].sec<=tot) continue;
+			int left=p[j].sec-tot;
+			int l=1,r=p[j].fir,pos=-1;
+			while(l<=r){
+				int mid=l+r>>1;
+				if(check(mid,p[j].fir,left)){
+					pos=mid;
+					r=mid-1;
+				}
+				else{
+					l=mid+1;
+				}
+			}
+			left+=cnt.ask(pos,p[j].fir).sum;
+			cnt.clear(pos,p[j].fir);
+			cnt.add(pos,p[j].fir,left/(p[j].fir-pos+1));
+			cnt.add(pos,pos+left%(p[j].fir-pos+1)-1,1);
+			tot=p[j].sec;
+		}
+		cout<<cnt.ask(1,p[i].fir).ans*inv(3ll)%MOD<<endl;
+	}
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -164,5 +306,6 @@ signed main(){
     * don't stuck on one question for two long (like 30-45 min)
     * Debug: (a) read your code once, check overflow and edge case
     * Debug: (b) create your own test case
-    * Debug: (c) adversarial testing
+    * Debug: (c) Adversarial Testing
 */
+

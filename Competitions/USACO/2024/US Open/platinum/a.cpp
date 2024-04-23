@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 3/17/2024 4:21:19 PM
  * Problem:
  * Source:
  * Description:
@@ -36,11 +36,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -64,7 +64,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -119,13 +119,48 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
+//没有任何一个是另一个的前缀 
+
 const int N = 1e6+10;
 
-int n;
+int n,ans,tot,to[N][2],cnt[N],pos[N];
+string s[N];
+
+void insert(int id){
+	pos[id]=0;
+	for(char x:s[id]){
+		if(!to[pos[id]][x-'0']) to[pos[id]][x-'0']=++tot;
+		pos[id]=to[pos[id]][x-'0'];
+		cnt[pos[id]]++;
+	}
+}
+
+void extend(int id){
+	while(cnt[pos[id]]>1){
+		if(cnt[to[pos[id]][0]]<=cnt[to[pos[id]][1]]){
+			if(!to[pos[id]][0]) to[pos[id]][0]=++tot;
+			pos[id]=to[pos[id]][0];
+		}
+		else{
+			if(!to[pos[id]][1]) to[pos[id]][1]=++tot;
+			pos[id]=to[pos[id]][1];
+		}
+		cnt[pos[id]]++;
+		ans++;
+	}
+}
 
 inline void SOLVE(int Case){
 	cin>>n;
-	
+	rep(i,1,n){
+		cin>>s[i];
+		insert(i);
+	}
+	rep(j,1,n)
+	rep(i,1,n){
+		extend(i);
+	}
+	cout<<ans<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -166,3 +201,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) adversarial testing
 */
+

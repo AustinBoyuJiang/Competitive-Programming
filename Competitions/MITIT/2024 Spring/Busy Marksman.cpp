@@ -1,13 +1,13 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 4/21/2024 9:46:40 AM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
@@ -36,11 +36,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -64,7 +64,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -121,11 +121,56 @@ namespace Comfun{
 
 const int N = 1e6+10;
 
-int n;
+int n,a[N];
 
 inline void SOLVE(int Case){
 	cin>>n;
-	
+	int cnt1=0,cnt2=0,cnt=0;
+	VI v,v1;
+	rep(i,1,n){
+		cin>>a[i];
+		if(a[i]==0) continue;
+		if(a[i]==1){
+			cnt1++;
+			v1.pb(i);
+		}
+		else if(a[i]==2) cnt2++;
+		else{
+			cnt+=a[i]-2;
+			v.pb(i);
+		}
+	}
+	if((cnt+cnt1)%2==0){
+		cout<<"NO"<<endl;
+		return;
+	}
+	if(cnt1-1>cnt){
+		cout<<"NO"<<endl;
+		return;
+	}
+	cout<<"YES"<<endl;
+	int pos=0;
+	for(int x:v1){
+		cout<<x<<" ";
+		a[x]--;
+		cnt1--;
+		if(!cnt1) break;
+		cout<<v[pos]<<" ";
+		a[v[pos]]--;
+		if(a[v[pos]]==2) pos++;
+	}
+	for(int x:v){
+		while(a[x]>2){
+			cout<<x<<" ";
+			a[x]--;
+		}
+	}
+	rep(i,1,n){
+		if(a[i]==2){
+			cout<<i<<" "<<i<<" ";
+		}
+	}
+	cout<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -166,3 +211,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) adversarial testing
 */
+

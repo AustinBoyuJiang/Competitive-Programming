@@ -1,13 +1,13 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 3/22/2024 8:02:05 AM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
@@ -36,11 +36,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -64,7 +64,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -119,13 +119,66 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 2e5+10;
 
-int n;
+int n,k,sum,s,a[N],dp[32][2],has[32];
+
+int get(int d){
+	if((sum>>d)&1) return -1;
+	int ans=0,pre=0,sfx=sum;
+	rep(i,1,n){
+		pre^=a[i];
+		sfx^=a[i];
+		if(!(pre&((1<<d)|s))&&pre<k&&sfx<k){
+			pre=0;
+			ans++;
+		}
+	}
+	if((pre&((1<<d)|s))||pre>=k) return -1;
+	return ans;
+}
 
 inline void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>n>>k;
+	sum=0;
+	memset(has,0,sizeof(has));
+	rep(i,1,n){
+		cin>>a[i];
+		sum^=a[i];
+		rep(j,0,30){
+			if((a[i]>>j)&1){
+				has[j]=1;
+			}
+		}
+	}
+	if(sum>k){
+		cout<<-1<<endl;
+		return;
+	}
+	k++;
+	s=0;
+	rep(i,0,30){
+		if(!((k>>i)&1)&&has[i]){
+			s^=1<<i;
+		}
+	}
+	rep(i,0,30){
+		if((s>>i)&1) s^=1<<i;
+		if(i==0){
+			dp[i][0]=k&1?get(0):-1;
+			dp[i][1]=-1;
+			continue;
+		}
+		if((k>>i)&1){
+			dp[i][1]=has[i]?max(dp[i-1][0],dp[i-1][1]):-1;
+			dp[i][0]=get(i);
+		}
+		else{
+			dp[i][1]=-1;
+			dp[i][0]=max(dp[i-1][0],dp[i-1][1])
+		}
+	}
+	cout<<max(dp[30][0],dp[30][1])<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -137,8 +190,8 @@ signed main(){
 	#endif
 	#ifndef FILESCOMP
 	SETUP();
-	int CASE=1;
 	#ifdef MULTICASES
+	int CASE=1;
 	cin>>CASE;
 	#endif
 	rep(i,1,CASE){
@@ -166,3 +219,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) adversarial testing
 */
+

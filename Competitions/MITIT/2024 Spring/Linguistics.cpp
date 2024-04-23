@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 4/21/2024 11:34:44 AM
  * Problem:
  * Source:
  * Description:
@@ -36,11 +36,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -64,7 +64,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -121,11 +121,44 @@ namespace Comfun{
 
 const int N = 1e6+10;
 
-int n;
+int n,m,a[N];
+
+int find(int L,int R,int x){
+	int l=L,r=R,pos=R+1;
+	while(l<=r){
+		int mid=l+r>>1;
+		if(a[mid]==x){
+			pos=mid;
+			r=mid-1;
+		}
+		else{
+			l=mid+1;
+		}
+	}
+	return (R+1)-pos;
+}
 
 inline void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>n>>m;
+	rep(i,1,n*m){
+		cin>>a[i];
+	}
+	sort(a+1,a+n*m+1);
+	rep(k,1,n){
+		int pre=find(1,k-1,a[k]);
+		VI res={a[k]};
+		int u=k+1,cnt=1;
+		while(cnt<m){
+			res.pb(a[u+pre]);
+			cnt++;
+			int to=u+pre+1;
+			pre=find(u,u+pre-1,a[u+pre]);
+			u=to;
+		}
+		for(int x:res){
+			cout<<x<<" ";
+		} cout<<endl;
+	}
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -166,3 +199,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) adversarial testing
 */
+

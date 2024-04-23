@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 4/14/2024 11:01:00 AM
  * Problem:
  * Source:
  * Description:
@@ -36,11 +36,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -64,7 +64,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -119,13 +119,70 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 1e5+10;
 
-int n;
+int n,m[2],vis[N];
+Vec<pair<int,PI>> ord[2];
+
+int get(int x,int k){
+	int cnt=0,res=0;
+	for(auto p:ord[k]){
+		int u=p.sec.fir;
+		int d=p.sec.sec;
+		if(d){
+			if(vis[u]){
+				vis[u]=0;
+				cnt--;
+			}
+		}
+		else{
+			if(cnt<x){
+				vis[u]=1;
+				cnt++;
+				res++;
+			}
+		}
+	}
+	return res;
+}
+
+int check(int x){
+	return get(x,0)+get(n-x,1);
+}
 
 inline void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>n>>m[0]>>m[1];
+	rep(j,0,1){
+		rep(i,1,m[j]){
+			int a,b;
+			cin>>a>>b;
+			ord[j].pb({a,{i,0}});
+			ord[j].pb({b,{i,1}});	
+		}
+		sort(all(ord[j]));
+	}
+	int l=0,r=n,ans=0;
+	while(l<=r){
+		int midl=l+(r-l)/3;
+		int midr=l+(r-l)*2/3;
+		int mid=(l+r)/2;
+		int resl=check(midl);
+		int resr=check(midr);
+		int res=check(mid);
+		chkmax(ans,resl); 
+		chkmax(ans,resr); 
+		chkmax(ans,res);
+		if(resl>resr){
+			r=midr-1;
+		}
+		else{
+			l=midl+1;
+		}
+	}
+	rep(i,max(0,l-100),min(n,l+100)){
+		chkmax(ans,check(i));
+	}
+	cout<<ans<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -166,3 +223,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) adversarial testing
 */
+

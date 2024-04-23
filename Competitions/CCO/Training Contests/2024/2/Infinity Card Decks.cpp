@@ -1,7 +1,7 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
- * Problem:
+ * Date: 4/7/2024 1:59:45 PM
+ * Problem: Infinity Card Decks
  * Source:
  * Description:
 */
@@ -36,11 +36,7 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
-/* Segment Tree */
-#define lc (rt << 1)
-#define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -64,7 +60,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -120,12 +116,94 @@ namespace Comfun{
 /* ========================================| Main Program |======================================== */
 
 const int N = 1e6+10;
+const ll M = 1e15+10;
 
-int n;
+int n,m,a[N],b[N];
+ll s[N];
+
+struct segtree_max{
+	int st[N<<2];
+	
+	void build(int rt,int l,int r){
+		if(l==r){
+			st[rt]=min(a[l],b[l]);
+			return;
+		}
+		int mid=l+r>>1;
+		build(rt<<1,l,mid);
+		build(rt<<1|1,mid+1,r);
+		st[rt]=max(st[rt<<1],st[rt<<1|1]);
+	}
+	
+	int query(int rt,int l,int r,int x,int y){
+		if(l==x&&r==y) return st[rt];
+		int mid=l+r>>1;
+		if(y<=mid) return query(rt<<1,l,mid,x,y);
+		else if(x>mid) return query(rt<<1|1,mid+1,r,x,y);
+		return max(query(rt<<1,l,mid,x,mid),query(rt<<1|1,mid+1,r,mid+1,y));
+	}
+	
+	int ask(int l,int r){
+		return query(1,1,n,l,r);
+	}
+} mx;
+
+struct segtree_val{
+	static const int SZ = N*30;
+	int root=0,tot=0,st[SZ],lc[SZ],rc[SZ];
+	
+	void update(int &rt,ll l,ll r,ll x,int y){
+		if(!rt) rt=++tot;
+		if(l==r){
+			st[rt]+=y;
+			return;
+		}
+		ll mid=l+r>>1;
+		if(x<=mid) update(lc[rt],l,mid,x,y);
+		else update(rc[rt],mid+1,r,x,y);
+		st[rt]=st[lc[rt]]+st[rc[rt]];
+	}
+	
+	int query(int rt,ll l,ll r,ll x,ll y){
+		if(!rt) return 0;
+		if(l==x&&r==y) return st[rt];
+		ll mid=l+r>>1;
+		if(y<=mid) return query(lc[rt],l,mid,x,y);
+		else if(x>mid) return query(rc[rt],mid+1,r,x,y);
+		return query(lc[rt],l,mid,x,mid)+query(rc[rt],mid+1,r,mid+1,y);
+	}
+	
+	void add(ll x,int y){
+		update(root,-M,M,x,y);
+	}
+	
+	int ask(ll l,ll r){
+		return query(root,-M,M,l,r);
+	}
+} st;
 
 inline void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>n>>m;
+	rep(i,1,n){
+		cin>>a[i];
+	}
+	rep(i,1,n){
+		cin>>b[i];
+		s[i]=s[i-1]+b[i]-a[i];
+	}
+	mx.build(1,1,n);
+	ll ans=0,j=1,sum=0;
+	rep(i,1,n){
+		sum+=max(a[i]-b[i],0);
+		st.add(s[i-1],1);
+		while(j<=i&&sum+mx.ask(j,i)>m){
+			sum-=max(a[j]-b[j],0);
+			st.add(s[j-1],-1);
+			j++;
+		}
+		ans+=st.ask(-M,s[i]);
+	}
+	cout<<ans<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -166,3 +244,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) adversarial testing
 */
+

@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 2/19/2024 9:08:30 PM
  * Problem:
  * Source:
  * Description:
@@ -15,7 +15,7 @@
 #define FASTIO
 //#define NDEBUG
 #define OPTIMIZE
-//#define INTTOLL
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -36,11 +36,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -64,7 +64,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -121,11 +121,31 @@ namespace Comfun{
 
 const int N = 1e6+10;
 
-int n;
+int n,m,k,a[N],lst[N];
 
 inline void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>n>>m>>k;
+	k-=n;
+	if(k<0){
+		cout<<-1<<endl;
+		return;
+	}
+	rep(i,1,n){
+		if(i-min(k,m-1)-1<=0){
+			a[i]=i-min(k,m-1)-1+m;
+		}
+		else{
+			a[i]=a[i-min(k,m-1)-1];
+		}
+		k-=min(min(k,m-1),i-1);
+	}
+	if(k){
+		cout<<-1<<endl;
+		return;
+	}
+	rep(i,1,n){
+		cout<<a[i]<<" ";
+	} cout<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -164,5 +184,6 @@ signed main(){
     * don't stuck on one question for two long (like 30-45 min)
     * Debug: (a) read your code once, check overflow and edge case
     * Debug: (b) create your own test case
-    * Debug: (c) adversarial testing
+    * Debug: (c) Adversarial Testing
 */
+

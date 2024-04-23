@@ -1,7 +1,7 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
- * Problem:
+ * Date: 2/7/2024 11:21:48 PM
+ * Problem: No More Math Homework
  * Source:
  * Description:
 */
@@ -36,11 +36,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -64,7 +64,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -119,13 +119,143 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 2e6+10;
 
-int n;
+int n,cnt,id,p[N],f[N],vis[N],flag[N],siz[N],col[N],to[N][22],pow2[22];
+
+int root(int x){
+	if(f[x]==x) return x;
+	return f[x]=root(f[x]);
+}
+
+void merge(int x,int y){
+	int fx=root(x);
+	int fy=root(y);
+	if(fx==fy) return;
+	f[fx]=fy;
+}
+
+void init(){
+	cnt=0;
+	id=0;
+	rep(i,1,n){
+		f[i]=i;
+		col[i]=0;
+		vis[i]=0;
+		flag[i]=0;
+		siz[i]=0;
+	}
+	rep(i,1,n){
+		merge(p[i],i);
+	}
+}
+
+void color(int u,int cnt){
+	if(!cnt) return;
+	col[u]=++id;
+	color(p[u],cnt-1);
+}
+
+void dfs(int u){
+	vis[u]=++cnt;
+	if(vis[p[u]]){
+		siz[root(u)]=vis[u]-vis[p[u]]+1;
+		color(u,siz[root(u)]);
+		return;
+	}
+	dfs(p[u]);
+}
+
+int find(int u,int dis){
+	per(i,21,0){
+		if(dis>=pow2[i]){
+			dis-=pow2[i];
+			u=to[u][i];
+		}
+	}
+	return u;
+}
+
+void solve(){
+	rep(i,1,n){
+		if(flag[root(i)]) continue;
+		flag[root(i)]=1;
+		dfs(i);
+	}
+	rep(i,1,n){
+		to[i][0]=p[i];
+	}
+	rep(j,1,21){
+		rep(i,1,n){
+			to[i][j]=to[to[i][j-1]][j-1];
+		}
+	}
+	int a=1,b=p[1],mx=0;
+	rep(i,1,n){
+		if(col[i]) continue;
+		int u=i,dis=0;
+		per(j,21,0){
+			if(!col[to[u][j]]){
+				u=to[u][j];
+				dis+=pow2[j];
+			}
+		}
+		int fr=find(u,siz[root(u)]);
+		if(dis>mx){
+			a=fr;
+			b=i;
+			mx=dis;
+		}
+	}
+	cout<<a<<" "<<b<<endl;
+	p[a]=b;
+}
+
+void allocate(){
+	rep(i,1,n){
+		if(flag[root(i)]) continue;
+		flag[root(i)]=1;
+		dfs(i);
+	}
+	rep(i,1,n){
+		to[i][0]=p[i];
+	}
+	rep(j,1,21){
+		rep(i,1,n){
+			to[i][j]=to[to[i][j-1]][j-1];
+		}
+	}
+	rep(i,1,n){
+		int dis=siz[root(i)];
+		dis*=(n+dis-1)/dis;
+		int u=i;
+		per(j,21,0){
+			if(dis>=pow2[j]){
+				dis-=pow2[j];
+				u=to[u][j];
+			}
+		}
+		col[i]=col[u];
+	}
+}
 
 inline void SOLVE(int Case){
+	pow2[0]=1;
+	rep(i,1,21){
+		pow2[i]=pow2[i-1]*2;
+	}
 	cin>>n;
-	
+	rep(i,1,n){
+		cin>>p[i];
+	}
+	init();
+	solve();
+	init();
+	allocate();
+	rep(i,1,n){
+		cout<<col[i]<<" ";
+	}
+	cout<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -164,5 +294,6 @@ signed main(){
     * don't stuck on one question for two long (like 30-45 min)
     * Debug: (a) read your code once, check overflow and edge case
     * Debug: (b) create your own test case
-    * Debug: (c) adversarial testing
+    * Debug: (c) Adversarial Testing
 */
+

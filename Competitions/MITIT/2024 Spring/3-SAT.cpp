@@ -1,13 +1,13 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 4/21/2024 9:46:40 AM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
@@ -36,11 +36,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -64,7 +64,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -121,11 +121,61 @@ namespace Comfun{
 
 const int N = 1e6+10;
 
-int n;
+int n,m,flag[N],vis[N];
+set<int> v[N];
 
 inline void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>n>>m;
+	rep(i,1,n){
+		flag[i]=1;
+		v[i].clear();
+	}
+	map<PI,int> cnt;
+	rep(i,1,m){
+		vis[i]=0;
+		int a,b,c;
+		cin>>a>>b>>c;
+		v[a].insert(i);
+		v[b].insert(i);
+		v[c].insert(i);
+	}
+	int sum=m;
+	if(sum%2==1){
+		cout<<"YES"<<endl;
+		rep(i,1,n){
+			cout<<flag[i]<<" ";
+		} cout<<endl;
+		return;
+	}
+	rep(i,1,n){
+		if(((int)v[i].size())%2==1){
+			sum-=(int)v[i].size();
+			flag[i]=0;
+			break;
+		}
+	}
+	if(sum%2==1){
+		cout<<"YES"<<endl;
+		rep(i,1,n){
+			cout<<flag[i]<<" ";
+		} cout<<endl;
+		return;
+	}
+	rep(i,1,n){
+		flag[i]=0;
+		for(int vv:v[i]){
+			if(!vis[vv]) sum--;
+			vis[vv]=1;
+		}
+		if(sum%2==1){
+			cout<<"YES"<<endl;
+			rep(i,1,n){
+				cout<<flag[i]<<" ";
+			} cout<<endl;
+			return;
+		}
+	}
+	cout<<"NO"<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -166,3 +216,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) adversarial testing
 */
+

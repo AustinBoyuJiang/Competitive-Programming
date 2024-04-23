@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 2/11/2024 11:59:06 PM
  * Problem:
  * Source:
  * Description:
@@ -36,11 +36,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -64,7 +64,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -119,13 +119,25 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 1e5+10;
+const int M = 20;
 
-int n;
+int n,m,a[N][M],flag[M][2][N];
 
 inline void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>m>>n;
+	rep(i,1,n){
+		rep(j,1,m){
+			char x;
+			cin>>x;
+			a[i][j]=x=='H';
+		}
+	}
+	rep(i,1,n){
+		rep(j,1,m){
+			flag[j][a[i][j]^1][i]=1;
+		}
+	}
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -164,5 +176,6 @@ signed main(){
     * don't stuck on one question for two long (like 30-45 min)
     * Debug: (a) read your code once, check overflow and edge case
     * Debug: (b) create your own test case
-    * Debug: (c) adversarial testing
+    * Debug: (c) Adversarial Testing
 */
+

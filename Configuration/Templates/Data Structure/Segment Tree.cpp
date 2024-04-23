@@ -214,14 +214,14 @@ struct Segtree_max_single{
 	
 	int st[N<<2];
 	
-	void build(int rt,int l,int r,int x){
+	void build(int rt,int l,int r){
 		if(l==r){
 			st[rt]=0;
 			return;
 		}
 		int mid=l+r>>1;
-		if(x<=mid) build(lc,l,mid,x);
-		else build(rc,mid+1,r,x);
+		build(lc,l,mid);
+		build(rc,mid+1,r);
 		st[rt]=max(st[lc],st[rc]);
 	}
 	
@@ -253,7 +253,7 @@ struct Segtree_max_single{
 	}
 };
 
-struct segtree_add_multi_interval{
+struct segtree_add_multi_sum_interval{
 	int st[N<<2];
 	PI lazy[N<<2];
 	

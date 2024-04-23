@@ -66,61 +66,47 @@ namespace ASM{
 
 /* ========================================| Main Program |======================================== */
 
-int A,B,C,D,E,F,G,H,X,Y,Z,N,M;
-int NUM,FACT,QUOT;
+int T,NUM,CNT;
 
-void YELLOW();
-void BLUE();
-void GREEN();
-void RED();
+void TOP();
+void CONT();
+void STOP();
 
-void YELLOW(){
-	LOAD(B);
-	ACC/=10;
-	STORE(C);
-	ACC*=10;
-	STORE(F);
-	LOAD(B);
-	ACC-=F;
-	STORE(D);
-	LOAD(B);
-	ACC/=100;
-	STORE(E);
-	ACC-=D;
-	STORE(G);
-	if(BE()) RED();
-	BLUE();
-}
-
-void BLUE(){
-	LOAD(B);
-	ACC-=999;
-	STORE(H);
-	if(BL()) GREEN();
-	PRINT(A);
+void STOP(){
+	PRINT(T);
 	END();
-	RED();
 }
 
-void RED(){
-	LOAD(A);
+void CONT(){
+	LOAD(CNT);
 	ACC+=1;
-	STORE(A);
-	if(BU()) BLUE();
-	GREEN();
+	STORE(CNT);
+	if(BU()) TOP();
+	STOP();
 }
 
-void GREEN(){
-	LOAD(B);
-	ACC+=1;
-	STORE(B);
-	if(BU()) YELLOW();
+void TOP(){
+	STORE(CNT);
+	LOAD(NUM);
+	ACC/=2;
+	ACC-=CNT;
+	if(BL()) STOP();
+	LOAD(NUM);
+	ACC/=CNT;
+	ACC*=CNT;
+	ACC-=NUM;
+	if(BL()) CONT();
+	LOAD(T);
+	ACC+=CNT;
+	STORE(T);
+	CONT();
 }
 
 void SOLVE(int Case){
-	A=0;
-	B=100;
-	YELLOW();
+	T=0;
+	NUM=28;
+	LOAD(1);
+	TOP();
 }
 
 /* =====================================| End of Main Program |===================================== */

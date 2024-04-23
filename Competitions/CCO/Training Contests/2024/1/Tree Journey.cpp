@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 3/30/2024 7:41:35 PM
  * Problem:
  * Source:
  * Description:
@@ -36,11 +36,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -64,7 +64,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -121,11 +121,43 @@ namespace Comfun{
 
 const int N = 1e6+10;
 
-int n;
+int n,k,dep[N];
+VI e[N];
+
+void init(int u,int fa){
+	dep[u]=dep[fa]+1;
+	for(int v:e[u]){
+		if(v==fa) continue;
+		init(v,u);
+		chkmax(dep[u],dep[v]);
+	}
+}
+
+int dfs(int u,int fa,int &k){
+	if(k<0) return 0;
+	if(!k) return 1;
+	int ans=1;
+	sort(all(e[u]),[](int a,int b){
+		return dep[a]>dep[b];
+	});
+	for(int v:e[u]){
+		if(v==fa) continue;
+		ans+=dfs(v,u,--k);
+	}
+	k--;
+	return ans;
+}
 
 inline void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>n>>k;
+	rep(i,1,n-1){
+		int u,v;
+		cin>>u>>v;
+		e[u].pb(v);
+		e[v].pb(u);
+	}
+	init(1,0);
+	cout<<dfs(1,0,k)<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -166,3 +198,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) adversarial testing
 */
+

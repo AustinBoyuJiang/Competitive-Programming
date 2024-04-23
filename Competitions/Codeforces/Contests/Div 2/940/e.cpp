@@ -1,13 +1,13 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 4/21/2024 8:44:08 AM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
@@ -15,7 +15,7 @@
 #define FASTIO
 //#define NDEBUG
 #define OPTIMIZE
-//#define INTTOLL
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -36,11 +36,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -64,7 +64,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -106,8 +106,8 @@ namespace Comfun{
 	template<class T> inline T lcm(T a,T b){return a/gcd(a,b)*b;}
 	template<class T> inline T chkmax(T &a,T b){return a=max(a,b);}
 	template<class T> inline T chkmin(T &a,T b){return a=min(a,b);}
-	template<class T> inline T qpow(T a,T b){T ans=1;
-	while(b){if(b&1)ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
+	template<class T> inline T qpow(T a,T b,T mod=MOD){T ans=1;
+	while(b){if(b&1)ans*=a,ans%=mod;a*=a,a%=mod;b>>=1;}return ans;}
 	template<class T> inline T inv(T x){return qpow(x,MOD-2);}
 	template<class T> inline bool is_prime(T x){
 	if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false;return true;}
@@ -121,11 +121,29 @@ namespace Comfun{
 
 const int N = 1e6+10;
 
-int n;
+int n,fact[N],pre[N];
 
 inline void SOLVE(int Case){
 	cin>>n;
-	
+	fact[0]=1;
+	rep(i,1,n){
+		fact[i]=fact[i-1]*i;
+	}
+	int ans=0;
+	rep(j,1,n){
+		int left=n-j+1;
+		cout<<j<<">>"<<endl;
+		rep(i,j,n){
+			int res=fact[i]/fact[i-j]/j%j;
+			cout<<res<<endl;
+			ans+=res*min(j,left)%MOD;
+			ans%=MOD;
+			i+=min(j,left)-1;
+			left-=min(j,left);
+		}
+		cout<<"----------"<<endl;
+	}
+	cout<<ans<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -166,3 +184,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) adversarial testing
 */
+

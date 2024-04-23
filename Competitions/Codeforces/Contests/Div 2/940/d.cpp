@@ -1,13 +1,13 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 4/21/2024 8:22:46 AM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
@@ -15,7 +15,7 @@
 #define FASTIO
 //#define NDEBUG
 #define OPTIMIZE
-//#define INTTOLL
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -36,11 +36,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -64,7 +64,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -119,13 +119,48 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 1e5+10;
 
-int n;
+int n,a[N],sum[N],l[33][N][2],r[33][N][2];
+
+int hibit(int x){
+	int ans=x;
+	while(x){
+		ans=x;
+		x^=lowbit(x);
+	}
+	return ans;
+}
 
 inline void SOLVE(int Case){
 	cin>>n;
-	
+	rep(i,1,n){
+		cin>>a[i];
+		sum[i]=sum[i-1]^a[i];
+	}
+	rep(d,0,32){
+		rep(i,1,n){
+			l[d][i][0]=l[d][i-1][0];
+			l[d][i][1]=l[d][i-1][1];
+			l[d][i][(sum[i-1]>>d)&1]++;
+		}
+	}
+	rep(d,0,32){
+		r[d][n+1][0]=0;
+		r[d][n+1][1]=0;
+		per(i,n,1){
+			r[d][i][0]=r[d][i+1][0];
+			r[d][i][1]=r[d][i+1][1];
+			r[d][i][(sum[i]>>d)&1]++;
+		}
+	}
+	int ans=0;
+	rep(i,1,n){
+		int d=log2(hibit(a[i]));
+		ans+=l[d][i][0]*r[d][i][0]+l[d][i][1]*r[d][i][1];
+//		cout<<l[d][i][0]*r[d][i][0]+l[d][i][1]*r[d][i][1]<<endl;
+	}
+	cout<<ans<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -166,3 +201,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) adversarial testing
 */
+

@@ -1,13 +1,13 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 3/30/2024 9:30:09 AM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
@@ -15,7 +15,7 @@
 #define FASTIO
 //#define NDEBUG
 #define OPTIMIZE
-//#define INTTOLL
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -36,11 +36,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -64,7 +64,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -94,7 +94,7 @@ const int INF = 0x3f3f3f3f;
 #else
 const ll INF = LLINF;
 #endif
-const int MOD = 1e9+7;
+const int MOD = 998244353;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 const unordered_set<char> vowel = {'a','e','i','o','u'};
 
@@ -121,11 +121,20 @@ namespace Comfun{
 
 const int N = 1e6+10;
 
-int n;
+int n,m,fact[N];
+
+int C(int n,int m){
+	if(m>n) return 0; 
+	return fact[n]*inv(fact[m])%MOD*inv(fact[n-m])%MOD;
+}
 
 inline void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>n>>m;
+	fact[0]=1;
+	rep(i,1,n){
+		fact[i]=fact[i-1]*i%MOD;
+	}
+	cout<<C(n-m,m*2)*2%MOD<<endl;	
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -166,3 +175,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) adversarial testing
 */
+

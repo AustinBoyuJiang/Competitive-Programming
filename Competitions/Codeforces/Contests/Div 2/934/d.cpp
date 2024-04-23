@@ -1,13 +1,13 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 3/16/2024 7:59:34 AM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
@@ -15,7 +15,7 @@
 #define FASTIO
 //#define NDEBUG
 #define OPTIMIZE
-//#define INTTOLL
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -36,11 +36,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -64,7 +64,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -120,12 +120,109 @@ namespace Comfun{
 /* ========================================| Main Program |======================================== */
 
 const int N = 1e6+10;
+const int base=121;
+const int base2=131;
 
-int n;
+int n,q,same[N],same2[N];
+int HASHl[N],HASHr[N],basepow[N];
+int HASHl2[N],HASHr2[N],basepow2[N];
+char a[N];
+
+void init(){
+	HASHl[0]=0;
+	rep(i,1,n){
+		HASHl[i]=HASHl[i-1]*base%MOD+(a[i]-'a');
+		HASHl[i]%=MOD;
+	}
+	HASHr[n+1]=0;
+	per(i,n,1){
+		HASHr[i]=HASHr[i+1]*base%MOD+(a[i]-'a');
+		HASHr[i]%=MOD;
+	}
+//	cout<<HASHl[3]<<" "<<(HASHr[1]-HASHr[4])*inv(base)%MOD<<endl;
+	basepow[0]=1;
+	rep(i,1,n){
+		basepow[i]=basepow[i-1]*base%MOD;
+	}
+}
+
+void init2(){
+	HASHl2[0]=0;
+	rep(i,1,n){
+		HASHl2[i]=HASHl2[i-1]*base2%MOD+(a[i]-'a');
+		HASHl2[i]%=MOD;
+	}
+	HASHr2[n+1]=0;
+	per(i,n,1){
+		HASHr2[i]=HASHr2[i+1]*base2%MOD+(a[i]-'a');
+		HASHr2[i]%=MOD;
+	}
+	basepow2[0]=1;
+	rep(i,1,n){
+		basepow2[i]=basepow2[i-1]*base2%MOD;
+	}
+}
+
+int qqpow(int a,int b){
+	int ans=1;
+	while(b){
+		if(b&1){
+			ans*=a;
+			ans%=MOD;
+		}
+		a*=a;
+		a%=MOD;
+		b>>=1; 
+	}
+	return ans;
+}
+
+int check(int l,int r){
+	int aa=(HASHl[r]-HASHl[l-1]*basepow[r-l+1]%MOD+MOD)%MOD;
+	int bb=(HASHr[l]-HASHr[r+1]*basepow[r-l+1]%MOD+MOD)%MOD;
+//	cout<<aa<<" "<<bb<<endl;
+	return aa==bb;
+}
+
+int check2(int l,int r){
+	int aa=(HASHl2[r]-HASHl2[l-1]*basepow2[r-l+1]%MOD+MOD)%MOD;
+	int bb=(HASHr2[l]-HASHr2[r+1]*basepow2[r-l+1]%MOD+MOD)%MOD;
+	return aa==bb;
+}
 
 inline void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>n>>q;
+	rep(i,1,n){
+		cin>>a[i];
+		same[i]=same[i-1]+(a[i]!=a[i-1]);
+		if(i>1) same2[i]=same2[i-1]+(a[i]!=a[i-2]);
+	}
+	init();
+	init2();
+	//如果交替: 减去单数 
+	//全部一样：减去全部 
+	rep(i,1,q){
+		int l,r;
+		cin>>l>>r;
+		int res1=same[r]-same[l];
+		int res2=same2[r]-same2[l+1];
+		if(!res1){
+			cout<<0<<endl;
+			continue;
+		}
+		if(!res2){
+			int k=r-l+1;
+			if(k%2==1) k--;
+			cout<<(2+k)*(k/2)/2<<endl;
+			continue;
+		}
+		int add=0;
+		if(check(l,r)&&check2(l,r)){
+			add=r-l+1;
+		}
+		int k=r-l+1;
+		cout<<(2+k)*(k-1)/2-add<<endl;
+	}
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -164,5 +261,6 @@ signed main(){
     * don't stuck on one question for two long (like 30-45 min)
     * Debug: (a) read your code once, check overflow and edge case
     * Debug: (b) create your own test case
-    * Debug: (c) adversarial testing
+    * Debug: (c) Adversarial Testing
 */
+

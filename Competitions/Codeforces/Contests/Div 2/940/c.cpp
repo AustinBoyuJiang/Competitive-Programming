@@ -1,13 +1,13 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 4/21/2024 7:41:31 AM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
@@ -15,7 +15,7 @@
 #define FASTIO
 //#define NDEBUG
 #define OPTIMIZE
-//#define INTTOLL
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -36,11 +36,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -64,7 +64,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -121,11 +121,41 @@ namespace Comfun{
 
 const int N = 1e6+10;
 
-int n;
+int n,k,fact[N],invfact[N],dp[N];
+
+int C(int n,int m){
+	return fact[n]*invfact[n-m]%MOD*invfact[m]%MOD;
+}
 
 inline void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>n>>k;
+	fact[0]=1;
+	rep(i,1,n){
+		fact[i]=fact[i-1]*i%MOD;
+	}
+	invfact[n]=inv(fact[n]);
+	per(i,n-1,0){
+		invfact[i]=invfact[i+1]*(i+1)%MOD;
+	}
+	int left=n;
+	rep(i,1,k){
+		int x,y;
+		cin>>x>>y;
+		if(x!=y) left-=2;
+		else left-=1;
+	}
+	dp[0]=1;
+	for(int i=2;i<=n;i+=2){
+		dp[i]=dp[i-2]+(i-2)*dp[i-2]%MOD;
+		dp[i]%=MOD;
+	}
+	int ans=0;
+	rep(i,0,left){
+		if((left-i)%2==1) continue;
+		ans+=C(left,i)*qpow(2ll,(left-i)/2)%MOD*dp[left-i]%MOD;
+		ans%=MOD;
+	}
+	cout<<ans<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -166,3 +196,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) adversarial testing
 */
+

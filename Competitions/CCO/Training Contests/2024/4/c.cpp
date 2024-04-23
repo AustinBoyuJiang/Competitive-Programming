@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 4/19/2024 10:26:41 PM
  * Problem:
  * Source:
  * Description:
@@ -36,11 +36,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -64,7 +64,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -119,13 +119,37 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 1e5+10;
 
-int n;
+int n,q,a[N];
 
 inline void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>n>>q;
+	rep(i,1,n){
+		cin>>a[i];
+	}
+	while(q--){
+		int l1,r1,l2,r2,l3,r3;
+		cin>>l1>>r1>>l2>>r2>>l3>>r3;
+		map<int,int> cnt1,cnt2,cnt3;
+		map<int,bool> flag;
+		rep(i,l1,r1){
+			cnt1[a[i]]++;
+		}
+		rep(i,l2,r2){
+			cnt2[a[i]]++;
+		}
+		rep(i,l3,r3){
+			cnt3[a[i]]++;
+		}
+		int res=r1+r2+r3-l1-l2-l3+3;
+		rep(i,l1,r1){
+			if(flag[a[i]]) continue;
+			res-=min({cnt1[a[i]],cnt2[a[i]],cnt3[a[i]]})*3;
+			flag[a[i]]=1;
+		}
+		cout<<res<<endl;
+	}
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -166,3 +190,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) adversarial testing
 */
+

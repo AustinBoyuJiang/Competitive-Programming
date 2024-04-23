@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 4/14/2024 10:18:49 AM
  * Problem:
  * Source:
  * Description:
@@ -36,11 +36,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -64,7 +64,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -119,13 +119,50 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 1e5+10;
 
-int n;
+int n,m,d,s,t,dist[N],vis[N];
+PQG<PI> q;
+VPI e[N];
+VI vv;
 
 inline void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>n>>m>>d;
+	int u=0,v=0,w=0;
+	rep(i,1,m){
+		cin>>u>>v>>w;
+		e[u].pb({v,w});
+		vv.pb(u);
+		vv.pb(v);
+	}
+	cin>>s>>t;
+	vv.pb(s);
+	vv.pb(t);
+	memset(dist,0x3f,sizeof(dist));
+	dist[s]=0;
+	q.push({0,s});
+	while(!q.empty()){
+		int u=q.top().sec;
+		q.pop();
+		if(vis[u]) continue;
+		vis[u]=1;
+		for(PI edge:e[u]){
+			int v=edge.fir;
+			int w=edge.sec;
+			if(dist[u]+w<dist[v]){
+				dist[v]=dist[u]+w;
+				q.push({dist[v],v});
+			}
+		}
+		for(int v:vv){
+			int w=(u^v)*d;
+			if(dist[u]+w<dist[v]){
+				dist[v]=dist[u]+w;
+				q.push({dist[v],v});
+			}
+		}
+	}
+	cout<<dist[t]<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -166,3 +203,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) adversarial testing
 */
+

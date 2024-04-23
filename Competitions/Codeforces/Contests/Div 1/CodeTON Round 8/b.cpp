@@ -1,13 +1,13 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 3/30/2024 7:38:44 AM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-//#define MULTICASES
+#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
@@ -36,11 +36,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -64,7 +64,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -121,11 +121,31 @@ namespace Comfun{
 
 const int N = 1e6+10;
 
-int n;
+int n,a[N],p[N],flag[N];
 
 inline void SOLVE(int Case){
 	cin>>n;
-	
+	rep(i,0,n-1){
+		flag[i]=0;
+	}
+	int mex=0;
+	rep(i,1,n){
+		cin>>a[i];
+		if(a[i]==1){
+			p[i]=mex;
+		}
+		else{
+			while(mex-a[i]<0||flag[mex-a[i]]){
+				mex++;
+			}
+			p[i]=mex-a[i];
+		}
+		flag[p[i]]=1;
+		while(flag[mex]) mex++;
+	}
+	rep(i,1,n){
+		cout<<p[i]<<" ";
+	} cout<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -166,3 +186,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) adversarial testing
 */
+

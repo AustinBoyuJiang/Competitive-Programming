@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 4/14/2024 11:41:40 AM
  * Problem:
  * Source:
  * Description:
@@ -36,11 +36,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -64,7 +64,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -121,11 +121,106 @@ namespace Comfun{
 
 const int N = 1e6+10;
 
-int n;
+int n,m,q;
+
+struct query{
+	int opt,x1,y1,x2,y2;
+} qq[2010];
 
 inline void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>n>>m>>q;
+	Vec<VI> a(n+1),dp(n+1);
+	VI row(n+1);
+	dp[0].resize(m+1);
+	rep(i,1,n){
+		a[i].resize(m+1);
+		dp[i].resize(m+1);
+		rep(j,1,m){
+			cin>>a[i][j];
+		}
+	}
+	int flag=0;
+	rep(i,1,q){
+		int &opt=qq[i].opt;
+		cin>>opt;
+		if(opt){
+			int &x1=qq[i].x1,&y1=qq[i].y1,&x2=qq[i].x2,&y2=qq[i].y2;
+			cin>>x1>>y1>>x2>>y2;
+		}
+		else{
+			int &x=qq[i].x1,&y=qq[i].y1;
+			cin>>x>>y;
+			flag=1;
+		}
+	}
+	if(flag){
+		rep(i,1,q){
+			int opt=qq[i].opt;
+			if(opt){
+				int x1=qq[i].x1,y1=qq[i].y1,x2=qq[i].x2,y2=qq[i].y2;
+				int ans=0;
+				rep(i,x1-1,x2) dp[i][y1-1]=0;
+				rep(i,y1-1,y2) dp[x1-1][i]=0;
+				rep(i,x1,x2) rep(j,y1,y2){
+					if(a[i][j]) dp[i][j]=min({dp[i][j-1],dp[i-1][j],dp[i-1][j-1]})+1;
+					else dp[i][j]=0;
+					chkmax(ans,dp[i][j]);
+				}
+				cout<<ans<<endl;
+			}
+			else{
+				int x=qq[i].x1,y=qq[i].y1;
+				a[x][y]^=1;
+			}
+		}
+	}
+	else{
+		rep(i,1,n){
+			rep(j,1,m){
+				if(a[i][j]){
+					dp[i][j]=min({dp[i][j-1],dp[i-1][j],dp[i-1][j-1]})+1;
+				}
+				chkmax(row[i],dp[i][j]);
+			}
+		}
+		rep(i,1,q){
+			int x1=qq[i].x1,y1=qq[i].y1,x2=qq[i].x2,y2=qq[i].y2;
+			if(n>40000){
+				if(y1==1&&y2==m){
+					int ans=0;
+					rep(i,x1,min(x1+m,x2)){
+						chkmax(ans,min(row[i],i-x1+1));
+					}
+					cout<<ans<<endl;
+				}
+				else{
+					int ans=0;
+					rep(i,x1,min(x1+m,x2)) rep(j,y1,min(y1+n,y2)){
+						int mx=min(i-x1,j-y1)+1;
+						chkmax(ans,min(mx,dp[i][j]));
+					}
+					cout<<ans<<endl;
+				}
+			}
+			else{
+				if(y1==1&&y2==m){
+					int ans=0;
+					rep(i,x1,x2){
+						chkmax(ans,min(row[i],i-x1+1));
+					}
+					cout<<ans<<endl;
+				}
+				else{
+					int ans=0;
+					rep(i,x1,x2) rep(j,y1,y2){
+						int mx=min(i-x1,j-y1)+1;
+						chkmax(ans,min(mx,dp[i][j]));
+					}
+					cout<<ans<<endl;
+				}
+			}
+		}
+	}
 }
 
 /* =====================================| End of Main Program |===================================== */

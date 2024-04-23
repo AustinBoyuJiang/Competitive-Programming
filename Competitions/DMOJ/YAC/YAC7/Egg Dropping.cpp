@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 2/8/2024 12:22:16 AM
  * Problem:
  * Source:
  * Description:
@@ -36,11 +36,11 @@ using namespace std;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -64,7 +64,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 
 /* Set up */
@@ -119,13 +119,66 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 1e4+10;
 
-int n;
+int n,lst,d,res[N],tmp[N],ans[N];
+
+int cnt=0;
+inline bool ask(int a,int b){
+	cnt++;
+	assert(cnt<=2e5);
+	cout<<"?"<<" "<<a<<" "<<b<<endl;
+	cout.flush();
+	bool res;
+	cin>>res;
+	return res;
+}
+
+inline void dfs(int l,int r){
+	if(l==r){
+		ans[res[l]]=l;
+		return;
+	}
+	int mid=(l+r)/2;
+	d=lst<mid;
+	lst=mid;
+	int lcnt=l,rcnt=mid+1;
+	rep(i,l,r){
+		int x=res[i];
+		if(ask(x,mid)){
+			assert(lcnt<=mid);
+			tmp[lcnt++]=x;
+		}
+		else{
+			assert(rcnt<=r);
+			tmp[rcnt++]=x;
+		}
+	}
+	rep(i,l,r){
+		res[i]=tmp[i];
+	}
+	if(d){
+		dfs(mid+1,r);
+		dfs(l,mid);
+	}
+	else{
+		dfs(l,mid);
+		dfs(mid+1,r);
+	}
+}
 
 inline void SOLVE(int Case){
 	cin>>n;
-	
+	rep(i,1,n){
+		res[i]=i;
+	}
+	dfs(1,n);
+	cout<<"!";
+	rep(i,1,n){
+		cout<<" "<<ans[i];
+	}
+	cout<<endl;
+	cout.flush();
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -164,5 +217,6 @@ signed main(){
     * don't stuck on one question for two long (like 30-45 min)
     * Debug: (a) read your code once, check overflow and edge case
     * Debug: (b) create your own test case
-    * Debug: (c) adversarial testing
+    * Debug: (c) Adversarial Testing
 */
+
