@@ -156,18 +156,18 @@ const int N = 1e6+10;
 double a,b,c,d,e,f,g,h;
 
 void SOLVE(int Case){
-	for(int yr=2021;yr<=2025;yr++){
-		int num=yr;
-		int s1=0;
-		int s2=0;
-		while(num!=0){
-			int d=num%10;
-			s1=s1+d;
-			s2=s2+d*d;
-			num=num/10;
+	rep(p,2,4){
+		int val=pow(2,p)*(pow(2,p+1)-1);
+		int sum1=0;
+		rep(y,1,pow(2,p+1)-1){
+			sum1=sum1+y;
 		}
-		if(yr%s1==0&&yr%s2==0){
-			cout<<yr<<endl;
+		int sum2=0;
+		for(int y=1;y<=pow(2,p)-1;y+=2){
+			sum2+=y*y*y;
+		}
+		if(val==sum1&&val==sum2){
+			cout<<p<<endl;
 		}
 	}
 }

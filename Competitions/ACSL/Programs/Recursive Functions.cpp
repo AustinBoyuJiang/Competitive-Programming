@@ -56,20 +56,27 @@ const int N = 1e6+10;
 
 int n;
 
-int f(int x){
-	if(x>=10) return f(x-2)%4+2;
-	if(6<x&&x<10) return f(x-1)%5+4;
-	if(x<=6) return x+5;
+int f(int x,int y){
+	if(x>=10){
+		return f(x-2,y-3)*2+1;
+	}
+	if(x>4&&x<10){
+		return f(y-1,x-3)-1;
+	}
+	assert(x<=4);
+	return x*y;
 }
 
-//int f(double x){
-//	if(x<2) return 1;
-//	return f(x/3)*8;
-//}
+int f(int x){
+	if(x>=12) return f(x-4)-3;
+	if(x>6&&x<12) return f(x-3)+2;
+	assert(x<=6);
+	return x*x;
+}
 
 void SOLVE(int Case){
-//	cout<<f(96)<<endl;
-	cout<<f(f(f(15)))<<endl;
+//	cout<<f(15,11)<<endl;
+	cout<<f(f(20))<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */

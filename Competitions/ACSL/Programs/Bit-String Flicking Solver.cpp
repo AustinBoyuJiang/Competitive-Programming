@@ -154,7 +154,7 @@ template<class T> struct Fenwick{
 
 const int N = 1e6+10;
 
-int n=5;
+int n=8;
 char ans[10];
 
 int LSHIFT(int x,int dis){
@@ -197,14 +197,19 @@ string STR(int x){
 }
 
 void SOLVE(int Case){
-//	int ans=LSHIFT(BIT("01101"),2)&RCIRC(LSHIFT(NOT(BIT("11010")),2),1);
+//	int ans=RCIRC(BIT("11011010"),5)^LSHIFT(BIT("10101101"),3)&BIT("11001101")|BIT("10001010");
+//	
+////	LSHIFT(BIT("01101"),2)&RCIRC(LSHIFT(NOT(BIT("11010")),2),1);
 //	cout<<STR(ans)<<endl;
+//	return;
 	rep(i,0,n-1) ans[i]='?';
+	int cnt=0;
 	rep(X,0,(1<<n)-1){
-		int left=RSHIFT(BIT("01110"),2)|X&LCIRC(LSHIFT(BIT("10110"),1),1);
-		int right=BIT("01011");
+		int left=RCIRC(LSHIFT(X,2),1)|LCIRC(RSHIFT(X,2),3);
+		int right=X;
 		
 		if(left==right){
+			cnt++;
 			string strx=STR(X);
 			rep(i,0,n-1){
 				if(ans[i]!='?'&&ans[i]!=strx[i]) ans[i]='*';
@@ -213,6 +218,7 @@ void SOLVE(int Case){
 		}
 	}
 	cout<<"Answer: ";
+	cout<<cnt<<endl;
 	rep(i,0,n-1){
 		cout<<ans[i];
 	} cout<<endl;

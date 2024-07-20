@@ -66,46 +66,37 @@ namespace ASM{
 
 /* ========================================| Main Program |======================================== */
 
-int T,NUM,CNT;
+int N,T,M;
 
 void TOP();
-void CONT();
 void STOP();
 
-void STOP(){
-	PRINT(T);
-	END();
-}
-
-void CONT(){
-	LOAD(CNT);
+void TOP(){
+	ACC-=M;
+	if(BG()) STOP();
+	LOAD(N);
 	ACC+=1;
-	STORE(CNT);
+	STORE(N);
+	LOAD(T);
+	ACC+=M;
+	STORE(T);
 	if(BU()) TOP();
 	STOP();
 }
 
-void TOP(){
-	STORE(CNT);
-	LOAD(NUM);
-	ACC/=2;
-	ACC-=CNT;
-	if(BL()) STOP();
-	LOAD(NUM);
-	ACC/=CNT;
-	ACC*=CNT;
-	ACC-=NUM;
-	if(BL()) CONT();
+void STOP(){
 	LOAD(T);
-	ACC+=CNT;
+	ACC-=N;
 	STORE(T);
-	CONT();
+	PRINT(T);
+	END();
 }
 
 void SOLVE(int Case){
-	T=0;
-	NUM=28;
-	LOAD(1);
+	N=1;
+	T=1;
+	M=100;
+	LOAD(T);
 	TOP();
 }
 

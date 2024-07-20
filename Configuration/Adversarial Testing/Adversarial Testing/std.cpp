@@ -1,20 +1,21 @@
 /*
  * Author: Austin Jiang
- * Date: 8/7/2023 8:54:09 AM
+ * Date: 5/17/2024 3:35:06 PM
  * Problem:
  * Source:
  * Description:
 */
 
 /* Configuration */
-#define MULTICASES
+//#define MULTICASES
 //#define LOCAL
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
-//#define FASTIO
+#define FASTIO
+//#define NDEBUG
 #define OPTIMIZE
-#define INTTOLL
+//#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -22,7 +23,10 @@
 #endif
 
 #include<bits/stdc++.h>
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
 using namespace std;
+using namespace __gnu_pbds;
 
 #ifdef INTTOLL
 #define int long long
@@ -65,6 +69,7 @@ using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
 template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
+template <class T> using Tree = tree<T,null_type,less<T>,rb_tree_tag,tree_order_statistics_node_update>;
 
 /* Set up */
 namespace FastIO{
@@ -97,7 +102,7 @@ const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 const unordered_set<char> vowel = {'a','e','i','o','u'};
 
-/* Common functions and data structures */
+/* Common functions */
 
 namespace Comfun{
 	template<class T> inline T lowbit(T x){return x&-x;}
@@ -107,299 +112,112 @@ namespace Comfun{
 	template<class T> inline T chkmin(T &a,T b){return a=min(a,b);}
 	template<class T> inline T qpow(T a,T b){T ans=1;
 	while(b){if(b&1)ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
-	inline int mex(VI s){sort(all(s));int j=0;rep(i,0,s[s.size()]+1){
-	while(j<s.size()&&s[j]<i) j++;if(s[j]!=i) return i;}}
 	template<class T> inline T inv(T x){return qpow(x,MOD-2);}
 	template<class T> inline bool is_prime(T x){
 	if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false;return true;}
-	template<class T> inline void disc(Vec<T> &v,int st=0) /*discretize*/ {Vec<T> num=v;sort(all(num));
-	for(T &x:v) x=lb(all(num),x)-num.begin()+st;}
+	inline int mex(VI v){VI vis(v.size(),0);for(int x:v) if(x<v.size()) vis[x]=1;
+	int pos=0;while(pos<v.size()&&vis[pos]) pos++;return pos;}
+	template<class T> inline void discrete(T *st,T *ed,T offset=0){ set<T> num(st,ed); Vec<T> pos(all(num));
+	for (T *itr=st;itr!=ed;++itr){*itr=lb(all(pos),*itr)-pos.begin()+offset;}}
 } using namespace Comfun;
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 2e5+10;
+const int N = 1e5+10;
 
-int n,m,a[N];
+int f[N],mx[N],mn[N];
+VI e[N],pos[N];
 
-struct segment_tree1{
-	int st[N<<2],lazy[N<<2],cnt[N<<2];
-	
-	void build(int rt,int l,int r){
-		lazy[rt]=0;
-		if(l==r){
-			st[rt]=0;
-			cnt[rt]=1;
-			return;
-		}
-		int mid=l+r>>1;
-		build(lc,l,mid);
-		build(rc,mid+1,r);
-		st[rt]=st[lc]+st[rc];
-		cnt[rt]=cnt[lc]+cnt[rc];
+void dfs(int u, VI &dfn){
+	for(int v:e[u]){
+		dfs(v,dfn);
 	}
-	
-	void push_down(int rt,int l,int mid,int r){
-		if(lazy[rt]){
-			lazy[lc]+=lazy[rt];
-			lazy[rc]+=lazy[rt];
-			st[lc]+=lazy[rt]*cnt[lc];
-			st[rc]+=lazy[rt]*cnt[rc];
-			lazy[rt]=0;
-		}
-	}
-	
-	void update(int rt,int l,int r,int x,int y,int v){
-		if(l==x&&r==y){
-			st[rt]+=v*cnt[rt];
-			lazy[rt]+=v;
-			return;
-		}
-		int mid=l+r>>1;
-		push_down(rt,l,mid,r);
-		if(y<=mid) update(lc,l,mid,x,y,v);
-		else if(x>mid) update(rc,mid+1,r,x,y,v);
-		else{
-			update(lc,l,mid,x,mid,v);
-			update(rc,mid+1,r,mid+1,y,v);
-		}
-		st[rt]=st[lc]+st[rc];
-	}
-	
-	void update2(int rt,int l,int r,int x,int y){
-		if(l==r){
-			cnt[rt]=y;
-			st[rt]*=cnt[rt];
-			return;
-		}
-		int mid=l+r>>1;
-		push_down(rt,l,mid,r);
-		if(x<=mid) update2(lc,l,mid,x,y);
-		else update2(rc,mid+1,r,x,y);
-		st[rt]=st[lc]+st[rc];
-		cnt[rt]=cnt[lc]+cnt[rc];
-	}
-	
-	int query(int rt,int l,int r,int x,int y){
-		if(l==x&&r==y) return st[rt];
-		int mid=l+r>>1;
-		push_down(rt,l,mid,r);
-		if(y<=mid) return query(lc,l,mid,x,y);
-		else if(x>mid) return query(rc,mid+1,r,x,y);
-		else return query(lc,l,mid,x,mid)+query(rc,mid+1,r,mid+1,y);
-	}
-	
-	void upd(int l,int r,int v){
-		update(1,1,n,l,r,v);
-	}
-	
-	void upd(int x,int v){
-		upd(x,x,v);
-	}
-	
-	int ask(int l,int r){
-		return query(1,1,n,l,r);
-	}
-	
-	void enable(int x,bool y){
-		update2(1,1,n,x,y);
-	}
-} ps;
+	if(u) dfn.pb(u);
+}
 
-struct segment_tree2{
-	int st[N<<2],lazy[N<<2],flag[N<<2],cnt[N<<2];
-	
-	void build(int rt,int l,int r){
-		flag[rt]=0;
-		lazy[rt]=-1;
-		if(l==r){
-			st[rt]=0;
-			cnt[rt]=1;
-			return;
-		}
-		int mid=l+r>>1;
-		build(lc,l,mid);
-		build(rc,mid+1,r);
-		st[rt]=st[lc]+st[rc];
-		cnt[rt]=cnt[lc]+cnt[rc];
-	}
-	
-	void push_down(int rt,int l,int mid,int r){
-		if(lazy[rt]!=-1){
-			lazy[lc]=lazy[rt]+(flag[rt]?-1:1)*(lazy[lc]==-1?0:lazy[lc]);
-			lazy[rc]=lazy[rt]+(flag[rt]?-1:1)*(lazy[rc]==-1?0:lazy[rc]);
-			st[lc]=lazy[rt]*cnt[lc]+(flag[rt]?-1:1)*st[lc];
-			st[rc]=lazy[rt]*cnt[rc]+(flag[rt]?-1:1)*st[rc];
-			flag[lc]^=flag[rt];
-			flag[rc]^=flag[rt];
-			flag[rt]=0;
-			lazy[rt]=-1;
-		}
-	}
-	
-	void update(int rt,int l,int r,int x,int y,int v){
-		if(l==x&&r==y){
-			st[rt]=v*cnt[rt]-st[rt];
-			lazy[rt]=v-(lazy[rt]==-1?0:lazy[rt]);
-			flag[rt]^=1;
-			return;
-		}
-		int mid=l+r>>1;
-		push_down(rt,l,mid,r);
-		if(y<=mid) update(lc,l,mid,x,y,v);
-		else if(x>mid) update(rc,mid+1,r,x,y,v);
-		else{
-			update(lc,l,mid,x,mid,v);
-			update(rc,mid+1,r,mid+1,y,v);
-		}
-		st[rt]=st[lc]+st[rc];
-	}
-	
-	void update2(int rt,int l,int r,int x,int y){
-		if(l==r){
-			cnt[rt]=y;
-			st[rt]*=cnt[rt];
-			return;
-		}
-		int mid=l+r>>1;
-		push_down(rt,l,mid,r);
-		if(x<=mid) update2(lc,l,mid,x,y);
-		else update2(rc,mid+1,r,x,y);
-		st[rt]=st[lc]+st[rc];
-		cnt[rt]=cnt[lc]+cnt[rc];
-	}
-	
-	int query(int rt,int l,int r,int x,int y){
-		if(l==x&&r==y) return st[rt];
-		int mid=l+r>>1;
-		push_down(rt,l,mid,r);
-		if(y<=mid) return query(lc,l,mid,x,y);
-		else if(x>mid) return query(rc,mid+1,r,x,y);
-		else return query(lc,l,mid,x,mid)+query(rc,mid+1,r,mid+1,y);
-	}
-	
-	void upd(int l,int r,int v){
-		update(1,1,n,l,r,v);
-	}
-	
-	void upd(int x,int v){
-		upd(x,x,v);
-	}
-	
-	int ask(int l,int r){
-		return query(1,1,n,l,r);
-	}
-	
-	void enable(int x,bool y){
-		update2(1,1,n,x,y);
-	}
-} ng;
+int root(int x){
+	if(f[x]==x) return x;
+	return f[x]=root(f[x]);
+}
 
-struct segment_tree3{
-	PI st[N<<2];
-	int lazy[N<<2];
-	
-	void build(int rt,int l,int r){
-		lazy[rt]=0;
-		if(l==r){
-			st[rt]={a[l],l};
-			return;
+void merge(int x,int y){
+	int fx=root(x);
+	int fy=root(y);
+	if(fx==fy) return;
+	f[fx]=fy;
+}
+
+int solve(int n, int m, VI fa,Vec<VI> a){
+	rep(i,0,n-1){
+		f[i]=i;
+		mx[i]=-INF;
+		mn[i]=INF;
+		e[i].clear();
+		pos[i].clear();
+	}
+	rep(i,1,n-1){
+		e[fa[i]].pb(i);
+	}
+	VI dfn;
+	dfs(0,dfn);
+	a.pb(dfn);
+	rep(j,0,m-1){
+		rep(i,0,n-2){
+			pos[a[j][i]].pb(i);
+			chkmax(mx[a[j][i]],i);
+			chkmin(mn[a[j][i]],i);
 		}
-		int mid=l+r>>1;
-		build(lc,l,mid);
-		build(rc,mid+1,r);
-		st[rt]=min(st[lc],st[rc]);
 	}
-	
-	void push_down(int rt,int l,int mid,int r){
-		if(lazy[rt]){
-			lazy[lc]+=lazy[rt];
-			lazy[rc]+=lazy[rt];
-			st[lc].fir+=lazy[rt];
-			st[rc].fir+=lazy[rt];
-			lazy[rt]=0;
+	rep(j,0,m-1){
+		rep(i,1,n-1){
+			int u=fa[i];
+			while(u>0){
+				if(pos[u][j]<pos[i][j]){
+					rep(k,pos[u][j],pos[i][j]-1){
+						merge(pos[i][j],k);
+					}
+				}
+				u=fa[u];
+			}
 		}
 	}
-	
-	void update(int rt,int l,int r,int x,int y,int v){
-		if(l==x&&r==y){
-			st[rt].fir+=v;
-			lazy[rt]+=v;
-			return;
+	rep(i,1,n-1){
+		rep(j,mn[i]+1,mx[i]){
+			merge(mn[i],j);
 		}
-		int mid=l+r>>1;
-		push_down(rt,l,mid,r);
-		if(y<=mid) update(lc,l,mid,x,y,v);
-		else if(x>mid) update(rc,mid+1,r,x,y,v);
-		else{
-			update(lc,l,mid,x,mid,v);
-			update(rc,mid+1,r,mid+1,y,v);
+	}
+	int ans=0;
+	rep(i,0,n-2){
+		if(f[i]==i){
+			ans++;
 		}
-		st[rt]=min(st[lc],st[rc]);
 	}
-	
-	PI query(int rt,int l,int r,int x,int y){
-		if(l==x&&r==y) return st[rt];
-		int mid=l+r>>1;
-		push_down(rt,l,mid,r);
-		if(y<=mid) return query(lc,l,mid,x,y);
-		else if(x>mid) return query(rc,mid+1,r,x,y);
-		else return min(query(lc,l,mid,x,mid),query(rc,mid+1,r,mid+1,y));
-	}
-	
-	void upd(int l,int r,int v){
-		update(1,1,n,l,r,v);
-	}
-	
-	void upd(int x,int v){
-		upd(x,x,v);
-	}
-	
-	PI ask(int l,int r){
-		return query(1,1,n,l,r);
-	}
-} mn;
+	return ans;
+}
 
 inline void SOLVE(int Case){
-	read(n),read(m);
-	rep(i,1,n) read(a[i]);
-	mn.build(1,1,n);
-	ps.build(1,1,n);
-	ng.build(1,1,n);
-	rep(i,1,n){
-		ps.upd(i,a[i]);
-		ps.enable(i,1);
-		ng.enable(i,0);
+	int n,m;
+	cin>>n>>m;
+	VI fa(n);
+	for(int &x:fa){
+		cin>>x;
 	}
-	rep(i,1,m){
-		int opt,l,r,x;
-		read(opt);
-		if(opt==1){
-			read(l),read(r),read(x);
-			while(true){
-				PI u=mn.ask(l,r);
-				if(x>=u.fir){
-					ps.enable(u.sec,0);
-					ng.enable(u.sec,1);
-					ng.upd(u.sec,u.fir);
-					mn.upd(u.sec,INF-u.fir);
-				}
-				else break;
-			}
-			mn.upd(l,r,-x);
-			ps.upd(l,r,-x);
-			ng.upd(l,r,x);
-		}
-		else{
-			read(l),read(r);
-			write(ps.ask(l,r)+ng.ask(l,r),endl);
+	Vec<VI> a(m);
+	rep(i,0,m-1){
+		a[i].resize(n-1);
+		for(int &x:a[i]){
+			cin>>x;
 		}
 	}
+	cout<<solve(n,m,fa,a)<<endl;
+	puts("------------------");
+	cout<<solve(3, 1, {-1, 0, 0}, {{1, 2}})<<endl;
+	cout<<solve(5, 2, {-1, 0, 0, 1, 1}, {{1, 2, 3, 4}, {4, 1, 2, 3}})<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
 
-signed main(){
+signed mains(){
 	#ifdef SETMEM
     int size(512<<20);  //512MB
     __asm__("movq %0, %%rsp\n"::"r"((char*)malloc(size)+size));
@@ -433,6 +251,5 @@ signed main(){
     * don't stuck on one question for two long (like 30-45 min)
     * Debug: (a) read your code once, check overflow and edge case
     * Debug: (b) create your own test case
-    * Debug: (c) Adversarial Testing
+    * Debug: (c) adversarial testing
 */
-

@@ -23,7 +23,10 @@
 #endif
 
 #include<bits/stdc++.h>
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
 using namespace std;
+using namespace __gnu_pbds;
 
 #ifdef INTTOLL
 #define int long long
@@ -66,6 +69,7 @@ using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
 template <class T> using PQ = priority_queue<T>; 
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
+template <class T> using Tree = tree<T,null_type,less<T>,rb_tree_tag,tree_order_statistics_node_update>;
 
 /* Set up */
 namespace FastIO{
@@ -94,7 +98,7 @@ const int INF = 0x3f3f3f3f;
 #else
 const ll INF = LLINF;
 #endif
-const int MOD = 1e9+7;
+const int MOD = 998244353;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 const unordered_set<char> vowel = {'a','e','i','o','u'};
 

@@ -152,6 +152,8 @@ bool flag[N];
 void SOLVE(int Case){
 	rep(i,0,N-1) flag[i]=1;
 	rep(A,0,1) rep(B,0,1) rep(C,0,1){
+		int res=(!(A&(B|!C)))^!(A&B&C);
+		if(res) cout<<"hello"<<endl;
 		int ans=0;
 		flag[0]&=ans==(1+1);
 		flag[1]&=ans==(1+0);

@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 8/20/2023 5:08:06 PM
+ * Date: 3/1/2024 12:25:22 PM
  * Problem:
  * Source:
  * Description:
@@ -12,7 +12,8 @@
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
-//#define FASTIO
+#define FASTIO
+//#define NDEBUG
 #define OPTIMIZE
 //#define INTTOLL
 
@@ -97,7 +98,7 @@ const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 const unordered_set<char> vowel = {'a','e','i','o','u'};
 
-/* Common functions and data structures */
+/* Common functions */
 
 namespace Comfun{
 	template<class T> inline T lowbit(T x){return x&-x;}
@@ -107,46 +108,37 @@ namespace Comfun{
 	template<class T> inline T chkmin(T &a,T b){return a=min(a,b);}
 	template<class T> inline T qpow(T a,T b){T ans=1;
 	while(b){if(b&1)ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
-	inline int mex(VI s){sort(all(s));int j=0;rep(i,0,s[s.size()]+1){
-	while(j<s.size()&&s[j]<i) j++;if(s[j]!=i) return i;}}
 	template<class T> inline T inv(T x){return qpow(x,MOD-2);}
 	template<class T> inline bool is_prime(T x){
 	if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false;return true;}
-	template<class T> inline void disc(Vec<T> &v,int st=0) /*discretize*/ {Vec<T> num=v;sort(all(num));
-	for(T &x:v) x=lb(all(num),x)-num.begin()+st;}
+	inline int mex(VI v){VI vis(v.size(),0);for(int x:v) if(x<v.size()) vis[x]=1;
+	int pos=0;while(pos<v.size()&&vis[pos]) pos++;return pos;}
+	template<class T> inline void discrete(T *st,T *ed,T offset=0){ set<T> num(st,ed); Vec<T> pos(all(num));
+	for (T *itr=st;itr!=ed;++itr){*itr=lb(all(pos),*itr)-pos.begin()+offset;}}
 } using namespace Comfun;
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 2e5;
-const int Q = 2e5;
-const int A = 1e7;
-int n,q,opt[Q+10],a[N+10],x[Q+10];
+const int N = 7;
+
+int n,m,a[N];
 
 inline void SOLVE(int Case){
-	n=random(N,N);
-	q=random(Q,Q);
-	cout<<n<<" "<<q<<endl;
-	rep(i,1,n){
-		a[i]=random(1,A);
-		cout<<a[i]<<" ";
+	n=random(3,5);
+	m=1;
+	cout<<n<<" "<<m<<endl;
+	cout<<-1<<" ";
+	rep(i,1,n-1){
+		cout<<random(0,i-1)<<" ";
 	} cout<<endl;
-	int cnt=0;
-	rep(i,1,q){
-		opt[i]=random(1,2);
-		cnt+=opt[i]==1;
-	}
-	rep(i,1,cnt) x[i]=random(1,A);
-	sort(x+1,x+cnt+1);
-	cnt=0;
-	rep(i,1,q){
-		int l,r;
-		l=random(1,n);
-		r=random(1,n);
-		if(l>r) swap(l,r);
-		cout<<opt[i]<<" "<<l<<" "<<r<<" ";
-		if(opt[i]==1) cout<<x[++cnt];
-		cout<<endl;
+	rep(i,1,m){
+		rep(j,1,n-1){
+			a[j]=j;
+		}
+		random_shuffle(a+1,a+n);
+		rep(j,1,n-1){
+			cout<<a[j]<<" ";
+		} cout<<endl;
 	}
 }
 
@@ -159,8 +151,7 @@ signed main(){
 	#endif
 	#ifndef FILESCOMP
 	SETUP();
-	int CASE=random(5,5);
-	cout<<CASE<<endl;
+	int CASE=1;
 	#ifdef MULTICASES
 	cin>>CASE;
 	#endif

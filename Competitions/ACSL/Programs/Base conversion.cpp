@@ -105,6 +105,8 @@ string ten_to_tar(int num){
 }
 
 void solve(int Case){
+//	cout<<pow(3,11)<<endl;
+//	return;
 	init();
 	cin>>cur>>tar>>str;
 	cout<<endl<<"Answer:"<<endl;

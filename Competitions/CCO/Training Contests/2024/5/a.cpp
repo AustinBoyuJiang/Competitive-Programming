@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 5/11/2023 9:47:58 PM
+ * Date: 5/3/2024 9:15:34 AM
  * Problem:
  * Source:
  * Description:
@@ -13,7 +13,8 @@
 //#define FILESCOMP
 //#define SETMEM
 #define FASTIO
-//#define OPTIMIZE
+//#define NDEBUG
+#define OPTIMIZE
 //#define INTTOLL
 
 #ifdef OPTIMIZE
@@ -72,7 +73,7 @@ namespace FastIO{
 	inline ll readLL() {ll x=0; bool f=0; char ch=0; while(!isdigit(ch)) f=ch=='-',ch=getchar(); while(isdigit(ch)) x=x*10+ch-'0',ch=getchar(); return f?-x:x;}
 	inline int read(int &x) {return x=read();}
     template<class T> inline void write(T x) {if(x<0) x=-x,putchar('-'); if(x>9) write(x/10); putchar(x%10+'0');}
-	template<class T> inline void write(T x,char let) {write(x),putchar(let);}
+	template<class T> inline void write(T x,char ch) {write(x),putchar(ch);}
 } using namespace FastIO;
 
 void SETUP(){
@@ -97,7 +98,7 @@ const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 const unordered_set<char> vowel = {'a','e','i','o','u'};
 
-/* Common functions and data structures */
+/* Common functions */
 
 namespace Comfun{
 	template<class T> inline T lowbit(T x){return x&-x;}
@@ -105,101 +106,35 @@ namespace Comfun{
 	template<class T> inline T lcm(T a,T b){return a/gcd(a,b)*b;}
 	template<class T> inline T chkmax(T &a,T b){return a=max(a,b);}
 	template<class T> inline T chkmin(T &a,T b){return a=min(a,b);}
-	template<class T> inline T qpow(T a,T b){T ans=1;while(b){if(b&1) ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
+	template<class T> inline T qpow(T a,T b){T ans=1;
+	while(b){if(b&1)ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
 	template<class T> inline T inv(T x){return qpow(x,MOD-2);}
 	template<class T> inline bool is_prime(T x){
 	if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false;return true;}
+	inline int mex(VI v){VI vis(v.size(),0);for(int x:v) if(x<v.size()) vis[x]=1;
+	int pos=0;while(pos<v.size()&&vis[pos]) pos++;return pos;}
+	template<class T> inline void discrete(T *st,T *ed,T offset=0){ set<T> num(st,ed); Vec<T> pos(all(num));
+	for (T *itr=st;itr!=ed;++itr){*itr=lb(all(pos),*itr)-pos.begin()+offset;}}
 } using namespace Comfun;
-
-template<class T,class Fun=function<T(const T,const T)>> struct Segtree{
-	int L=0,R=-1,ini=0; Fun F; Vec<T> st;
-	inline Segtree(){}
-	inline Segtree(int L,int R,int val,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,ini=val);}
-	inline Segtree(int L,int R,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,0);}
-	inline Segtree(Vec<T> v,Fun F){this->R=v.size()-1,this->F=F;st.resize(v.size()<<2);rep(i,0,this->R) upd(i,v[i],true);}
-	inline void init(int L,int R,int val,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,ini=val);}
-	inline void init(int L,int R,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,0);}
-	inline void init(Vec<T> v,Fun F){this->R=v.size()-1,this->F=F;st.resize(v.size()<<2);rep(i,0,this->R) upd(i,v[i],true);}
-	inline T query(int rt,int l,int r,int x,int y){
-		if(x>y) return ini;
-		if(l==x&&r==y) return st[rt];
-		int mid=l+r>>1;
-		if(y<=mid) return query(lc,l,mid,x,y);
-		else if(x>mid) return query(rc,mid+1,r,x,y);
-		else return F(query(lc,l,mid,x,mid),query(rc,mid+1,r,mid+1,y));}
-	inline void update(int rt,int l,int r,int x,int v,bool cover){
-		if(l==r){st[rt]=cover?v:F(st[rt],v);return;}
-		int mid=l+r>>1;
-		if(x<=mid) update(lc,l,mid,x,v,cover);
-		else update(rc,mid+1,r,x,v,cover);
-		st[rt]=F(st[lc],st[rc]);}
-	inline T ask(int x,int y){return query(1,L,R,x,y);}
-	inline void upd(int x,int y,bool cover=false){update(1,L,R,x,y,cover);}
-};
-
-template<class T> struct Fenwick{
-	int n=0; Vec<array<T,2>> d;
-	inline Fenwick(){}
-	inline Fenwick(int n){d.resize(this->n=n);}
-	inline resize(int n){d.resize(this->n=n,0);}
-	inline T query(int x,int k){int ans=0;for(int i=x;i>0;i-=lowbit(i)) ans+=d[i][k];return ans;}
-	inline T ask(int x,int y){return (y+2)*query(y+1,0)-query(y+1,1)-(x+1)*query(x,0)+query(x,1);}
-	inline void update(int x,int v){for(int i=x;i<=n;i+=lowbit(i))d[i][0]+=v,d[i][1]+=v*x;}
-	inline void add(int x,int y,int v){update(x+1,v),update(y+2,-v);}
-	inline void add(int x,int v){add(x,x,v);}
-};
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 60;
 
-unordered_set<string> opt = {"+","-","*","/","^"};
+int n,m,k,dp[N][N][N][N];
 
-bool isOpt(string x){
-	return opt.count(x);
-}
-
-string prefixToInfix(string str){
-	Vec<string> stk;
-	for(int i=0;i<str.size();i++){
-		stk.pb(str.substr(i,1));
-		while(stk.size()>=3){
-			int n=stk.size();
-			if(!isOpt(stk[n-1])&&!isOpt(stk[n-2])&&isOpt(stk[n-3])){
-				string New="("+stk[n-2]+stk[n-3]+stk[n-1]+")";
-				stk.pop_back();
-				stk.pop_back();
-				stk.pop_back();
-				stk.pb(New);
-			}
-			else break;
+inline void SOLVE(int Case){
+	cin>>n>>m>>k;
+	rep(i,1,n) rep(j,1,m){
+		rep(p,1,k) rep(q,1,k){
+			dp[i][j][p][q]=
 		}
 	}
-	return stk[0];
-}
-
-string postfixToInfix(string str){
-	Vec<string> stk;
-	for(int i=0;i<str.size();i++){
-		stk.pb(str.substr(i,1));
-		while(stk.size()>=3){
-			int n=stk.size();
-			if(isOpt(stk[n-1])&&!isOpt(stk[n-2])&&!isOpt(stk[n-3])){
-				string New="("+stk[n-3]+stk[n-1]+stk[n-2]+")";
-				stk.pop_back();
-				stk.pop_back();
-				stk.pop_back();
-				stk.pb(New);
-			}
-			else break;
-		}
+	rep(i,1,n){
+		dp[i]=max(dp[i-1]+1,0);
+		dp[i]=max(dp[i+1],)
+		dp[i]=min(dp[i-1]-1,0);
 	}
-	return stk[0];
-}
-
-void SOLVE(int Case){
-//	cout<<postfixToInfix("AC+A2^/CAB-/-")<<endl;
-	cout<<postfixToInfix("2482-*52^/-84/2/8*+")<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -238,6 +173,6 @@ signed main(){
     * don't stuck on one question for two long (like 30-45 min)
     * Debug: (a) read your code once, check overflow and edge case
     * Debug: (b) create your own test case
-    * Debug: (c) duipai
+    * Debug: (c) adversarial testing
 */
 

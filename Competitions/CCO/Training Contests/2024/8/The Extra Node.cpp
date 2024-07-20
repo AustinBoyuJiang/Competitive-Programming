@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: 5/11/2023 9:47:58 PM
+ * Date: 5/18/2024 7:53:54 PM
  * Problem:
  * Source:
  * Description:
@@ -12,8 +12,9 @@
 //#define READLOCAL
 //#define FILESCOMP
 //#define SETMEM
-#define FASTIO
-//#define OPTIMIZE
+//#define FASTIO
+//#define NDEBUG
+#define OPTIMIZE
 //#define INTTOLL
 
 #ifdef OPTIMIZE
@@ -22,7 +23,10 @@
 #endif
 
 #include<bits/stdc++.h>
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
 using namespace std;
+using namespace __gnu_pbds;
 
 #ifdef INTTOLL
 #define int long long
@@ -65,6 +69,7 @@ using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
 template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
+template <class T> using Tree = tree<T,null_type,less<T>,rb_tree_tag,tree_order_statistics_node_update>;
 
 /* Set up */
 namespace FastIO{
@@ -72,7 +77,7 @@ namespace FastIO{
 	inline ll readLL() {ll x=0; bool f=0; char ch=0; while(!isdigit(ch)) f=ch=='-',ch=getchar(); while(isdigit(ch)) x=x*10+ch-'0',ch=getchar(); return f?-x:x;}
 	inline int read(int &x) {return x=read();}
     template<class T> inline void write(T x) {if(x<0) x=-x,putchar('-'); if(x>9) write(x/10); putchar(x%10+'0');}
-	template<class T> inline void write(T x,char let) {write(x),putchar(let);}
+	template<class T> inline void write(T x,char ch) {write(x),putchar(ch);}
 } using namespace FastIO;
 
 void SETUP(){
@@ -97,7 +102,7 @@ const int MOD = 1e9+7;
 const int dir[8][2] = {{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 const unordered_set<char> vowel = {'a','e','i','o','u'};
 
-/* Common functions and data structures */
+/* Common functions */
 
 namespace Comfun{
 	template<class T> inline T lowbit(T x){return x&-x;}
@@ -105,101 +110,156 @@ namespace Comfun{
 	template<class T> inline T lcm(T a,T b){return a/gcd(a,b)*b;}
 	template<class T> inline T chkmax(T &a,T b){return a=max(a,b);}
 	template<class T> inline T chkmin(T &a,T b){return a=min(a,b);}
-	template<class T> inline T qpow(T a,T b){T ans=1;while(b){if(b&1) ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
+	template<class T> inline T qpow(T a,T b){T ans=1;
+	while(b){if(b&1)ans*=a,ans%=MOD;a*=a,a%=MOD;b>>=1;}return ans;}
 	template<class T> inline T inv(T x){return qpow(x,MOD-2);}
 	template<class T> inline bool is_prime(T x){
 	if(x==1) return false; for(T i=2;i*i<=x;i++) if(x%i==0) return false;return true;}
+	inline int mex(VI v){VI vis(v.size(),0);for(int x:v) if(x<v.size()) vis[x]=1;
+	int pos=0;while(pos<v.size()&&vis[pos]) pos++;return pos;}
+	template<class T> inline void discrete(T *st,T *ed,T offset=0){ set<T> num(st,ed); Vec<T> pos(all(num));
+	for (T *itr=st;itr!=ed;++itr){*itr=lb(all(pos),*itr)-pos.begin()+offset;}}
 } using namespace Comfun;
-
-template<class T,class Fun=function<T(const T,const T)>> struct Segtree{
-	int L=0,R=-1,ini=0; Fun F; Vec<T> st;
-	inline Segtree(){}
-	inline Segtree(int L,int R,int val,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,ini=val);}
-	inline Segtree(int L,int R,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,0);}
-	inline Segtree(Vec<T> v,Fun F){this->R=v.size()-1,this->F=F;st.resize(v.size()<<2);rep(i,0,this->R) upd(i,v[i],true);}
-	inline void init(int L,int R,int val,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,ini=val);}
-	inline void init(int L,int R,Fun F){this->L=L,this->R=R,this->F=F;st.resize(R-L+1<<2,0);}
-	inline void init(Vec<T> v,Fun F){this->R=v.size()-1,this->F=F;st.resize(v.size()<<2);rep(i,0,this->R) upd(i,v[i],true);}
-	inline T query(int rt,int l,int r,int x,int y){
-		if(x>y) return ini;
-		if(l==x&&r==y) return st[rt];
-		int mid=l+r>>1;
-		if(y<=mid) return query(lc,l,mid,x,y);
-		else if(x>mid) return query(rc,mid+1,r,x,y);
-		else return F(query(lc,l,mid,x,mid),query(rc,mid+1,r,mid+1,y));}
-	inline void update(int rt,int l,int r,int x,int v,bool cover){
-		if(l==r){st[rt]=cover?v:F(st[rt],v);return;}
-		int mid=l+r>>1;
-		if(x<=mid) update(lc,l,mid,x,v,cover);
-		else update(rc,mid+1,r,x,v,cover);
-		st[rt]=F(st[lc],st[rc]);}
-	inline T ask(int x,int y){return query(1,L,R,x,y);}
-	inline void upd(int x,int y,bool cover=false){update(1,L,R,x,y,cover);}
-};
-
-template<class T> struct Fenwick{
-	int n=0; Vec<array<T,2>> d;
-	inline Fenwick(){}
-	inline Fenwick(int n){d.resize(this->n=n);}
-	inline resize(int n){d.resize(this->n=n,0);}
-	inline T query(int x,int k){int ans=0;for(int i=x;i>0;i-=lowbit(i)) ans+=d[i][k];return ans;}
-	inline T ask(int x,int y){return (y+2)*query(y+1,0)-query(y+1,1)-(x+1)*query(x,0)+query(x,1);}
-	inline void update(int x,int v){for(int i=x;i<=n;i+=lowbit(i))d[i][0]+=v,d[i][1]+=v*x;}
-	inline void add(int x,int y,int v){update(x+1,v),update(y+2,-v);}
-	inline void add(int x,int v){add(x,x,v);}
-};
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int Base=1331;
+const int N = 1e5+10;
 
-unordered_set<string> opt = {"+","-","*","/","^"};
+int n,dep[N],siz[N],hsa[N],hsb[N];
+VI a[N],b[N];
 
-bool isOpt(string x){
-	return opt.count(x);
+void init(int u,int fa,VI e[]){
+	dep[u]=dep[fa]+1;
+	siz[u]=1;
+	for(int v:e[u]){
+		if(v==fa) continue;
+		init(v,u,e);
+		siz[u]+=siz[v];
+	}
 }
 
-string prefixToInfix(string str){
-	Vec<string> stk;
-	for(int i=0;i<str.size();i++){
-		stk.pb(str.substr(i,1));
-		while(stk.size()>=3){
-			int n=stk.size();
-			if(!isOpt(stk[n-1])&&!isOpt(stk[n-2])&&isOpt(stk[n-3])){
-				string New="("+stk[n-2]+stk[n-3]+stk[n-1]+")";
-				stk.pop_back();
-				stk.pop_back();
-				stk.pop_back();
-				stk.pb(New);
+int center(int u,int fa,int d,int tar,VI e[],int n){
+	if(u==tar) return u;
+	for(int v:e[u]){
+		if(v==fa) continue;
+		int res=center(v,u,d+1,tar,e,n);
+		if(res){
+			if(dep[tar]%2==1){
+				if(d==(dep[tar]+1)/2) return u;
 			}
-			else break;
+			else{
+				if(d==dep[tar]/2+1){
+					if(siz[u]*2>n) return u;
+					else return fa;
+				}
+			}
+			return res;
 		}
 	}
-	return stk[0];
+	return 0;
 }
 
-string postfixToInfix(string str){
-	Vec<string> stk;
-	for(int i=0;i<str.size();i++){
-		stk.pb(str.substr(i,1));
-		while(stk.size()>=3){
-			int n=stk.size();
-			if(isOpt(stk[n-1])&&!isOpt(stk[n-2])&&!isOpt(stk[n-3])){
-				string New="("+stk[n-3]+stk[n-1]+stk[n-2]+")";
-				stk.pop_back();
-				stk.pop_back();
-				stk.pop_back();
-				stk.pb(New);
+int root1,root2;
+PI diameter(VI e[],int n){
+	root1=root2=1;
+	init(1,0,e);
+	rep(i,2,n) if(dep[i]>dep[root1]){
+		root1=i;
+	}
+	init(root1,0,e);
+	rep(i,2,n) if(dep[i]>dep[root2]){
+		root2=i;
+	}
+	return {dep[root2],center(root1,0,1,root2,e,n)};
+}
+
+void Hash(int u,int fa,int hs[],VI e[]){
+	hs[u]=1+(int)e[u].size()-(fa!=0);
+	for(int v:e[u]){
+		if(v==fa) continue;
+		Hash(v,u,hs,e);
+		hs[u]=(hs[u]+hs[v]*1ll*Base%MOD)%MOD;
+	}
+//	assert(hs[u]!=0);
+}
+
+int find(int ua,int ub,int faa,int fab){
+	if(a[ua].size()!=b[ub].size()){
+		int res=INF;
+		for(int v:b[ub]){
+			if(v==fab) continue;
+			if(b[v].size()==1){
+				chkmin(res,v);
 			}
-			else break;
+		}
+		return res;
+	}
+	multiset<int> hse;
+	for(int v:a[ua]){
+		if(v==faa) continue;
+		hse.insert(hsa[v]);
+	}
+	VI nxt;
+	for(int v:b[ub]){
+		if(v==fab) continue;
+		auto itr=hse.find(hsb[v]);
+		if(itr==hse.end()){
+			nxt.pb(hsb[v]);
+		}
+		else{
+			hse.erase(itr);
 		}
 	}
-	return stk[0];
+	if(hse.size()!=1){
+		for(int x:hse){
+			cout<<x<<" ";
+		} cout<<endl;
+		for(int x:nxt){
+			cout<<x<<" ";
+		} cout<<endl;
+		cout<<"--------"<<endl;
+	}
+//	assert(hse.size()==1);
+	int nxtua=-1;
+	for(int v:a[ua]){
+		if(v==faa) continue;
+		if(hsa[v]==*hse.begin()){
+			nxtua=v;
+			break;
+		}
+	}
+	int res=INF;
+	for(int v:b[ub]){
+		if(v==fab) continue;
+		if(hsb[v]!=nxt[0]) continue;
+		assert(hsb[v]!=hsa[nxtua]);
+		chkmin(res,find(nxtua,v,ua,ub));
+	}
+	return res;
 }
 
-void SOLVE(int Case){
-//	cout<<postfixToInfix("AC+A2^/CAB-/-")<<endl;
-	cout<<postfixToInfix("2482-*52^/-84/2/8*+")<<endl;
+inline void SOLVE(int Case){
+	cin>>n;
+	rep(i,1,n-1){
+		int u,v;
+		cin>>u>>v;
+		a[u].pb(v);
+		a[v].pb(u);
+	}
+	rep(i,1,n){
+		int u,v;
+		cin>>u>>v;
+		b[u].pb(v);
+		b[v].pb(u);
+	}
+	PI resa=diameter(a,n);
+	PI resb=diameter(b,n+1);
+//	assert(resa.fir==resb.fir);
+//	cout<<resa.sec<<" "<<resb.sec<<endl;
+	Hash(resa.sec,0,hsa,a);
+	Hash(resb.sec,0,hsb,b);
+	cout<<find(resa.sec,resb.sec,0,0)<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -238,6 +298,6 @@ signed main(){
     * don't stuck on one question for two long (like 30-45 min)
     * Debug: (a) read your code once, check overflow and edge case
     * Debug: (b) create your own test case
-    * Debug: (c) duipai
+    * Debug: (c) adversarial testing
 */
 

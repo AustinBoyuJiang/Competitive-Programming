@@ -93,10 +93,19 @@ void insert(int &rt,char s,int dep){
 	else insert(st[rt].rc,s,dep+1);
 }
 
+void dfs(int rt){
+	if(st[rt].lc) dfs(st[rt].lc);
+	if(st[rt].rc) dfs(st[rt].rc);
+	cout<<st[rt].s;
+}
+
 void solve(int Case){
-	cin>>str;
+//	cin>>str;
+	str="REFRIGERATOR";
 	for(int i=0;i<str.size();i++)
 		insert(root,str[i],0);
+	dfs(root);
+	cout<<endl;
 	cout<<"Answer: "<<ans<<endl;
 }
 
