@@ -1,0 +1,10 @@
+t=int(input())
+while(t):
+    a,b=map(int,input().split())
+    c=0
+    ans=0
+    while(c*c<=a+b):
+        ans+=min({c*c,a+b-c*c,a,b})+1
+        c+=1
+    print(ans)
+    t-=1

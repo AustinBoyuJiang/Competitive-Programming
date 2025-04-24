@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 1/23/2025 2:50:43 PM
  * Problem:
  * Source:
  * Description:
@@ -39,11 +39,11 @@ using namespace __gnu_pbds;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -52,11 +52,19 @@ using namespace __gnu_pbds;
 #define ef emplace_front
 #define pb push_back
 #define pf push_front
+#define mp make_pair
 #define all(v) v.begin(), v.end()
 
 /* Random */
 mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
 #define random(a,b) rng()%(b-a+1)+a
+
+struct pair_hash {
+    template <typename T1, typename T2>
+    size_t operator()(const pair<T1, T2>& p) const {
+        return hash<T1>{}(p.fir) ^ (hash<T2>{}(p.sec) << 1);
+    }
+};
 
 /* Data type */
 using ll = long long;
@@ -67,9 +75,11 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 template <class T> using Tree = tree<T,null_type,less<T>,rb_tree_tag,tree_order_statistics_node_update>;
+template <class T> using UM = unordered_map<int,T>;
+template <class T> using UPM = unordered_map<PI,T,pair_hash>;
 
 /* Set up */
 namespace FastIO{
@@ -123,13 +133,33 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 110;
 
-int n;
+int n,k,t,a[N],cnt[N];
 
 inline void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>n>>k>>t
+	while(t--){
+		rep(i,1,n){
+			int x,d;
+			cin>>x;
+			d=a[x]+1-a[x+1];
+			per(j,i,x+2){
+				a[j]=a[j-1]+d;
+			}
+			a[x+1]=a[x]+1;
+		}
+		rep(i,1,k){
+			cnt[i]=0;
+		}
+		rep(i,1,n){
+			assert(a[i]<=k);
+			cnt[a[i]]++;
+		}
+		rep(i,1,k){
+			cout<<cnt[i]<<" ";
+		} cout<<endl;
+	}
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -170,3 +200,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) adversarial testing
 */
+

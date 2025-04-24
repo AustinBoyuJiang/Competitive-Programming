@@ -24,18 +24,24 @@ const int INF=0x3f3f3f3f;
 const int N=1e5+10;
 const int dir[8][2]={{1,0},{0,1},{0,-1},{-1,0},{1,1},{1,-1},{-1,1},{-1,-1}};
 
-int n,tot,isPrime[N],prime[N];
+int n,isPrime[N],low[N];
 
 signed main(){
 	ios::sync_with_stdio(false);
 	cin.tie(0);
 	fill(isPrime,isPrime+N,1);
 	isPrime[0]=isPrime[1]=0;
+	VI primes;
 	for(int i=2;i<N;i++){
-		if(isPrime[i]) prime[tot++]=i;
-		for(int j=0;j<tot&&i*prime[j]<N;j++){
-			isPrime[i*prime[j]]=0;
-			if(i%prime[j]==0) break;
+		if(isPrime[i]){
+			primes.pb(i);
+			low[i]=i;
+		}
+		for(int x:primes){
+			if(i*x>=N) break;
+			isPrime[i*x]=0;
+			low[i*x]=x;
+			if(i%x==0) break;
 		}
 	}
 	cin>>n;

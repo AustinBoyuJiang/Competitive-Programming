@@ -95,11 +95,13 @@ signed main(){
 		int r=rnd(last)%n+1;
 		int x=rnd(last)+1;
 		if(l>r) swap(l,r);
+		cout<<l<<" "<<r<<" "<<x<<endl;
 		if(l+r+x&1) update(1,1,n,l,r,x);
 		else{
 			int res=query(1,1,n,l,r);
 			(ans+=(long)i*res)%=MOD;
 			last=res;
+			cout<<res<<endl;
 		}
 	}
 	write(ans,endl);
