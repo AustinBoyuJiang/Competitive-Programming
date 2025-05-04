@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 4/27/2025 3:03:07 AM
  * Problem:
  * Source:
  * Description:
@@ -39,11 +39,11 @@ using namespace __gnu_pbds;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -75,7 +75,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 template <class T> using Tree = tree<T,null_type,less<T>,rb_tree_tag,tree_order_statistics_node_update>;
 template <class T> using UM = unordered_map<int,T>;
@@ -133,13 +133,36 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 1e5+10;
 
-int n;
+int n,q,a[N],sum[N];
 
 inline void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>n>>q;
+	rep(i,1,n){
+		cin>>a[i];
+	}
+	rep(i,1,q){
+		int opt;
+		cin>>opt;
+		if(opt==0){
+			int x;
+			cin>>x;
+			rep(i,1,n){
+				if(a[i]<x){
+					a[i]=x;
+				}
+			}
+		}
+		else{
+			int mx=0;
+			rep(i,1,n){
+				sum[i]=sum[i-1]+a[i];
+				chkmax(mx,sum[i]);
+			}
+			cout<<mx<<endl;
+		}
+	}
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -180,3 +203,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) adversarial testing
 */
+

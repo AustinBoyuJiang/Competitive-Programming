@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 4/27/2025 2:08:20 AM
  * Problem:
  * Source:
  * Description:
@@ -15,7 +15,7 @@
 #define FASTIO
 //#define NDEBUG
 #define OPTIMIZE
-//#define INTTOLL
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -39,11 +39,11 @@ using namespace __gnu_pbds;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -57,7 +57,7 @@ using namespace __gnu_pbds;
 
 /* Random */
 mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
-#define random(a,b) (ll)rng()%(b-a+1)+a
+#define random(a,b) rng()%(b-a+1)+a
 
 struct pair_hash {
     template <typename T1, typename T2>
@@ -75,7 +75,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 template <class T> using Tree = tree<T,null_type,less<T>,rb_tree_tag,tree_order_statistics_node_update>;
 template <class T> using UM = unordered_map<int,T>;
@@ -133,13 +133,126 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 1e5+10;
 
-int n;
+int n,q,a[N],sum[N];
+
+struct segment_tree{
+	
+	struct node{
+		int mx,cnt,sum=0,lazy_cnt=0,val=-INF;
+	} st[N<<2];
+	
+	node merge(node a,node b){
+		node res;
+		if(a.mx>b.mx){
+			res.mx=a.mx;
+			res.cnt=a.cnt;
+		}
+		else{
+			res.mx=b.mx;
+			res.cnt=b.cnt;
+		}
+		return res;
+	}
+	
+	void push_up(int rt){
+		node res=merge(st[rt<<1],st[rt<<1|1]);
+		st[rt].mx=res.mx;
+		st[rt].cnt=res.cnt;
+	}
+	
+	void build(int rt,int l,int r){
+		if(l==r){
+			st[rt].mx=sum[l];
+			st[rt].cnt=0;
+			return;
+		}
+		int mid=l+r>>1;
+		build(rt<<1,l,mid);
+		build(rt<<1|1,mid+1,r);
+		push_up(rt);
+	}
+	
+	void push_down(int rt,int l,int mid,int r){
+		st[rt<<1].mx-=st[rt].sum;
+		st[rt<<1|1].mx-=st[rt].sum;
+		st[rt<<1].sum+=st[rt].sum;
+		st[rt<<1|1].sum+=st[rt].sum;
+		st[rt].sum=0;
+		st[rt<<1].mx-=st[rt<<1].val*st[rt<<1].cnt;
+		st[rt<<1|1].mx-=st[rt<<1|1].val*st[rt<<1|1].cnt;
+		st[rt<<1].mx+=st[rt].val*st[rt].cnt;
+		st[rt<<1|1].mx+=st[rt].val*st[rt].cnt;
+		st[rt<<1].val=st[rt].val;
+		st[rt<<1].cnt+=st[rt].lazy_cnt;
+		st[rt<<1].lazy_cnt+=st[rt].lazy_cnt;
+		st[rt<<1|1].val=st[rt].val;
+		st[rt<<1|1].cnt+=st[rt].lazy_cnt;
+		st[rt<<1|1].lazy_cnt+=st[rt].lazy_cnt;
+		st[rt].lazy_cnt=0;
+	}
+	
+	void update(int rt,int l,int r,int x,int y,int val){
+		if(l==x&&r==y){
+			st[rt].mx-=val;
+			st[rt].mx+=st[rt].val;
+			st[rt].sum+=val;
+			st[rt].cnt++;
+			st[rt].lazy_cnt++;
+//			if(l<r){
+//				push_down(rt,l,l+r>>1,r);
+//				push_up(rt);
+//			}
+			return;
+		}
+		int mid=l+r>>1;
+		push_down(rt,l,mid,r);
+		if(y<=mid) update(rt<<1,l,mid,x,y,val);
+		else if(x>mid) update(rt<<1|1,mid+1,r,x,y,val);
+		else{
+			update(rt<<1,l,mid,x,mid,val);
+			update(rt<<1|1,mid+1,r,mid+1,y,val);
+		}
+		push_up(rt);
+	}
+} t;
 
 inline void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>n>>q;
+	VPI val;
+	rep(i,1,n){
+		cin>>a[i];
+		sum[i]=sum[i-1]+a[i];
+		val.pb({a[i],i});
+	}
+	t.build(1,0,n);
+	rep(i,1,7){
+		cout<<i<<" "<<t.st[i].mx<<" "<<t.st[i].sum<<" "<<t.st[i].cnt<<" "<<t.st[i].val<<endl;
+	}
+	sort(all(val));
+	int j=-1;
+	rep(i,1,q){
+		int opt;
+		cin>>opt;
+		if(opt==0){
+			int x;
+			cin>>x;
+			chkmax(t.st[1].val,x);
+			while(j+1<n&&val[j+1].fir<=x){
+				j++;
+				int pos=val[j].sec;
+				t.update(1,0,n,pos,n,a[pos]);
+			}
+			rep(i,1,7){
+				cout<<i<<" "<<t.st[i].mx<<" "<<t.st[i].sum<<" "<<t.st[i].cnt<<" "<<t.st[i].val<<endl;
+			}
+			cout<<"----------"<<endl;
+		}
+		else{
+			cout<<t.st[1].mx<<endl;
+		}
+	}
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -180,3 +293,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) adversarial testing
 */
+

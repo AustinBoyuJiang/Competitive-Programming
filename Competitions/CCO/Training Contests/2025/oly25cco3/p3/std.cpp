@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 4/27/2025 2:08:20 AM
  * Problem:
  * Source:
  * Description:
@@ -15,7 +15,7 @@
 #define FASTIO
 //#define NDEBUG
 #define OPTIMIZE
-//#define INTTOLL
+#define INTTOLL
 
 #ifdef OPTIMIZE
 #pragma GCC optimize(2)
@@ -39,11 +39,11 @@ using namespace __gnu_pbds;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -57,7 +57,7 @@ using namespace __gnu_pbds;
 
 /* Random */
 mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
-#define random(a,b) (ll)rng()%(b-a+1)+a
+#define random(a,b) rng()%(b-a+1)+a
 
 struct pair_hash {
     template <typename T1, typename T2>
@@ -75,7 +75,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 template <class T> using Tree = tree<T,null_type,less<T>,rb_tree_tag,tree_order_statistics_node_update>;
 template <class T> using UM = unordered_map<int,T>;
@@ -133,13 +133,71 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 1e5+10;
 
-int n;
+int n,q;
+
+struct sqrt_decomp{
+	
+	int n,bl,itr=-1;
+	int mx,lmx,rmx;
+	VI a,pre,sum,mx,mn;
+	VPI val;
+	
+	void build(VI arr){
+		a=arr;
+		n=a.size();
+		bl=sqrt(n);
+		rep(i,0,n-1){
+			val.pb({a[i],i})
+		}
+		sort(all(val));
+		pre.resize(n);
+		sum.resize((n+bl-1)/bl);
+		mx.resize((n+bl-1)/bl);
+		mn.resize((n+bl-1)/bl);
+		rep(i,0,n-1){
+			sum[i/bl]+=a[i];
+			pre[i]=(i%bl?pre[i-1]:0)+a[i];
+			chkmax(mx[i/bl],pre[i]);
+			chkmin(mn[i/bl],pre[i]);
+		}
+		
+	}
+	
+	void update(int pos){
+		
+	}
+	
+	void upd(int x){
+		while(itr+1<n&&val[itr+1].fir<=x){
+			itr++;
+			int pos=val[itr].sec;
+			update(pos);
+		}
+	}
+	
+} d;
 
 inline void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>n>>q;
+	VI a(n);
+	for(int &x:a){
+		cin>>x;
+	}
+	d.build(a);
+	rep(i,1,q){
+		int opt;
+		cin>>opt;
+		if(opt==0){
+			int x;
+			cin>>x;
+			d.upd(x);
+		}
+		else{
+			cout<<d.mx<<endl;
+		}
+	}
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -180,3 +238,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) adversarial testing
 */
+

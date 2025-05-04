@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 4/27/2025 2:54:28 AM
  * Problem:
  * Source:
  * Description:
@@ -39,11 +39,11 @@ using namespace __gnu_pbds;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -75,7 +75,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 template <class T> using Tree = tree<T,null_type,less<T>,rb_tree_tag,tree_order_statistics_node_update>;
 template <class T> using UM = unordered_map<int,T>;
@@ -133,13 +133,27 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 110;
 
-int n;
+int n,q,a[N];
 
 inline void SOLVE(int Case){
-	cin>>n;
-	
+	int n=random(3,3);
+	int q=random(3,5);
+	cout<<n<<" "<<q<<endl;
+	rep(i,1,n){
+		a[i]=random(-10,10);
+		cout<<a[i]<<" ";
+	} cout<<endl;
+	rep(i,1,q){
+		int opt=random(0,1);
+		if(opt==0){
+			cout<<0<<" "<<random(-10,10)<<endl;
+		}
+		else{
+			cout<<1<<endl;
+		}
+	}
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -180,3 +194,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) adversarial testing
 */
+

@@ -1,6 +1,6 @@
 /*
  * Author: Austin Jiang
- * Date: <DATETIME>
+ * Date: 4/26/2025 11:55:16 PM
  * Problem:
  * Source:
  * Description:
@@ -39,11 +39,11 @@ using namespace __gnu_pbds;
 /* Pair */
 #define fir first
 #define sec second
- 
+
 /* Segment Tree */
 #define lc (rt << 1)
 #define rc (rt << 1 | 1)
- 
+
 /* STL */
 #define lb lower_bound
 #define ub upper_bound
@@ -57,7 +57,7 @@ using namespace __gnu_pbds;
 
 /* Random */
 mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
-#define random(a,b) (ll)rng()%(b-a+1)+a
+#define random(a,b) rng()%(b-a+1)+a
 
 struct pair_hash {
     template <typename T1, typename T2>
@@ -75,7 +75,7 @@ using PPI = pair<PI,int>;
 using VI = vector<int>;
 using VPI = vector<PI>;
 template <class T> using Vec = vector<T>;
-template <class T> using PQ = priority_queue<T>; 
+template <class T> using PQ = priority_queue<T>;
 template <class T> using PQG = priority_queue<T,vector<T>,greater<T>>;
 template <class T> using Tree = tree<T,null_type,less<T>,rb_tree_tag,tree_order_statistics_node_update>;
 template <class T> using UM = unordered_map<int,T>;
@@ -133,13 +133,81 @@ namespace Comfun{
 
 /* ========================================| Main Program |======================================== */
 
-const int N = 1e6+10;
+const int N = 5010;
 
-int n;
+int n,a[N],b[N],lm[N],rm[N],flag[N],dp[N][N],pre[N];
 
 inline void SOLVE(int Case){
 	cin>>n;
-	
+	VPI val;
+	rep(i,1,n){
+		cin>>a[i];
+		val.pb({a[i],i});
+	}
+	sort(all(val));
+	stack<int> stk;
+	rep(i,1,n){
+		while(!stk.empty()&&a[stk.top()]<a[i]){
+			stk.pop();
+		}
+		if(stk.empty()) lm[i]=1;
+		else lm[i]=stk.top()+1;
+		stk.push(i);
+	}
+	while(!stk.empty()) stk.pop();
+	per(i,n,1){
+		while(!stk.empty()&&a[stk.top()]<a[i]){
+			stk.pop();
+		}
+		if(stk.empty()) rm[i]=n;
+		else rm[i]=stk.top()-1;
+		stk.push(i);
+	}
+	rep(i,1,n){
+		cin>>b[i];
+	}
+	for(PI pr:val){
+		int pos=pr.sec,l=pos,r=pos;
+		int cnt1=0,cnt2=0;
+		per(i,pos-1,lm[pos]){
+			cnt1+=a[pos]==b[i];
+			cnt2+=flag[i];
+			if(cnt1>dp[i][pos-1]-dp[l][pos-1]){
+				l=i;
+				cnt1=0;
+				cnt2=0;
+			}
+		}
+		cnt1=0,cnt2=0;
+		rep(i,pos+1,rm[pos]){
+			cnt1+=a[pos]==b[i];
+			cnt2+=flag[i];
+			if(cnt1>dp[pos+1][i]-dp[pos+1][r]){
+				r=i;
+				cnt1=0;
+				cnt2=0;
+			}
+		}
+		pre[lm[i]-1]=0;
+		rep(i,lm[i],rm[i]){
+			pre[i]=pre[i-1]+(b[i]==a[pos]);
+		}
+		
+		rep(i,l,r){
+			if(b[i]==a[pos]){
+				flag[i]=1;
+			}
+			else{
+				flag[i]=0;
+			}
+		}
+	}
+	int ans=0;
+	rep(i,1,n){
+		ans+=flag[i];
+	}
+//	cout<<ans<<endl;
+	cout<<dp[1][n]<<endl;
 }
 
 /* =====================================| End of Main Program |===================================== */
@@ -180,3 +248,4 @@ signed main(){
     * Debug: (b) create your own test case
     * Debug: (c) adversarial testing
 */
+
