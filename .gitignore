@@ -9,4 +9,5 @@
 *.docx
 *.ppt
 *.pptx
-/Problem Setting
+/problem-setting
+**/executables/
