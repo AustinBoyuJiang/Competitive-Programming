@@ -1,7 +1,7 @@
 #pragma GCC optimize(2)
 #include<bits/stdc++.h>
 using namespace std;
-// #define int long long
+#define int long long
 #define rep(i,x,y) for(int i=(x);i<=(y);i++)
 #define per(i,x,y) for(int i=(x);i>=(y);i--)
 #define F first
@@ -36,22 +36,59 @@ template<class T> inline bool chkmin(T &a, const T &b){
     return false; 
 }
 
-const int N = 1e6+10;
+const int N = 5e5+10;
 
-int n;
+int n,a[N],f[N];
+
+struct edge{
+	int u,v,w;
+};
+
+vector<edge> e;
+
+int root(int x){
+	if(f[x]==x) return x;
+	return f[x]=root(f[x]);
+}
+
+void merge(int x,int y){
+	f[root(x)]=root(y);
+	root(x);
+	root(y);
+	root(root(x));
+	root(root(y));
+}
 
 void SOLVE(int Case){
 	cin>>n;
-	
+	e.clear();
+	f[0]=0;
+	rep(i,1,n){
+		f[i]=i;
+		cin>>a[i];
+		e.pb({0,i,a[i]});
+	}
+	rep(i,1,n-1){
+		e.pb({i,i+1,abs(a[i]-a[i+1])});
+	}
+	sort(all(e),[](edge a,edge b){
+		return a.w<b.w;
+	});
+	int ans=0;
+	for(auto ee:e){
+		if(root(ee.u)!=root(ee.v)){
+			merge(ee.u,ee.v);
+			chkmax(ans,ee.w);
+		}
+	}
+	cout<<"Case #"<<Case<<": "<<ans<<endl;
 }
 
 signed main(){
 	ios::sync_with_stdio(false);
 	cin.tie(0);
-	//freopen("in.txt","r",stdin);
-	//freopen("stdout.txt","w",stdout);
 	int T=1;
-	// cin>>T;
+	cin>>T;
 	for (int i = 1; i <= T; i++) SOLVE(i);
 	return 0;
 }

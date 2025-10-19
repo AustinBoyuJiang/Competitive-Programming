@@ -38,20 +38,28 @@ template<class T> inline bool chkmin(T &a, const T &b){
 
 const int N = 1e6+10;
 
-int n;
+int n,a,b;
 
 void SOLVE(int Case){
-	cin>>n;
-	
+	cin>>n>>a>>b;
+	cout<<"Case #"<<Case<<": ";
+	rep(i,1,n*2){
+		if(i==n*2){
+			cout<<b<<endl;
+		}
+		else{
+			cout<<1<<" ";
+		}
+	}
 }
 
 signed main(){
 	ios::sync_with_stdio(false);
 	cin.tie(0);
-	//freopen("in.txt","r",stdin);
-	//freopen("stdout.txt","w",stdout);
+	// freopen("std.in","r",stdin);
+	// freopen("std.out","w",stdout);
 	int T=1;
-	// cin>>T;
+	cin>>T;
 	for (int i = 1; i <= T; i++) SOLVE(i);
 	return 0;
 }

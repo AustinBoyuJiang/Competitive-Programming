@@ -36,22 +36,27 @@ template<class T> inline bool chkmin(T &a, const T &b){
     return false; 
 }
 
-const int N = 1e6+10;
+const int N = 110;
 
-int n;
+int n,a[N];
 
 void SOLVE(int Case){
 	cin>>n;
-	
+	rep(i,1,n){
+		cin>>a[i];
+	}
+	int ans=a[1];
+	rep(i,1,n-1){
+		chkmax(ans,abs(a[i]-a[i+1]));
+	}
+	cout<<"Case #"<<Case<<": "<<ans<<endl;
 }
 
 signed main(){
 	ios::sync_with_stdio(false);
 	cin.tie(0);
-	//freopen("in.txt","r",stdin);
-	//freopen("stdout.txt","w",stdout);
 	int T=1;
-	// cin>>T;
+	cin>>T;
 	for (int i = 1; i <= T; i++) SOLVE(i);
 	return 0;
 }
