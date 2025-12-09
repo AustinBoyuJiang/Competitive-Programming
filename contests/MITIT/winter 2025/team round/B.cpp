@@ -105,59 +105,39 @@ void check1(int a,int b,int c,char M,char I,char T){
 
 
 void check2(int a,int b,int c,char M,char I,char T){
-	if(not(a==0||c==0)){
-		if(b>a+c){
-			cout<<"NO"<<endl;
-			return;
-		}
-		cout<<"YES"<<endl;
-		int kk=a+c-b;
-		rep(i,1,a-kk/2){
-			if(i==1&&kk%2==1){
-				cout<<M;
-			}
-			else cout<<I<<M;
-		}
-		rep(i,1,kk/2){
-			cout<<T<<M;
-		}
-		rep(i,1,c-kk/2){
-			cout<<T<<I;
-		}
-		cout<<endl;
+	if(not(b==0||c==0)){
+		cout<<"NO"<<endl;
 		return;
-		
 	}
-	cout<<"YES"<<endl;
-		int k=abs(a-c)+(b-abs(a-c))/2;
-		int kk=(b-abs(a-c))/2+(a-c);
-		rep(i,1,k){
-			cout<<I;
-			if(i<=kk){
+			int k=min(a,b+c);
+			if(k%2==1) k--;
+			rep(i,1,k){
 				cout<<M;
+				if(i<=c){
+					cout<<T;
+					c--;
+				}
+				else{
+					cout<<I;
+					b--;
+				}
 				a--;
 			}
-			else{
-				cout<<T;
-				c--;
+			rep(i,1,a){
+				cout<<M;
 			}
-			b--;
-		}
-		rep(i,1,b){
-			cout<<I;
-		}
-		while(a>0||c>0){
-			if(a>0){
-				cout<<M; 
-				a--;
+			while(b>0||c>0){
+				if(c>0){
+					cout<<I; 
+					c--;
+				}
+				if(b>0){
+					cout<<T; 
+					b--;
+				}
 			}
-			if(c>0){
-				cout<<T; 
-				c--;
-			}
-		}
-		cout<<endl;
-		return;
+			cout<<endl;
+			return;
 }
 
 void SOLVE(int Case){
@@ -166,16 +146,15 @@ void SOLVE(int Case){
 		cout<<"NO"<<endl;
 		return;
 	}
+	cout<<"YES"<<endl;
 	if(a>=b&&a>=c){
-		cout<<"YES"<<endl;
 		check1(a,b,c,'M','I','T');
 	}
-	else if(c>=a&&c>=b){
-		cout<<"YES"<<endl;
-		check1(c,b,a,'T','I','M');
-	}
 	else if(b>=a&&b>=c){
-		check2(a,b,c,'M','I','T');
+		check2(b,a,c,'I','M','T');
+	}
+	else if(c>=a&&c>=b){
+		check1(c,b,a,'T','I','M');
 	}
 }
 

@@ -44,10 +44,6 @@ namespace combi {
 
     template<class T1, class T2>
     inline T1 qpow(T1 a, T2 b) {
-    	if(b == 0) return 1;
-    	if(a >= MOD) a %= MOD;
-    	if(a == 0) return 0;
-    	b %= MOD - 1;
         T1 ans = 1;
         for(; b; b >>= 1) {
             if (b & 1){
