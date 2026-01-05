@@ -9,5 +9,6 @@
 *.docx
 *.ppt
 *.pptx
+**/.DS_Store
 /problem-setting
 **/executables/
